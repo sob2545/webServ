@@ -9,16 +9,16 @@
 #include <cstring>
 
 enum Reserved {
-	SEMICOLON = ';',
-	SLASH = '/',
-	QUESTION_MARK = '?',
-	COLON = ':',
-	AT_SIGN = '@',
-	AMPERSAND = '&',
-	EQUALS = '=',
-	PLUS = '+',
-	DOLLAR_SIGN = '$',
-	COMMA = ','
+	R_SEMICOLON = ';',
+	R_SLASH = '/',
+	R_QUESTION_MARK = '?',
+	R_COLON = ':',
+	R_AT_SIGN = '@',
+	R_AMPERSAND = '&',
+	R_EQUALS = '=',
+	R_PLUS = '+',
+	R_DOLLAR_SIGN = '$',
+	R_COMMA = ','
 };
 
 enum Mark {
@@ -33,8 +33,18 @@ enum Mark {
 	RIGHT_PARENTHESIS = ')'
 };
 
+enum Pchar {
+	P_COLON = ':',
+	P_AT_SIGN = '@',
+	P_AMPERSAND = '&',
+	P_PLUS = '+',
+	P_DOLLAR_SIGN = '$',
+	P_COMMA = ','
+};
+
 struct URIvalue {
+	unsigned short	port;
 	std::string		scheme;
 	std::string		host;
-	unsigned short	port;
+	std::string		absPath;
 };
