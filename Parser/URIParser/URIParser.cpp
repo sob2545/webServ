@@ -1,6 +1,7 @@
-
 #include "SchemeChecker.hpp"
 #include "URIParser.hpp"
+#include "Color.hpp"
+#include <fstream>
 
 
 std::string	errorMessageGenerator(const std::string& inputURI, const int pos, const std::string& message) {
@@ -44,7 +45,7 @@ std::string	BNF_domainlabel(const std::string& inputURI, size_t& pos, URIvalue& 
 
 	if (pos >= inputURI.size() || !std::isalnum(static_cast<unsigned char>(inputURI.at(pos))))
 		throw errorMessageGenerator(inputURI, pos, "is invalid domainlabel syntax");
-	while (pos < inputURI.size() && (std::isalnum(static_cast<unsigned char>(inputURI.at(pos))) || inputURI.at(pos) == HYPHEN)) {
+	while (pos < inputURI.size() && (std::isalnum(static_cast<unsigned char>(inputURI.at(pos))) || inputURI.at(pos) == Mark::HYPHEN)) {
 		label += inputURI.at(pos);
 		pos++;
 	}
@@ -52,7 +53,7 @@ std::string	BNF_domainlabel(const std::string& inputURI, size_t& pos, URIvalue& 
 }
 
 void	BNF_toplabel(const std::string& inputURI, size_t& pos, URIvalue& uri) {
-	const size_t	dotPos = uri.host.rfind(PERIOD);
+	const size_t	dotPos = uri.host.rfind(Mark::PERIOD);
 
 	if (dotPos != std::string::npos && !std::isalpha(static_cast<unsigned char>(uri.host.at(dotPos + 1)))) {
 		throw errorMessageGenerator(inputURI, dotPos + 1, "is invalid toplabel syntax");
@@ -64,7 +65,7 @@ void	BNF_toplabel(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 
 bool	BNF_hostname(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 	uri.host += BNF_domainlabel(inputURI, pos, uri);
-	while (pos < inputURI.size() && inputURI.at(pos) == PERIOD) {
+	while (pos < inputURI.size() && inputURI.at(pos) == Mark::PERIOD) {
 		pos++;
 		uri.host += '.';
 		uri.host += BNF_domainlabel(inputURI, pos, uri);
@@ -121,7 +122,7 @@ void	BNF_host(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 }
 
 void	BNF_port(const std::string& inputURI, size_t& pos, URIvalue& uri) {
-	if (pos < inputURI.size() && inputURI.at(pos) == R_COLON) {
+	if (pos < inputURI.size() && inputURI.at(pos) == Reserved::COLON) {
 		pos++;
 		splitPort(inputURI, pos, uri);
 	}
@@ -136,15 +137,15 @@ void	BNF_server(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 
 bool	BNF_Mark(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 	switch (inputURI.at(pos)) {
-		case (HYPHEN):
-		case (UNDERSCORE):
-		case (PERIOD):
-		case (EXCLAMATION_MARK):
-		case (TILDE):
-		case (ASTERISK):
-		case (SINGLE_QUOTE):
-		case (LEFT_PARENTHESIS):
-		case (RIGHT_PARENTHESIS):
+		case (Mark::HYPHEN):
+		case (Mark::UNDERSCORE):
+		case (Mark::PERIOD):
+		case (Mark::EXCLAMATION_MARK):
+		case (Mark::TILDE):
+		case (Mark::ASTERISK):
+		case (Mark::SINGLE_QUOTE):
+		case (Mark::LEFT_PARENTHESIS):
+		case (Mark::RIGHT_PARENTHESIS):
 			return true;
 		default:
 			return false;
@@ -180,7 +181,7 @@ void	BNF_segment(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 		pos++;
 	}
 	uri.absPath += inputURI.substr(startPos, (pos - startPos));
-	while (pos < inputURI.size() && inputURI.at(pos) == R_SEMICOLON) {
+	while (pos < inputURI.size() && inputURI.at(pos) == Reserved::SEMICOLON) {
 		startPos = pos;
 		pos++;
 		while (pos < inputURI.size() && BNF_pchar(inputURI, pos, uri)) {
@@ -193,15 +194,15 @@ void	BNF_segment(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 void	BNF_pathSegments(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 	BNF_segment(inputURI, pos, uri);
 
-	while (pos < inputURI.size() && inputURI.at(pos) == R_SLASH) {
-		uri.absPath += R_SLASH;
+	while (pos < inputURI.size() && inputURI.at(pos) == Reserved::SLASH) {
+		uri.absPath += Reserved::SLASH;
 		pos++;
 		BNF_segment(inputURI, pos, uri);
 	}
 }
 
 bool	BNF_absPath(const std::string& inputURI, size_t& pos, URIvalue& uri) {
-	if (pos >= inputURI.size() || inputURI.at(pos) != R_SLASH) {
+	if (pos >= inputURI.size() || inputURI.at(pos) != Reserved::SLASH) {
 		std::cout << "abs path false\n";
 		return false;
 	}
@@ -213,8 +214,8 @@ bool	BNF_absPath(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 }
 
 bool	BNF_netPath(const std::string& inputURI, size_t& pos, URIvalue& uri) {
-	compareOneCharacter(inputURI, pos, R_SLASH);
-	if ((pos < inputURI.size()) && (inputURI.at(pos) != R_SLASH)) {
+	compareOneCharacter(inputURI, pos, Reserved::SLASH);
+	if ((pos < inputURI.size()) && (inputURI.at(pos) != Reserved::SLASH)) {
 		--pos;
 		return false;
 	}
@@ -238,8 +239,15 @@ void	BNF_hierPart(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 
 void	BNF_absoluteURI(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 	BNF_scheme(inputURI, pos, uri);
-	compareOneCharacter(inputURI, pos, R_COLON);
+	compareOneCharacter(inputURI, pos, Reserved::COLON);
 	BNF_hierPart(inputURI, pos, uri);
+}
+
+void	printURI(const std::string& inputURI, const URIvalue& uri) {
+	std::cout << GREEN << "====== [" << inputURI << "] ======" << RESET << std::endl;
+	std::cout << "host: " << uri.host << std::endl;
+	std::cout << "port: " << uri.port << std::endl;
+	std::cout << "path: " << uri.absPath << "\n" << std::endl;
 }
 
 void	parse(const std::string& inputURI) {
@@ -247,20 +255,26 @@ void	parse(const std::string& inputURI) {
 	size_t		pos(0);
 	URIvalue	uri;
 	BNF_absoluteURI(inputURI, pos, uri);
-	std::cout << uri.host << std::endl;
-	std::cout << uri.port << std::endl;
-	std::cout << uri.absPath << std::endl;
+
+	printURI(inputURI, uri);
 	// fragment();
 }
 
 int main() {
-	std::string inputURI;
-	std::cin >> inputURI;
+	std::ifstream	file("test.txt");
+	std::string		inputURI;
 
-	try {
-		parse(inputURI);
+	if (!file.is_open()) {
+		std::cerr << RED << "Error: cannot open file" << RESET << std::endl;
+		return 1;
 	}
-	 catch (const std::string& errorMsg) {
-		std::cerr << errorMsg << std::endl;
+	while (std::getline(file, inputURI)) {
+		try {
+			parse(inputURI);
+		}
+		catch (const std::string& errorMsg) {
+			std::cerr << RED << errorMsg << RESET << std::endl;
+		}
 	}
+
 }

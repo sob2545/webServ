@@ -1,0 +1,3 @@
+http://www.example.com/path/test
+http:///test
+http://www.test/
