@@ -3,13 +3,6 @@
 #include "Color.hpp"
 #include <fstream>
 
-
-std::string	errorMessageGenerator(const std::string& inputURI, const int pos, const std::string& message) {
-	std::stringstream	res;
-	res << "Error:" << (pos + 1) << " \"" << inputURI << "\" " << message;
-	return res.str();
-}
-
 void	compareOneCharacter(const std::string& inputURI, size_t& pos, const unsigned char toCmp) {
 	if (inputURI.at(pos) != toCmp) {
 		std::stringstream	msg;
@@ -19,6 +12,13 @@ void	compareOneCharacter(const std::string& inputURI, size_t& pos, const unsigne
 	}
 	pos++;
 }
+
+std::string	errorMessageGenerator(const std::string& inputURI, const int pos, const std::string& message) {
+	std::stringstream	res;
+	res << "Error:" << (pos + 1) << " \"" << inputURI << "\" " << message;
+	return res.str();
+}
+
 
 bool	isValidSchemeSyntax(const std::string& inputURI, size_t& pos) {
 	return (std::isalnum(static_cast<unsigned char>(inputURI.at(pos))) || inputURI.at(pos) == '+' || inputURI.at(pos) == '-' || inputURI.at(pos) == '.');
@@ -135,6 +135,39 @@ void	BNF_server(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 	BNF_port(inputURI, pos, uri);
 }
 
+bool	BNF_PcharReserved(const std::string& inputURI, size_t& pos, URIvalue& uri) {
+	switch (inputURI.at(pos)) {
+		case (Reserved::COLON):
+		case (Reserved::AT_SIGN):
+		case (Reserved::AMPERSAND):
+		case (Reserved::EQUALS):
+		case (Reserved::PLUS):
+		case (Reserved::DOLLAR_SIGN):
+		case (Reserved::COMMA):
+			return true;
+		default :
+			return false;
+	}
+}
+
+bool	BNF_Reserved(const std::string& inputURI, size_t& pos, URIvalue& uri) {
+	switch (inputURI.at(pos)) {
+		case (Reserved::SEMICOLON):
+		case (Reserved::SLASH):
+		case (Reserved::QUESTION_MARK):
+		case (Reserved::COLON):
+		case (Reserved::AT_SIGN):
+		case (Reserved::AMPERSAND):
+		case (Reserved::EQUALS):
+		case (Reserved::PLUS):
+		case (Reserved::DOLLAR_SIGN):
+		case (Reserved::COMMA):
+			return true;
+		default :
+			return false;
+	}
+}
+
 bool	BNF_Mark(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 	switch (inputURI.at(pos)) {
 		case (Mark::HYPHEN):
@@ -169,7 +202,7 @@ bool	BNF_Escaped(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 
 
 bool	BNF_pchar(const std::string& inputURI, size_t& pos, URIvalue& uri) {
-	if (BNF_Unreserved(inputURI, pos, uri) || BNF_Escaped(inputURI, pos, uri) || BNF_Mark(inputURI, pos, uri))
+	if (BNF_Unreserved(inputURI, pos, uri) || BNF_Escaped(inputURI, pos, uri) || BNF_PcharReserved(inputURI, pos, uri))
 		return true;
 	else
 		return false;
@@ -180,14 +213,14 @@ void	BNF_segment(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 	while (pos < inputURI.size() && BNF_pchar(inputURI, pos, uri)) {
 		pos++;
 	}
-	uri.absPath += inputURI.substr(startPos, (pos - startPos));
+	uri.absPath.push_back(inputURI.substr(startPos, (pos - startPos)));
 	while (pos < inputURI.size() && inputURI.at(pos) == Reserved::SEMICOLON) {
 		startPos = pos;
 		pos++;
 		while (pos < inputURI.size() && BNF_pchar(inputURI, pos, uri)) {
 			pos++;
 		}
-		uri.absPath += inputURI.substr(startPos, (pos - startPos));
+		uri.absPath.push_back(inputURI.substr(startPos, (pos - startPos)));
 	}
 }
 
@@ -195,7 +228,6 @@ void	BNF_pathSegments(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 	BNF_segment(inputURI, pos, uri);
 
 	while (pos < inputURI.size() && inputURI.at(pos) == Reserved::SLASH) {
-		uri.absPath += Reserved::SLASH;
 		pos++;
 		BNF_segment(inputURI, pos, uri);
 	}
@@ -225,15 +257,57 @@ bool	BNF_netPath(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 	return (true);
 }
 
-void	BNF_query(const std::string& inputURI, size_t& pos, URIvalue& uri) {
+bool	BNF_Uric(const std::string& inputURI, size_t& pos, URIvalue& uri) {
+	return (BNF_pchar(inputURI, pos, uri) || inputURI.at(pos) == Reserved::SLASH || inputURI.at(pos) == Reserved::QUESTION_MARK);
+}
 
+
+
+void	BNF_query(const std::string& inputURI, size_t& pos, URIvalue& uri) {
+	if (pos < inputURI.size() && inputURI.at(pos) == Reserved::QUESTION_MARK) {
+		pos++;
+	}
+	else {
+		return ;
+	}
+	size_t	start(pos);
+	std::string	key;
+	while (pos < inputURI.size() && BNF_Uric(inputURI, pos, uri)) {
+		switch (inputURI.at(pos)) {
+			case (Reserved::EQUALS):
+				key = inputURI.substr(start, pos - start);
+				start = pos + 1;
+				break;
+			case (Reserved::AMPERSAND):
+				uri.query[key].push_back(inputURI.substr(start, pos - start));
+				start = pos + 1;
+				break;
+			default:
+				break;
+		}
+		pos++;
+	}
+	uri.query[key].push_back(inputURI.substr(start, pos - start));
+}
+
+void	BNF_Fragment(const std::string& inputURI, size_t& pos, URIvalue& uri) {
+	if (pos < inputURI.size() && inputURI.at(pos) == '#') {
+		pos++;
+	} else {
+		return ;
+	}
+	const size_t	start(pos);
+	while (pos < inputURI.size() && BNF_Uric(inputURI, pos, uri)) {
+		pos++;
+	}
+	uri.fragment = inputURI.substr(start, pos - start);
 }
 
 void	BNF_hierPart(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 	if (!BNF_netPath(inputURI, pos, uri) && !BNF_absPath(inputURI, pos, uri)) {
 		throw errorMessageGenerator(inputURI, pos, "is invalid host syntax");
 	}
-	// BNF_query(inputURI, pos, uri);
+	BNF_query(inputURI, pos, uri);
 }
 
 
@@ -243,21 +317,38 @@ void	BNF_absoluteURI(const std::string& inputURI, size_t& pos, URIvalue& uri) {
 	BNF_hierPart(inputURI, pos, uri);
 }
 
-void	printURI(const std::string& inputURI, const URIvalue& uri) {
-	std::cout << GREEN << "====== [" << inputURI << "] ======" << RESET << std::endl;
+void	printURI(const std::string& inputURI, const URIvalue& uri, const size_t i) {
+	std::cout << GREEN << "====== ["<< i << " Test: " << inputURI << "] ======" << RESET << std::endl;
 	std::cout << "host: " << uri.host << std::endl;
 	std::cout << "port: " << uri.port << std::endl;
-	std::cout << "path: " << uri.absPath << "\n" << std::endl;
+	std::cout << "path: \n";
+	for (size_t k = 0; k < uri.absPath.size(); ++k) {
+		std::cout << uri.absPath[k] << "\n";
+	}
+	for (auto it = uri.query.begin(); it != uri.query.end(); ++it) {
+		std::cout << it->first << ": ";
+		for (auto v_it = it->second.begin(); v_it != it->second.end(); ++v_it) {
+			std::cout << *v_it << ((v_it != it->second.end() - 1) ? ", " : "");
+		}
+		std::cout << "\n";
+	}
+
+	std::cout << "fragment: \n";
+	std::cout << uri.fragment << std::endl;
+	std::cout << RESET << std::endl;
 }
 
-void	parse(const std::string& inputURI) {
+void	parse(const std::string& inputURI, const size_t i) {
 	// absoluteURI | relativeURI  [# fragment ]
 	size_t		pos(0);
 	URIvalue	uri;
 	BNF_absoluteURI(inputURI, pos, uri);
+	if (uri.absPath.size() && uri.absPath[uri.absPath.size() - 1].empty()) {
+		uri.absPath.erase(uri.absPath.end() - 1);
+	}
+	BNF_Fragment(inputURI, pos, uri);
 
-	printURI(inputURI, uri);
-	// fragment();
+	printURI(inputURI, uri, i);
 }
 
 int main() {
@@ -268,13 +359,14 @@ int main() {
 		std::cerr << RED << "Error: cannot open file" << RESET << std::endl;
 		return 1;
 	}
+	size_t	i(1);
 	while (std::getline(file, inputURI)) {
 		try {
-			parse(inputURI);
+			parse(inputURI, i);
 		}
 		catch (const std::string& errorMsg) {
-			std::cerr << RED << errorMsg << RESET << std::endl;
+			std::cerr << RED << i << "Test: "  << errorMsg << RESET << "\n" << std::endl;
 		}
+		i++;
 	}
-
 }

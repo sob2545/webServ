@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <map>
 #include <algorithm>
 #include <sstream>
 #include <exception>
@@ -48,9 +49,15 @@ namespace Pchar {
 	};
 }
 
+typedef	std::map<std::string, std::vector<std::string> > QueryMap;
+typedef	std::vector<std::string>	PathVec;
+
 struct URIvalue {
 	unsigned short	port;
 	std::string		scheme;
 	std::string		host;
-	std::string		absPath;
+	std::string		fragment;
+	PathVec			absPath;
+	QueryMap		query;
 };
+
