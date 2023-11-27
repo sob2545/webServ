@@ -7,6 +7,8 @@
  * @author chanhyle
  * @date 2023.11.20
  */
+
+
 template<typename T>
 class Singleton {
 public:

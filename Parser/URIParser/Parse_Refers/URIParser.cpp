@@ -1,7 +1,13 @@
-#include "SchemeChecker.hpp"
+#include "../SchemeChecker.hpp"
 #include "URIParser.hpp"
-#include "Color.hpp"
+#include "../Color.hpp"
 #include <fstream>
+
+std::string	errorMessageGenerator(const std::string& inputURI, const int pos, const std::string& message) {
+	std::stringstream	res;
+	res << "Error:" << (pos + 1) << " \"" << inputURI << "\" " << message;
+	return res.str();
+}
 
 void	compareOneCharacter(const std::string& inputURI, size_t& pos, const unsigned char toCmp) {
 	if (inputURI.at(pos) != toCmp) {
@@ -12,13 +18,6 @@ void	compareOneCharacter(const std::string& inputURI, size_t& pos, const unsigne
 	}
 	pos++;
 }
-
-std::string	errorMessageGenerator(const std::string& inputURI, const int pos, const std::string& message) {
-	std::stringstream	res;
-	res << "Error:" << (pos + 1) << " \"" << inputURI << "\" " << message;
-	return res.str();
-}
-
 
 bool	isValidSchemeSyntax(const std::string& inputURI, size_t& pos) {
 	return (std::isalnum(static_cast<unsigned char>(inputURI.at(pos))) || inputURI.at(pos) == '+' || inputURI.at(pos) == '-' || inputURI.at(pos) == '.');
