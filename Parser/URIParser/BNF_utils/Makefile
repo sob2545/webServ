@@ -3,7 +3,7 @@ CXX			=	c++
 CXXFLAGS	=	-std=c++98
 RM			=	rm -rf
 
-SRCS		:= $(wildcard *.cpp)
+SRCS		:= $(wildcard *.cpp) ../BNFfunctions.cpp
 OBJS_DIR	:=	objs/
 
 OBJS		:=	$(addprefix $(OBJS_DIR), $(SRCS:.cpp=.o))

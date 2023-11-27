@@ -1,4 +1,4 @@
-#include "../BNF_utils/BNFfunctions.hpp"
+#include "../BNFfunctions.hpp"
 #include "../../../utils/Color.hpp"
 #include <fstream>
 #include <iostream>

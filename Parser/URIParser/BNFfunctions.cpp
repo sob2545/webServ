@@ -1,5 +1,5 @@
 #include "BNFfunctions.hpp"
-#include "SchemeChecker.hpp"
+#include "BNF_utils/SchemeChecker.hpp"
 #include <string>
 #include <sstream>
 
