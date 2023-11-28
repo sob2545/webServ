@@ -1,13 +1,14 @@
 #include "utilFunctions.hpp"
 
-void	compareOneCharacter(const std::string& inputURI, size_t& pos, const unsigned char toCmp) {
+bool	Utils::compareOneCharacter(const std::string& inputURI, size_t& pos, const unsigned char toCmp) {
 	if (inputURI.at(pos) != toCmp) {
 		std::stringstream	msg;
 
 		msg << "cannot find \"" << toCmp << "\"";
-		throw errorMessageGenerator(inputURI, pos, msg.str());
+		throw Utils::errorMessageGenerator(inputURI, pos, msg.str());
 	}
 	pos++;
+	return true;
 }
 
 
@@ -19,7 +20,7 @@ void	compareOneCharacter(const std::string& inputURI, size_t& pos, const unsigne
  *  @param message:		에러 메시지
  *  @return:			에러 메시지
 */
-std::string	errorMessageGenerator(const std::string& inputURI, const int pos, const std::string& message) {
+std::string	Utils::errorMessageGenerator(const std::string& inputURI, const int pos, const std::string& message) {
 	std::stringstream	res;
 
 	res << "Error:" << (pos + 1) << " \"" << inputURI << "\" " << message;
