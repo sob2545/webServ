@@ -2,7 +2,7 @@
 Context-Lines				= 1*(*WSP (Context | c-nl) )
 
 Context						= Block-Content
-							  | Non-Block-Content
+							  | Simple-Content
 
 Block-Content			= Directives 1*WSP *[ARG WSP] [c-nl] '{' [c-nl]  1*Context-Lines '}' c-nl
 // Block-Context-Directives
@@ -12,8 +12,8 @@ Block-Content			= Directives 1*WSP *[ARG WSP] [c-nl] '{' [c-nl]  1*Context-Lines
 	- location
 	- limit_except + [GET POST ...]
 
-Non-Block-Content		= Directives 1*WSP *[ARG WSP] c-nl
-// Non-Block-Content-Directives
+Simple-Content		= Directives 1*WSP *[ARG WSP] c-nl
+// Simple-Content-Directives
 	- env
 	- worker_proccess
 	- worker_connection
