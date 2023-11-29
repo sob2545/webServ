@@ -1,10 +1,11 @@
 ```
-Context-Lines				= 1*(*WSP (Context | c-nl) )
+Context-Lines			= 1*(*WSP (Context | c-nl) )
 
-Context						= Block-Content
-							  | Simple-Content
+Context					= Directives (Block-Content | c-nl)
 
-Block-Content			= Directives 1*WSP *[ARG WSP] [c-nl] '{' [c-nl]  1*Context-Lines '}' c-nl
+Directives				= Directive-Name 1*WSP *[ARG WSP]
+
+Block-Content			= [c-nl] '{' [c-nl]  1*Context-Lines '}' c-nl
 // Block-Context-Directives
 	- events
 	- http
@@ -12,7 +13,7 @@ Block-Content			= Directives 1*WSP *[ARG WSP] [c-nl] '{' [c-nl]  1*Context-Lines
 	- location
 	- limit_except + [GET POST ...]
 
-Simple-Content		= Directives 1*WSP *[ARG WSP] c-nl
+<!-- Simple-Content		= c-nl -->
 // Simple-Content-Directives
 	- env
 	- worker_proccess
@@ -35,7 +36,7 @@ Simple-Content		= Directives 1*WSP *[ARG WSP] c-nl
 	- default_type
 
 
-Directives				= ALPHA *(ALPHA | '_')
+Directive-Name			= ALPHA *(ALPHA | '_')
 
 ARG						= *(ALPHA | DIGIT | '_' | '/' | '.' | '=') // 대충 정의
 // abs_path		=>	error_log, access_log, root, location
