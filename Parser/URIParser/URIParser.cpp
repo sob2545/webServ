@@ -16,13 +16,13 @@
 */
 bool	isPcharReserved(const std::string& inputURI, size_t& pos) {
 	switch (inputURI.at(pos)) {
-		case (URI::Reserved::COLON):
-		case (URI::Reserved::AT_SIGN):
-		case (URI::Reserved::AMPERSAND):
-		case (URI::Reserved::EQUALS):
-		case (URI::Reserved::PLUS):
-		case (URI::Reserved::DOLLAR_SIGN):
-		case (URI::Reserved::COMMA):
+		case (URI::E_PCHAR::COLON):
+		case (URI::E_PCHAR::AT_SIGN):
+		case (URI::E_PCHAR::AMPERSAND):
+		case (URI::E_RESERVED::EQUALS):
+		case (URI::E_PCHAR::PLUS):
+		case (URI::E_PCHAR::DOLLAR_SIGN):
+		case (URI::E_PCHAR::COMMA):
 			return true;
 		default :
 			return false;
@@ -31,16 +31,16 @@ bool	isPcharReserved(const std::string& inputURI, size_t& pos) {
 
 bool	isReserved(const std::string& inputURI, size_t& pos) {
 	switch (inputURI.at(pos)) {
-		case (URI::Reserved::SEMICOLON):
-		case (URI::Reserved::SLASH):
-		case (URI::Reserved::QUESTION_MARK):
-		case (URI::Reserved::COLON):
-		case (URI::Reserved::AT_SIGN):
-		case (URI::Reserved::AMPERSAND):
-		case (URI::Reserved::EQUALS):
-		case (URI::Reserved::PLUS):
-		case (URI::Reserved::DOLLAR_SIGN):
-		case (URI::Reserved::COMMA):
+		case (URI::E_RESERVED::SEMICOLON):
+		case (URI::E_RESERVED::SLASH):
+		case (URI::E_RESERVED::QUESTION_MARK):
+		case (URI::E_RESERVED::COLON):
+		case (URI::E_RESERVED::AT_SIGN):
+		case (URI::E_RESERVED::AMPERSAND):
+		case (URI::E_RESERVED::EQUALS):
+		case (URI::E_RESERVED::PLUS):
+		case (URI::E_RESERVED::DOLLAR_SIGN):
+		case (URI::E_RESERVED::COMMA):
 			return true;
 		default :
 			return false;
@@ -49,15 +49,15 @@ bool	isReserved(const std::string& inputURI, size_t& pos) {
 
 bool	isMark(const std::string& inputURI, size_t& pos) {
 	switch (inputURI.at(pos)) {
-		case (URI::Mark::HYPHEN):
-		case (URI::Mark::UNDERSCORE):
-		case (URI::Mark::PERIOD):
-		case (URI::Mark::EXCLAMATION_MARK):
-		case (URI::Mark::TILDE):
-		case (URI::Mark::ASTERISK):
-		case (URI::Mark::SINGLE_QUOTE):
-		case (URI::Mark::LEFT_PARENTHESIS):
-		case (URI::Mark::RIGHT_PARENTHESIS):
+		case (URI::E_MARK::HYPHEN):
+		case (URI::E_MARK::UNDERSCORE):
+		case (URI::E_MARK::PERIOD):
+		case (URI::E_MARK::EXCLAMATION_MARK):
+		case (URI::E_MARK::TILDE):
+		case (URI::E_MARK::ASTERISK):
+		case (URI::E_MARK::SINGLE_QUOTE):
+		case (URI::E_MARK::LEFT_PARENTHESIS):
+		case (URI::E_MARK::RIGHT_PARENTHESIS):
 			return true;
 		default:
 			return false;
@@ -90,8 +90,8 @@ bool	isPchar(const std::string& inputURI, size_t& pos) {
 
 bool	isUric(const std::string& inputURI, size_t& pos, URI::data& uri) {
 	return (isPchar(inputURI, pos)
-			|| inputURI.at(pos) == URI::Reserved::SLASH
-			|| inputURI.at(pos) == URI::Reserved::QUESTION_MARK);
+			|| inputURI.at(pos) == URI::E_RESERVED::SLASH
+			|| inputURI.at(pos) == URI::E_RESERVED::QUESTION_MARK);
 }
 
 /**
@@ -172,7 +172,7 @@ std::string	domainlabel(const std::string& inputURI, size_t& pos) {
 
 	if (pos >= inputURI.size() || !std::isalnum(static_cast<unsigned char>(inputURI.at(pos))))
 		throw Utils::errorMessageGenerator(inputURI, pos, "is invalid domainlabel syntax");
-	while (pos < inputURI.size() && (std::isalnum(static_cast<unsigned char>(inputURI.at(pos))) || inputURI.at(pos) == URI::Mark::HYPHEN)) {
+	while (pos < inputURI.size() && (std::isalnum(static_cast<unsigned char>(inputURI.at(pos))) || inputURI.at(pos) == URI::E_MARK::HYPHEN)) {
 		label += inputURI.at(pos);
 		pos++;
 	}
@@ -180,7 +180,7 @@ std::string	domainlabel(const std::string& inputURI, size_t& pos) {
 }
 
 void	toplabel(const std::string& inputURI, size_t& pos, const std::string& host) {
-	const size_t	dotPos = host.rfind(URI::Mark::PERIOD);
+	const size_t	dotPos = host.rfind(URI::E_MARK::PERIOD);
 
 	if (dotPos != std::string::npos && !std::isalpha(static_cast<unsigned char>(host.at(dotPos + 1)))) {
 		throw Utils::errorMessageGenerator(inputURI, dotPos + 1, "is invalid toplabel syntax");
@@ -199,7 +199,7 @@ void	toplabel(const std::string& inputURI, size_t& pos, const std::string& host)
 */
 bool	hostname(const std::string& inputURI, size_t& pos, std::string& host) {
 	host += domainlabel(inputURI, pos);
-	while (pos < inputURI.size() && inputURI.at(pos) == URI::Mark::PERIOD) {
+	while (pos < inputURI.size() && inputURI.at(pos) == URI::E_MARK::PERIOD) {
 		pos++;
 		host += '.';
 		host += domainlabel(inputURI, pos);
@@ -239,7 +239,7 @@ void	host(const std::string& inputURI, size_t& pos, std::string& host) {
 }
 
 void	port(const std::string& inputURI, size_t& pos, unsigned short& port) {
-	if (pos < inputURI.size() && inputURI.at(pos) == URI::Reserved::COLON) {
+	if (pos < inputURI.size() && inputURI.at(pos) == URI::E_RESERVED::COLON) {
 		pos++;
 		splitPort(inputURI, pos, port);
 	}
@@ -268,7 +268,7 @@ void	segment(const std::string& inputURI, size_t& pos, std::vector<std::string>&
 		pos++;
 	}
 	absPath.push_back(inputURI.substr(startPos, (pos - startPos)));
-	while (pos < inputURI.size() && inputURI.at(pos) == URI::Reserved::SEMICOLON) {
+	while (pos < inputURI.size() && inputURI.at(pos) == URI::E_RESERVED::SEMICOLON) {
 		startPos = pos;
 		pos++;
 		while (pos < inputURI.size() && isPchar(inputURI, pos)) {
@@ -281,7 +281,7 @@ void	segment(const std::string& inputURI, size_t& pos, std::vector<std::string>&
 void	pathSegments(const std::string& inputURI, size_t& pos, std::vector<std::string>& absPath) {
 	segment(inputURI, pos, absPath);
 
-	while (pos < inputURI.size() && inputURI.at(pos) == URI::Reserved::SLASH) {
+	while (pos < inputURI.size() && inputURI.at(pos) == URI::E_RESERVED::SLASH) {
 		pos++;
 		segment(inputURI, pos, absPath);
 	}
@@ -296,8 +296,8 @@ void	pathSegments(const std::string& inputURI, size_t& pos, std::vector<std::str
 	*	@param pos:			현재 위치
 	*	@return:			각각의 함수에 따라 true / false
 */
-bool	absPath(const std::string& inputURI, size_t& pos, std::vector<std::string>& absPath) {
-	if (pos >= inputURI.size() || inputURI.at(pos) != URI::Reserved::SLASH) {
+bool	URIParser::absPath(const std::string& inputURI, size_t& pos, std::vector<std::string>& absPath) {
+	if (pos >= inputURI.size() || inputURI.at(pos) != URI::E_RESERVED::SLASH) {
 		return false;
 	}
 	else {
@@ -311,15 +311,15 @@ bool	absPath(const std::string& inputURI, size_t& pos, std::vector<std::string>&
 // netPath를 먼저 호출하지 않고 나중에 호출하여 absPath에서 '/'를 확인하고 netPath가 불려지도록 바꿔야 됨
 bool	netPath(const std::string& inputURI, size_t& pos, URI::data& uri) {
 	/*
-	Utils::compareOneCharacter(inputURI, pos, Reserved::SLASH);
-	if ((pos < inputURI.size()) && (inputURI.at(pos) != Reserved::SLASH)) {
+	Utils::compareOneCharacter(inputURI, pos, E_RESERVED::SLASH);
+	if ((pos < inputURI.size()) && (inputURI.at(pos) != E_RESERVED::SLASH)) {
 		--pos;
 		return false;
 	}
 	pos++;
 	*/
 	server(inputURI, pos, uri);
-	absPath(inputURI, pos, uri.absPath);
+	URIParser::absPath(inputURI, pos, uri.absPath);
 	return (true);
 }
 
@@ -331,7 +331,7 @@ bool	netPath(const std::string& inputURI, size_t& pos, URI::data& uri) {
 	*	@param pos:			현재 위치
 */
 void	query(const std::string& inputURI, size_t& pos, URI::data& uri) {
-	if (pos < inputURI.size() && inputURI.at(pos) == URI::Reserved::QUESTION_MARK) {
+	if (pos < inputURI.size() && inputURI.at(pos) == URI::E_RESERVED::QUESTION_MARK) {
 		pos++;
 	}
 	else {
@@ -341,11 +341,11 @@ void	query(const std::string& inputURI, size_t& pos, URI::data& uri) {
 	std::string	key;
 	while (pos < inputURI.size() && isUric(inputURI, pos, uri)) {
 		switch (inputURI.at(pos)) {
-			case (URI::Reserved::EQUALS):
+			case (URI::E_RESERVED::EQUALS):
 				key = inputURI.substr(start, pos - start);
 				start = pos + 1;
 				break;
-			case (URI::Reserved::AMPERSAND):
+			case (URI::E_RESERVED::AMPERSAND):
 				uri.query[key].push_back(inputURI.substr(start, pos - start));
 				start = pos + 1;
 				break;
@@ -363,7 +363,7 @@ void	query(const std::string& inputURI, size_t& pos, URI::data& uri) {
 	*				absoluteURI = scheme ":" hier-part [ "?" query ]
 */
 void	hierPart(const std::string& inputURI, size_t& pos, URI::data& uri) {
-	if (!absPath(inputURI, pos, uri.absPath) && !netPath(inputURI, pos, uri)) {
+	if (!URIParser::absPath(inputURI, pos, uri.absPath) && !netPath(inputURI, pos, uri)) {
 		throw Utils::errorMessageGenerator(inputURI, pos, "is invalid host syntax");
 	}
 	query(inputURI, pos, uri);
@@ -373,7 +373,7 @@ void	absoluteURI(const std::string& inputURI, size_t& pos, URI::data& uri) {
 	/*
 		*  Scheme part is not required
 	scheme(inputURI, pos, uri.scheme);
-	Utils::compareOneCharacter(inputURI, pos, Reserved::COLON);
+	Utils::compareOneCharacter(inputURI, pos, E_RESERVED::COLON);
 	*/
 	hierPart(inputURI, pos, uri);
 }

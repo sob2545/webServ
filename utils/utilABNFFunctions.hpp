@@ -2,9 +2,8 @@
 
 #include <string>
 
-
-namespace ABNF {
-	enum SpecialLetter{
+namespace E_ABNF {
+	enum E_SPECIAL_LETTERS{
 		CR = '\r',
 		LF = '\n',
 		HTAB = '\t',
@@ -13,7 +12,9 @@ namespace ABNF {
 		DQUOTE = '\"',
 		SEMICOLON = ';'
 	};
-    
+}
+
+namespace ABNF {
     bool	isLF(const std::string& file, size_t& pos);
     bool	isWSP(const std::string& file, size_t& pos);
     bool	isComment(const std::string& file, size_t& pos);

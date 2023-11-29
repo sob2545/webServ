@@ -5,8 +5,8 @@
 #include <map>
 
 namespace URI {
-	namespace Reserved {
-		enum Reserved {
+	namespace E_RESERVED {
+		enum E_RESERVED {
 			SEMICOLON = ';',
 			SLASH = '/',
 			QUESTION_MARK = '?',
@@ -20,8 +20,8 @@ namespace URI {
 		};
 	}
 
-	namespace Mark {
-		enum Mark {
+	namespace E_MARK {
+		enum E_MARK {
 			HYPHEN = '-',
 			UNDERSCORE = '_',
 			PERIOD = '.',
@@ -34,8 +34,8 @@ namespace URI {
 		};
 	}
 
-	namespace Pchar {
-		enum Pchar {
+	namespace E_PCHAR {
+		enum E_PCHAR {
 			COLON = ':',
 			AT_SIGN = '@',
 			AMPERSAND = '&',
@@ -60,6 +60,7 @@ namespace URI {
 
 namespace URIParser {
 	bool		isValidURI(const std::string& inputURI, std::string& host);
+	bool		absPath(const std::string& inputURI, size_t& pos, std::vector<std::string>& absPath);
 	URI::data	Parser(const std::string& inputURI);
 }
 
