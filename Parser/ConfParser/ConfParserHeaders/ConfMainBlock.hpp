@@ -3,8 +3,10 @@
 #include "../../../utils/utilFunctions.hpp"
 #include "../../../utils/utilABNFFunctions.hpp"
 #include "../../URIParser/URIParser.hpp"
+#include "../IConfParser/IConfParser.hpp"
 #include "ConfEventBlock.hpp"
 #include "ConfHTTPBlock.hpp"
+#include <cstddef>
 #include <map>
 #include <vector>
 
@@ -35,7 +37,7 @@ namespace   CONF {
 		};
 	}
 
-	class mainBlock {
+	class mainBlock : public IConfParser {
 	/**
 	 * @brief	Singleton Instance
 	 * 
@@ -54,6 +56,7 @@ namespace   CONF {
 		unsigned char			m_Status;
 		unsigned int			m_Worker_process;
 		unsigned long			m_Time_resolution;
+		const std::string		m_FileName;
 		errorLogLocation		m_Error_log;
 		envMap					m_Env;
 		eventsBlock				m_Event_block;
@@ -63,7 +66,7 @@ namespace   CONF {
 		mainBlock(const mainBlock& other);
 		mainBlock&	operator=(const mainBlock& other);
 		mainBlock(const std::string& file);
-		~mainBlock();
+		virtual ~mainBlock();
 
 	/**
 	 * @brief	public function
@@ -85,16 +88,20 @@ namespace   CONF {
 	 */
 	private:
 		void			initStatusMap();
-		void			contextLines(const std::string& file, size_t& pos);
-		void			argumentChecker(const std::vector<std::string>& args, const unsigned char& status);
-		void			directives(const std::string& file, size_t& pos);
-		bool			blockContent(const std::string& file, size_t& pos);
-		bool			simpleContent(const std::string& file, size_t& pos);
-		bool			context(const std::string& file, size_t& pos);
-		std::string		argument(const std::string& file, size_t& pos, const unsigned char& status);
-		unsigned char	directiveNameChecker(const std::string& name);
-		unsigned char	directiveName(const std::string& file, size_t& pos);
+		void			contextLines(const std::string& file, size_t* index);
+		void			argumentChecker(const std::vector<std::string>& args, const unsigned char& status, const size_t* index);
+		void			directives(const std::string& file, size_t* index);
+		bool			blockContent(const std::string& file, size_t* index);
+		bool			context(const std::string& file, size_t* index);
+		std::string		argument(const std::string& file, size_t* index, const unsigned char& status);
+		unsigned char	directiveNameChecker(const std::string& name, size_t* index);
+		unsigned char	directiveName(const std::string& file, size_t* index);
 
+
+	/**
+	 * @brief	Debug Function
+	 * 
+	*/
 	public:
 		void			print();
 	};
