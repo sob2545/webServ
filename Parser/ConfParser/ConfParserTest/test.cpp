@@ -3,19 +3,13 @@
 #include <fstream>
 
 int main() {
-	std::ifstream	file("test.conf");
-	std::string		fileContent;
-
-	if (!file.is_open()) {
-		std::cout << "File not found" << std::endl;
-        return 1;
-    }
-	std::getline(file, fileContent, '\0');
-	file.close();
+	const std::string	fileName = "test.conf";
 	try {
-		CONF::mainBlock::initInstance(fileContent);
+		CONF::mainBlock::initInstance(fileName);
 		CONF::mainBlock::getInstance()->print();
-	} catch (const std::string& message) {
-		std::cerr << message << std::endl;
+	} catch (ConfParserException& e) {
+		std::cerr << e.getMessage() << std::endl;
+	} catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
 	}
 }
