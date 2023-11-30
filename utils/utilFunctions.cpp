@@ -1,4 +1,6 @@
 #include "utilFunctions.hpp"
+#include "Color.hpp"
+#include <string>
 
 bool	Utils::compareOneCharacter(const std::string& inputURI, size_t& pos, const unsigned char toCmp) {
 	if (inputURI.at(pos) != toCmp) {
@@ -20,7 +22,7 @@ bool	Utils::compareOneCharacter(const std::string& inputURI, size_t& pos, const 
  *  @param message:		에러 메시지
  *  @return:			에러 메시지
 */
-std::string	Utils::errorMessageGenerator(const std::string& inputURI, const int pos, const std::string& message) {
+const std::string	Utils::errorMessageGenerator(const std::string& inputURI, const int& pos, const std::string& message) {
 	std::stringstream	res;
 
 	res << "Error:" << (pos + 1) << " \"" << inputURI << "\" " << message;
