@@ -5,7 +5,7 @@ Context					= Directives (Block-Content | c-nl)
 
 Directives				= Directive-Name 1*WSP *[ARG WSP]
 
-Block-Content			= [c-nl] '{' [c-nl]  1*Context-Lines '}' c-nl
+Block-Content			= [c-nl | *WSP] '{' [c-nl] 1*Context-Lines [c-nl] '}' [c-nl]
 // Block-Context-Directives
 	- events
 	- http
@@ -34,6 +34,12 @@ Block-Content			= [c-nl] '{' [c-nl]  1*Context-Lines '}' c-nl
 	- keepalive_timeout
 	- include
 	- default_type
+
+// Enable duplicate directives
+	- server
+	- location
+	- env
+	- include
 
 
 Directive-Name			= ALPHA *(ALPHA | '_')
