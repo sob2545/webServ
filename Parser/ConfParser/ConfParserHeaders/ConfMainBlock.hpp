@@ -32,8 +32,9 @@ namespace   CONF {
             DAEMON				= 0b00000100,
             TIMER_RESOLUTION	= 0b00001000,
             ERROR_LOG			= 0b00010000,
-            HTTP_BLOCK			= 0b00100000,
-			EVENT_BLOCK			= 0b01000000
+			WORKER_CONNECTIONS	= 0b00100000,
+            HTTP_BLOCK			= 0b01000000,
+			EVENT_BLOCK			= 0b10000000
 		};
 	}
 
@@ -87,15 +88,15 @@ namespace   CONF {
 	 * 
 	 */
 	private:
-		void			initStatusMap();
-		void			contextLines(const std::string& file, size_t* index);
-		void			argumentChecker(const std::vector<std::string>& args, const unsigned char& status, const size_t* index);
-		void			directives(const std::string& file, size_t* index);
-		bool			blockContent(const std::string& file, size_t* index);
-		bool			context(const std::string& file, size_t* index);
-		std::string		argument(const std::string& file, size_t* index, const unsigned char& status);
-		unsigned char	directiveNameChecker(const std::string& name, size_t* index);
-		unsigned char	directiveName(const std::string& file, size_t* index);
+		void				initStatusMap();
+		void				argumentChecker(const std::vector<std::string>& args, const unsigned char& status, const size_t* index);
+		void				directives(const std::string& file, size_t* index);
+		const bool			contextLines(const std::string& file, size_t* index);
+		const bool			blockContent(const std::string& file, size_t* index);
+		const bool			context(const std::string& file, size_t* index);
+		const std::string	argument(const std::string& file, size_t* index, const unsigned char& status);
+		const unsigned char	directiveNameChecker(const std::string& name, size_t* index);
+		const unsigned char	directiveName(const std::string& file, size_t* index);
 
 
 	/**

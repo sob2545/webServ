@@ -45,7 +45,10 @@ CONF::mainBlock::mainBlock(const std::string& file)
 	index[CONF::COLUMN] = 1;
 	
 	initStatusMap();
-	contextLines(confFile.getFileContent(), index);
+	if (!contextLines(confFile.getFileContent(), index)) {
+		throw ConfParserException(m_FileName, "main block", "invalid context.", index);
+	}
+	
 }
 
 CONF::mainBlock::~mainBlock(void) {}
@@ -96,18 +99,18 @@ const unsigned int&	CONF::mainBlock::getWorkerConnections() {
 /**
  * @brief	Configure Parser functions
  */
-
 void	CONF::mainBlock::initStatusMap(void) {
 	this->m_StatusMap.insert(std::pair<std::string, unsigned char>("env", CONF::E_MAIN_BLOCK_STATUS::ENV));
 	this->m_StatusMap.insert(std::pair<std::string, unsigned char>("worker_processes", CONF::E_MAIN_BLOCK_STATUS::WORKER_PROCESS));
 	this->m_StatusMap.insert(std::pair<std::string, unsigned char>("daemon", CONF::E_MAIN_BLOCK_STATUS::DAEMON));
 	this->m_StatusMap.insert(std::pair<std::string, unsigned char>("timer_resolution", CONF::E_MAIN_BLOCK_STATUS::TIMER_RESOLUTION));
 	this->m_StatusMap.insert(std::pair<std::string, unsigned char>("error_log", CONF::E_MAIN_BLOCK_STATUS::ERROR_LOG));
+	this->m_StatusMap.insert(std::pair<std::string, unsigned char>("worker_connections", CONF::E_MAIN_BLOCK_STATUS::WORKER_CONNECTIONS));
 	this->m_StatusMap.insert(std::pair<std::string, unsigned char>("http", CONF::E_MAIN_BLOCK_STATUS::HTTP_BLOCK));
 	this->m_StatusMap.insert(std::pair<std::string, unsigned char>("events", CONF::E_MAIN_BLOCK_STATUS::EVENT_BLOCK));
 }
 
-unsigned char	CONF::mainBlock::directiveNameChecker(const std::string& name, size_t* index) {
+const unsigned char	CONF::mainBlock::directiveNameChecker(const std::string& name, size_t* index) {
 	if (name.empty()) {
 		throw ConfParserException(m_FileName, name, "directive name is empty.", index);
 	}
@@ -125,7 +128,7 @@ void	CONF::mainBlock::argumentChecker(const std::vector<std::string>& args, cons
 	switch (status) {
 		case CONF::E_MAIN_BLOCK_STATUS::ENV: 
 			if (args.size()!= 1) {
-				throw ConfParserException(m_FileName, args[0], "invalid number of arguments.", index);
+				throw ConfParserException(m_FileName, args[0], "invalid number of Environment arguments.", index);
 			} else {
 				std::pair<std::string, std::string>	env; // = envParser();
 				this->m_Env.insert(std::pair<std::string, std::string>(env));
@@ -135,8 +138,8 @@ void	CONF::mainBlock::argumentChecker(const std::vector<std::string>& args, cons
 		case CONF::E_MAIN_BLOCK_STATUS::WORKER_PROCESS: {
 			char*	end;
 			if (args.size()!= 1) {
-				throw ConfParserException(m_FileName, args[0], "invalid number of arguments.", index);
-		    } else {
+				throw ConfParserException(m_FileName, args[0], "invalid number of Worker Processes arguments.", index);
+			} else {
 				const long argumentNumber = static_cast<unsigned int>(std::strtol(args[0].c_str(), &end, 10));
 				if (*end != '\0' || argumentNumber < 1) {
 					throw ConfParserException(m_FileName, args[0], "worker_processes argument should not include string or not be negative.", index);
@@ -148,14 +151,14 @@ void	CONF::mainBlock::argumentChecker(const std::vector<std::string>& args, cons
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::DAEMON:
 			if (args.size()!= 1) {
-				throw ConfParserException(m_FileName, args[0], "invalid number of arguments.", index);
-		    } else {
+				throw ConfParserException(m_FileName, args[0], "invalid number of Daemon arguments.", index);
+			} else {
 				if (args[0] == "on") {
 					m_Daemon = true;
 				} else if (args[0] == "off") {
 					;
 				} else {
-					throw ConfParserException(m_FileName, args[0], "invalid argument.", index);
+					throw ConfParserException(m_FileName, args[0], "invalid Daemon argument.", index);
 				}
 			}
 			break;
@@ -163,10 +166,10 @@ void	CONF::mainBlock::argumentChecker(const std::vector<std::string>& args, cons
 		case CONF::E_MAIN_BLOCK_STATUS::TIMER_RESOLUTION: {
 			char*	end;
 			if (args.size()!= 1) {
-				throw ConfParserException(m_FileName, args[0], "invalid number of arguments.", index);
+				throw ConfParserException(m_FileName, args[0], "invalid number of Timer Resolution arguments.", index);
 			} else {
-                const long argumentNumber = static_cast<unsigned int>(std::strtol(args[0].c_str(), &end, 10));
-                argumentNumber > 0? this->m_Time_resolution = argumentNumber : throw (ConfParserException(m_FileName, args[0], "invalid argument.", index));
+				const unsigned long argumentNumber = static_cast<unsigned long>(std::strtol(args[0].c_str(), &end, 10));
+				argumentNumber > 0 ? this->m_Time_resolution = argumentNumber : throw (ConfParserException(m_FileName, args[0], "invalid argument.", index));
 				
 				const std::string	time = args[0].substr((end - args[0].c_str()), args[0].length());
 				// TODO: time check			
@@ -175,7 +178,7 @@ void	CONF::mainBlock::argumentChecker(const std::vector<std::string>& args, cons
 				} else if (time == "s" || time.empty()) {
 					;
 				} else {
-					throw ConfParserException(m_FileName, args[0], "invalid argument.", index);
+					throw ConfParserException(m_FileName, args[0], "invalid Timer Resolution argument.", index);
 				}
 			}
 			break;
@@ -183,30 +186,30 @@ void	CONF::mainBlock::argumentChecker(const std::vector<std::string>& args, cons
 
 		case CONF::E_MAIN_BLOCK_STATUS::ERROR_LOG:
 			if (args.size()!= 1) {
-				throw ConfParserException(m_FileName, args[0], "invalid number of arguments.", index);
+				throw ConfParserException(m_FileName, args[0], "invalid number of Error Log arguments.", index);
 			}
 			break;
 
 		case CONF::E_MAIN_BLOCK_STATUS::HTTP_BLOCK:
-			if (!args.empty()) {
-				throw ConfParserException(m_FileName, args[0], "invalid number of arguments.", index);
+			if (args.size() > 1 || (args.size() == 1 && !args[0].empty())) {
+				throw ConfParserException(m_FileName, args[0], "invalid number of HTTP Block arguments.", index);
 			}
 			break;
 			// this->m_Http_block = httpParser();
 
 		case CONF::E_MAIN_BLOCK_STATUS::EVENT_BLOCK:
-			if (!args.empty()) {
-				throw ConfParserException(m_FileName, args[0], "invalid number of arguments.", index);
+			if (args.size() > 1 || (args.size() == 1 && !args[0].empty())) {
+				throw ConfParserException(m_FileName, args[0], "invalid number of EVENT Block arguments.", index);
 			}
 			break;
-			// this->m_Event_block = eventParser();
+			this->m_Event_block = eventParser();
 
 		default:
 			throw ConfParserException(m_FileName, args[0], "invalid directive name.", index);
 	}
 }
 
-std::string	CONF::mainBlock::argument(const std::string& file, size_t* index, const unsigned char& status) {
+const std::string	CONF::mainBlock::argument(const std::string& file, size_t* index, const unsigned char& status) {
 	std::string	argument;
 	
 	while (index[CONF::POS] < file.length() && ABNF::isWSP(file, index[CONF::POS])) {
@@ -223,8 +226,11 @@ std::string	CONF::mainBlock::argument(const std::string& file, size_t* index, co
 			index[CONF::COLUMN] += argumentLength + 1;
 			break;
 		}
+		case CONF::E_MAIN_BLOCK_STATUS::EVENT_BLOCK: {
+			blockContent(file, index);
+		}
 		default:
-			while (index[CONF::POS] < file.size() && (std::isalnum(static_cast<unsigned char>(file[index[CONF::POS]])) || file[index[CONF::POS]] == '_' || file[index[CONF::POS]] == '=')) {
+			while (index[CONF::POS] < file.size() && (std::isalnum(static_cast<int>(file[index[CONF::POS]])) || file[index[CONF::POS]] == '_' || file[index[CONF::POS]] == '=')) {
 				(std::isalpha(static_cast<int>(file[index[CONF::POS]])) ? argument += std::tolower(static_cast<int>(file[index[CONF::POS]])) : argument += file[index[CONF::POS]]);
 				index[CONF::POS]++;
 				index[CONF::COLUMN]++;
@@ -233,7 +239,7 @@ std::string	CONF::mainBlock::argument(const std::string& file, size_t* index, co
 	return argument;
 }
 
-unsigned char	CONF::mainBlock::directiveName(const std::string& file, size_t* index) {
+const unsigned char	CONF::mainBlock::directiveName(const std::string& file, size_t* index) {
 	std::string	name;
 
 	while (index[CONF::POS] < file.size() && (std::isalpha(static_cast<unsigned char>(file[index[CONF::POS]])) || file[index[CONF::POS]] == '_')) {
@@ -241,6 +247,7 @@ unsigned char	CONF::mainBlock::directiveName(const std::string& file, size_t* in
 		index[CONF::POS]++;
 		index[CONF::COLUMN]++;
 	}
+	std::cout << "name: " << name << " " << index[CONF::LINE] << ":" << index[CONF::COLUMN] << std::endl;
 	return (directiveNameChecker(name, index));
 }
 
@@ -251,28 +258,40 @@ void	CONF::mainBlock::directives(const std::string& file, size_t* index) {
 	while (index[CONF::POS] < file.size() && file[index[CONF::POS]] != E_ABNF::SEMICOLON && file[index[CONF::POS]] != E_ABNF::LF) {
 		args.push_back(argument(file, index, directiveStatus));
 	}
+	std::cout << "before arguemntChecker" << std::endl;
 	argumentChecker(args, directiveStatus, index);
 }
 
-bool	CONF::mainBlock::blockContent(const std::string& file, size_t* index) {
+const bool	CONF::mainBlock::blockContent(const std::string& file, size_t* index) {
+	const size_t	startPos = index[CONF::POS];
+
+	ABNF::isC_nl(file, index[CONF::POS]);
+	if (file[index[CONF::POS]] != '{') {
+		index[CONF::POS] = startPos;
+		return false;
+	}
+	while (index[CONF::POS] < file.size() && file[index[CONF::POS]] != '}') {
+		if (!contextLines(file, index)) {
+			throw ConfParserException(m_FileName, "main block", "invalid context.", index);
+		}
+	}
+	if (file[index[CONF::POS]] != '}') {
+		throw ConfParserException(m_FileName, "main block", "invalid context.", index);
+	}
+	ABNF::isC_nl(file, index[CONF::POS]);
 	return true;
 }
 
-bool	CONF::mainBlock::context(const std::string& file, size_t* index) {
+const bool	CONF::mainBlock::context(const std::string& file, size_t* index) {
 	if (file[index[CONF::POS]] == E_ABNF::SEMICOLON || file[index[CONF::POS]] == E_ABNF::LF) {
 		return false;
 	}
 	directives(file, index);
-	ABNF::isC_nl(file, index[CONF::POS]);
-	// if (blockContent(file, index) || ABNF::isC_nl(file, index)) {
-	// 	return true;
-	// } else {
-	// 	return false;
-	// }
-	return true;
+	// ABNF::isC_nl(file, index[CONF::POS]);
+	return (ABNF::isC_nl(file, index[CONF::POS]) ? true : false);
 }
 
-void	CONF::mainBlock::contextLines(const std::string& file, size_t* index) {
+const bool	CONF::mainBlock::contextLines(const std::string& file, size_t* index) {
 	while (index[CONF::POS] < file.size()) {
 		while (index[CONF::POS] < file.size() && ABNF::isWSP(file, index[CONF::POS])) {
 			index[CONF::POS]++;
@@ -282,9 +301,10 @@ void	CONF::mainBlock::contextLines(const std::string& file, size_t* index) {
 			index[CONF::LINE]++;
 			index[CONF::COLUMN] = 1;
 		} else {
-			throw ConfParserException(file, "conf main block", "is invalid context.", index);
+			return false;
 		}
 	}
+	return true;
 }
 
 
@@ -295,12 +315,12 @@ void	CONF::mainBlock::contextLines(const std::string& file, size_t* index) {
  void	CONF::mainBlock::print() {
 	std::cout << "Main Block" << std::endl;
 	std::cout << "\tEnv: " << std::endl;
-    for (const auto& env : m_Env) {
+	for (const auto& env : m_Env) {
 		std::cout << "\t\t" << env.first << "=" << env.second << std::endl;
 	}
 	std::cout << "\tWorker_process: " << m_Worker_process << std::endl;
-    std::cout << "\tDaemon: " << (m_Daemon? "on" : "off") << std::endl;
-    std::cout << "\tTime_resolution: " << m_Time_resolution << std::endl;
+	std::cout << "\tDaemon: " << (m_Daemon? "on" : "off") << std::endl;
+	std::cout << "\tTime_resolution: " << m_Time_resolution << std::endl;
 	for (const auto& log : m_Error_log) {
 		std::cout << "\tError_log: " << log << std::endl;
 	}

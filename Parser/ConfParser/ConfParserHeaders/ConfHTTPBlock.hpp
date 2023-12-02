@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../utils/utilFunctions.hpp"
+#include "../IConfParser/IConfParser.hpp"
 #include "ConfServerBlock.hpp"
 #include <map>
 #include <vector>
@@ -36,7 +37,7 @@ namespace   CONF {
 		};
 	}
 
-	class httpBlock {
+	class httpBlock : public IConfParser {
 	private:
 		bool							autoindex;
 		std::string						root;
@@ -51,7 +52,7 @@ namespace   CONF {
 
 	public:
 		httpBlock();
-		~httpBlock();
+		virtual ~httpBlock();
 
 		const serverBlock&	operator[](const std::string& key);
 		const bool			isAutoindex() const;
@@ -61,5 +62,21 @@ namespace   CONF {
 		const std::string&	getAccessLog() const;
 		const strVec&		getIndexes() const;
 		const bool			isValidIndex(const std::string& index_page) const;
+
+	/**
+	 * @brief	Config Parsing Functions
+	 * 
+	 */
+	private:
+		void				initStatusMap();
+		void				argumentChecker(const std::vector<std::string>& args, const unsigned char& status, const size_t* index);
+		void				directives(const std::string& file, size_t* index);
+		const bool			contextLines(const std::string& file, size_t* index);
+		const bool			blockContent(const std::string& file, size_t* index);
+		const bool			context(const std::string& file, size_t* index);
+		const std::string	argument(const std::string& file, size_t* index, const unsigned char& status);
+		const unsigned char	directiveNameChecker(const std::string& name, size_t* index);
+		const unsigned char	directiveName(const std::string& file, size_t* index);
 	};
+
 }
