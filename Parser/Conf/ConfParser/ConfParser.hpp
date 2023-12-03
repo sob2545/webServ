@@ -76,13 +76,13 @@ namespace   CONF {
 		// TODO: implement directiveNameChecker functions
 		const unsigned short	mainDirectiveNameChecker(const std::string& name);
 		const unsigned short	eventDirectiveNameChecker(const std::string& name);
-		// const unsigned short	httpDirectiveNameChecker(const std::string& name);
+		const unsigned short	httpDirectiveNameChecker(const std::string& name);
 		// const unsigned short	serverDirectiveNameChecker(const std::string& name);
 		// const unsigned short	locationDirectiveNameChecker(const std::string& name);
 
 		const std::string		mainArgument(const unsigned short& status);
 		const std::string		eventArgument(const unsigned short& status);
-		// const std::string		httpArgument(const unsigned short& status);
+		const std::string		httpArgument(const unsigned short& status);
 		// const std::string		serverArgument(const unsigned short& status);
 		// const std::string		locationArgument(const unsigned short& status);
 

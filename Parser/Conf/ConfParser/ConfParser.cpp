@@ -93,7 +93,6 @@ void	CONF::ConfParser::initStatusMap() {
 */
 
 
-
 /**
  *					[ Argument Checker ]
  *     **** WARNING: if directive is block type, argumentChecker must return true. if not return false. ****
@@ -210,6 +209,53 @@ const bool	CONF::ConfParser::evnetsBlockArgumentChecker(const std::vector<std::s
 	}
 }
 
+const bool	CONF::ConfParser::httpBlockArgumentChecker(const std::vector<std::string>&args, const unsigned char& status) {
+	switch (status) {
+		case CONF::E_HTTP_BLOCK_STATUS::SERVER: {
+			if (args.size() > 1 || (args.size() == 1 && !args[0].empty())) {
+				throw ConfParserException(m_FileName, args.at(0), "invalid number of Server arguments!", m_Pos);
+			}
+			m_BlockStack.push(CONF::E_BLOCK_STATUS::SERVER);
+			return true;
+		}
+		case CONF::E_HTTP_BLOCK_STATUS::INCLUDE: {
+			if (args.size() != 1) {
+				throw ConfParserException(m_FileName, args.at(0), "invalid number of Include arguments!", m_Pos);
+			}
+			handleInclude(args[0]);
+			return false;
+		}
+		case CONF::E_HTTP_BLOCK_STATUS::AUTOINDEX: {
+			if (args.size() != 1) {
+				throw ConfParserException(m_FileName, args.at(0), "invalid number of Autoindex arguments!", m_Pos);
+			} else {
+				if (args[0] == "on") {
+					m_MainBlock->m_HTTP_block.m_Autoindex = true;
+				} else if (args[0] == "off") {
+					m_MainBlock->m_HTTP_block.m_Autoindex = false;
+				} else {
+					throw ConfParserException(m_FileName, args.at(0), "invalid number of Autoindex arguments!", m_Pos);
+				}
+			}
+			return false;
+		}
+		case CONF::E_HTTP_BLOCK_STATUS::ROOT: {
+			if (args.size() != 1) {
+				throw ConfParserException(m_FileName, args.at(0), "invalid number of Root arguments!", m_Pos);
+			} else {
+				if (args[0].empty()) {
+					throw ConfParserException(m_FileName, args.at(0), "invalid number of Root arguments!", m_Pos);
+				}
+				size_t	uriPos = 0;
+				URIParser::absPath(args[0], uriPos, m_MainBlock->m_HTTP_block.m_Root);
+			}
+			return false;
+		}
+		default:
+			throw ConfParserException(m_FileName, "", "Invalid http directive arguments!", m_Pos);
+	}
+}
+
 const bool	CONF::ConfParser::argumentChecker(const std::vector<std::string>& args, const unsigned char& status) {
 	switch (m_BlockStack.top()) {
 		case CONF::E_BLOCK_STATUS::MAIN: {
@@ -219,7 +265,7 @@ const bool	CONF::ConfParser::argumentChecker(const std::vector<std::string>& arg
 			return (evnetsBlockArgumentChecker(args, status));
 		}
 		case CONF::E_BLOCK_STATUS::HTTP: {
-
+			return (httpBlockArgumentChecker(args, status));
 		}
 		case CONF::E_BLOCK_STATUS::SERVER: {
 
@@ -231,6 +277,24 @@ const bool	CONF::ConfParser::argumentChecker(const std::vector<std::string>& arg
 			throw ConfParserException(m_FileName, "", "Invalid configure file!", m_Pos);
 	}
 }
+
+
+/**
+ *					[ Argument Utils ]
+*/
+void	CONF::ConfParser::rootParser(std::string& argument) {
+	const size_t		argumentLength = (std::strchr(&(m_FileContent[m_Pos[E_INDEX::FILE]]), E_ABNF::LF) - m_FileContent.c_str()) - m_Pos[E_INDEX::FILE] - 1;
+	const std::string	uri = m_FileContent.substr(m_Pos[E_INDEX::FILE], argumentLength);
+	size_t	uriPos = 0;
+	URIParser::absPath(uri, uriPos, m_MainBlock->m_HTTP_block.m_Root);
+	m_Pos[E_INDEX::FILE] += argumentLength + 1;
+	m_Pos[E_INDEX::COLUMN] += argumentLength + 1;
+}
+
+void	CONF::ConfParser::indexParser(std::string& argument) {
+
+}
+
 
 
 
@@ -281,6 +345,31 @@ const std::string	CONF::ConfParser::eventArgument(const unsigned short& status) 
 	return argument;
 }
 
+const std::string	CONF::ConfParser::httpArgument(const unsigned short& status) {
+	std::string	argument;
+
+	switch (status) {
+		case CONF::E_HTTP_BLOCK_STATUS::ROOT: {
+			
+			break;
+		}
+		case CONF::E_HTTP_BLOCK_STATUS::DEFAULT_TYPE: {
+			// TODO: Implement after MIME TYPE Parser 
+			break;
+		}
+		case CONF::E_HTTP_BLOCK_STATUS::ERROR_PAGE: {
+			while (m_Pos[E_INDEX::FILE] < m_FileContent.size() && (std::isalnum(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]])) || m_FileContent[m_Pos[E_INDEX::FILE]] == '_' || m_FileContent[m_Pos[E_INDEX::FILE]] == '.')) {
+				argument += m_FileContent[m_Pos[E_INDEX::FILE]];
+				m_Pos[E_INDEX::FILE]++;
+				m_Pos[E_INDEX::COLUMN]++;
+			}
+			if (argument.rfind(".html") != argument.length() - 5) {
+				throw ConfParserException(m_FileName, argument, "invalid type of Error Page arguments!", m_Pos);
+			}
+		}
+	}
+}
+
 const std::string	CONF::ConfParser::argument(const unsigned char& block_status, const unsigned short& status) {
 	while (m_Pos[E_INDEX::FILE] < m_FileContent.size() && ABNF::isWSP(m_FileContent, m_Pos[E_INDEX::FILE])) {
 		m_Pos[E_INDEX::FILE]++;
@@ -293,9 +382,9 @@ const std::string	CONF::ConfParser::argument(const unsigned char& block_status, 
 		case CONF::E_BLOCK_STATUS::EVENT: {
 			return eventArgument(status);
 		}
-		// case CONF::E_BLOCK_STATUS::HTTP: {
-		// 	return httpArgument(status);
-		// }
+		case CONF::E_BLOCK_STATUS::HTTP: {
+			return httpArgument(status);
+		}
 		// case CONF::E_BLOCK_STATUS::SERVER: {
 		// 	return serverArgument(status);
 		// }
@@ -372,9 +461,19 @@ const unsigned short	CONF::ConfParser::eventDirectiveNameChecker(const std::stri
 	}
 }
 
-// const unsigned short	CONF::ConfParser::httpDirectiveNameChecker(const std::string& name) {
-
-// }
+const unsigned short	CONF::ConfParser::httpDirectiveNameChecker(const std::string& name) {
+	if (name.empty()) {
+		throw ConfParserException(m_FileName, name, "directive name is empty!", m_Pos);
+	}
+	const statusShortMap::iterator&	it = m_HTTPstatusMap.find(name);
+	if (it != m_HTTPstatusMap.end()) {
+		((m_MainBlock->m_HTTP_block.m_Status & it->second) && !isMultipleDirective(m_BlockStack.top(), it->second))
+			? throw ConfParserException(m_FileName, name, "directive name is duplicated!", m_Pos) : m_MainBlock->m_HTTP_block.m_Status |= it->second;
+		return it->second;
+	} else {
+		throw ConfParserException(m_FileName, name, "http directive name is invalid!", m_Pos);
+	}
+}
 
 // const unsigned short	CONF::ConfParser::serverDirectiveNameChecker(const std::string& name) {
 
@@ -392,8 +491,8 @@ const unsigned short	CONF::ConfParser::directiveNameChecker(const std::string& n
 		case E_BLOCK_STATUS::EVENT:
 			return eventDirectiveNameChecker(name);
 
-		// case E_BLOCK_STATUS::HTTP:
-		// 	return httpDirectiveNameChecker(name);
+		case E_BLOCK_STATUS::HTTP:
+			return httpDirectiveNameChecker(name);
 
 		// case E_BLOCK_STATUS::SERVER:
 		// 	return serverDirectiveNameChecker(name);
