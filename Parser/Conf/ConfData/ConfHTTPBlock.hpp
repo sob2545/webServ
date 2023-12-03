@@ -1,7 +1,9 @@
 #pragma once
 
+#include "ConfLocationBlock.hpp"
 #include "ConfServerBlock.hpp"
 #include <map>
+#include <string>
 #include <vector>
 
 /**
@@ -22,13 +24,15 @@
 
 namespace   CONF {
 	struct httpBlock{
-		bool							autoindex;
-		std::string						root;
-		std::string						default_type;
-		std::string						error_page;
-		std::string						access_log;
-		strVec							index;
-		std::map<std::string, serverBlock>	server_block;
+		bool								m_Autoindex;
+		unsigned short						m_Status;
+		strVec								m_Root;
+		std::string							m_Default_type;
+		std::string							m_Error_page;
+		std::string							m_Access_log;
+		strVec								m_Index;
+		std::map<std::string, std::string>	m_Mime_types;
+		std::map<std::string, serverBlock>	m_Server_block;
 	};
 
 }
