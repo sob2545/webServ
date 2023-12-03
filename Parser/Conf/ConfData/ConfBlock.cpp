@@ -55,6 +55,8 @@ const unsigned int&	CONF::ConfBlock::getWorkerConnections() {
 
 // const CONF::httpBlock&	CONF::ConfBlock::getHttpBlock() {
 
+
+// DEBUG
 void	CONF::ConfBlock::print() {
 	std::cout << "Main Block" << std::endl;
 	std::cout << "\tEnv: " << std::endl;
