@@ -38,7 +38,7 @@ namespace   CONF {
 		errorLogLocation		m_Error_log;
 		envMap					m_Env;
 		eventsBlock				m_Event_block;
-		static httpBlock		m_Http_block;
+		static httpBlock		m_HTTP_block;
 		statusMap				m_StatusMap;
 		
 	};
