@@ -47,8 +47,8 @@ namespace   CONF {
 		};
 	}
 
-	namespace	E_EVENT_BLOCK_STATUS {
-		enum E_EVENT_BLOCK_STATUS {
+	namespace	E_EVENTS_BLOCK_STATUS {
+		enum E_EVENTS_BLOCK_STATUS {
 			WORKER_CONNECTIONS	= 0b01
 		};
 	}
