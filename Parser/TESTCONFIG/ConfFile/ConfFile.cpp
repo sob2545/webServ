@@ -1,5 +1,4 @@
 #include "ConfFile.hpp"
-#include <cstddef>
 
 CONF::ConfFile*	CONF::ConfFile::instance = NULL;
 
@@ -19,8 +18,12 @@ CONF::ConfFile::ConfFile(const std::string& fileName): ReadFile(fileName) {
 	m_Pos[E_INDEX::COLUMN] = 1;
 }
 
+CONF::ConfFile::~ConfFile() {
+}
+
 void	CONF::ConfFile::Destroy() {
 	delete CONF::ConfFile::instance;
+	CONF::ConfFile::instance = NULL;
 }
 
 size_t*	CONF::ConfFile::Pos() {

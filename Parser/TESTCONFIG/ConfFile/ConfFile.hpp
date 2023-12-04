@@ -25,7 +25,7 @@ namespace CONF {
 		static ConfFile*	getInstance();
 
 		ConfFile(const std::string& fileName);
-		~ConfFile();
+		virtual ~ConfFile();
 
 		void	Destroy();
 		size_t*	Pos();
