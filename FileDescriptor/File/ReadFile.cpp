@@ -1,8 +1,7 @@
 #include "ReadFile.hpp"
 #include "fcntl.h"
 #include "sys/stat.h"
-#include <cstddef>
-#include <sys/_types/_ssize_t.h>
+
 
 ReadFile::ReadFile(const std::string& filename) : FileDescriptor(0), m_FileName(filename) {
 	this->m_Fd = open(filename.c_str(), O_RDONLY);
@@ -14,11 +13,15 @@ ReadFile::ReadFile(const std::string& filename) : FileDescriptor(0), m_FileName(
 	}
 	m_FileSize = buf.st_size;
 
-	const ssize_t readSize = read(m_Fd, &m_FileContent[0], m_FileSize);
+	// read에 string을 매개변수로 넘기지 못한다.
+	char* tmp = new char[m_FileSize + 1];
+	const ssize_t readSize = read(m_Fd, &tmp[0], m_FileSize);
 	if (readSize < 0) {
 		// TODO: exception class
 		close(m_Fd);
 	}
+	m_FileContent.assign(tmp);
+	delete [] tmp;
 }
 
 ReadFile::~ReadFile() {}
