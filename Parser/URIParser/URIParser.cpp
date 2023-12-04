@@ -1,5 +1,6 @@
 #include "URIParser.hpp"
 #include "BNF_utils/SchemeChecker.hpp"
+#include <string>
 
 
 // TODO: URI 매개변수를 std::string으로 변경
@@ -234,8 +235,8 @@ bool	IPv4address(const std::string& inputURI, size_t& pos, std::string& host) {
 	*	@return:			각각의 함수에 따라 true / false
 
 */
-void	host(const std::string& inputURI, size_t& pos, std::string& host) {
-	IPv4address(inputURI, pos, host) || hostname(inputURI, pos, host);
+bool	host(const std::string& inputURI, size_t& pos, std::string& host) {
+	return (IPv4address(inputURI, pos, host) || hostname(inputURI, pos, host));
 }
 
 void	port(const std::string& inputURI, size_t& pos, unsigned short& port) {
@@ -247,9 +248,30 @@ void	port(const std::string& inputURI, size_t& pos, unsigned short& port) {
 		port = 80;
 }
 
+const bool	setPortDetermineDefault(const std::string& inputURI, size_t& pos, unsigned short& port) {
+	if (pos < inputURI.size() && inputURI.at(pos) == URI::E_RESERVED::COLON) {
+		pos++;
+		splitPort(inputURI, pos, port);
+		return true;
+	}
+	else {
+		port = 80;
+		return false;
+	}
+}
+
 void	server(const std::string& inputURI, size_t& pos, URI::data& uri) {
 	host(inputURI, pos, uri.host);
 	port(inputURI, pos, uri.port);
+}
+
+const bool	URIParser::server(const std::string& inputURI, size_t& pos, std::string& hostname, unsigned short& server_port) {
+	host(inputURI, pos, hostname);
+	return (setPortDetermineDefault(inputURI, pos, server_port));
+}
+
+const bool	URIParser::server(const std::string& inputURI, size_t& pos, std::string& hostname) {
+	return (host(inputURI, pos, hostname));
 }
 
 /**
