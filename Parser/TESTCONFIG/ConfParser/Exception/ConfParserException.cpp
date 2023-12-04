@@ -6,7 +6,7 @@ ConfParserException::ConfParserException() {}
 ConfParserException::ConfParserException(const std::string& file, const std::string& error, const std::string& message, const size_t* pos) {
 	std::stringstream	res;
 
-	res << BOLDWHITE << file << ":" << pos[CONF::LINE] << ":" << pos[CONF::COLUMN] << BOLDRED << " Error:" << BOLDWHITE << " \"" << error << "\" " << message << RESET;
+	res << BOLDWHITE << file << ":" << pos[1] << ":" << pos[2] << BOLDRED << " Error:" << BOLDWHITE << " \"" << error << "\" " << message << RESET;
 	m_Message = res.str();
 }
 
