@@ -7,6 +7,7 @@
 
 #include "Exception/ConfParserException.hpp"
 #include "ConfParserUtils.hpp"
+#include <cstddef>
 #include <string>
 #include <stack>
 
@@ -30,6 +31,7 @@ namespace   CONF {
 		CONF::MainBlock*	m_MainBlock;
 		std::string			m_FileContent;
 		size_t				m_Pos[3];
+		size_t				m_FileSize;
 		statusShortMap		m_MainStatusMap;
 		statusBoolMap		m_EventStatusMap;
 		statusShortMap		m_HTTPstatusMap;
@@ -67,6 +69,7 @@ namespace   CONF {
 		const bool				blockContent();
 		const bool				context();
 
+		const bool				isMultipleDirective(const unsigned char& block_status, const unsigned short& directive_status);
 		const unsigned short	directiveNameChecker(const std::string& name);
 		const unsigned short	directiveName();
 		const bool				directives();
@@ -86,9 +89,16 @@ namespace   CONF {
 		// const std::string		serverArgument(const unsigned short& status);
 		// const std::string		locationArgument(const unsigned short& status);
 
-		const bool				isMultipleDirective(const unsigned char& block_status, const unsigned short& directive_status);
-
 		const std::string		argument(const unsigned char& block_status, const unsigned short& directive_status);
+
+		// Utils
+		const bool			fileName(std::string& argument);
+		void				absPathArgumentParser(strVec& argument);
+		void				digitArgumentParser(std::string& argument);
+
+		void				errorPageArgumentParser(std::string& argument);
+		void				indexArgumentParser(std::string& argument);
+
 
 	/**
 	 * @brief	Debug Function

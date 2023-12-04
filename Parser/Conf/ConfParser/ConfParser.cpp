@@ -1,5 +1,6 @@
 #include "ConfParser.hpp"
 #include "ConfParserUtils.hpp"
+#include <cctype>
 #include <string.h>
 #include <string>
 #include <vector>
@@ -13,6 +14,7 @@ CONF::ConfParser::ConfParser(const std::string& file)
 {
 	const File	confFile(file);
 	m_FileContent = confFile.getFileContent();
+	m_FileSize = m_FileContent.length();
 	m_Pos[E_INDEX::FILE] = 0;
 	m_Pos[E_INDEX::LINE] = 1;
 	m_Pos[E_INDEX::COLUMN] = 1;
@@ -92,10 +94,29 @@ void	CONF::ConfParser::initStatusMap() {
  *				=========== Config Parsing Functions ===========
 */
 
+/**
+ *					[ File Name Parser ]
+*/
+const bool	CONF::ConfParser::fileName(std::string& argument) {
+	while (m_Pos[E_INDEX::FILE] < m_FileSize && (std::isalnum(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]])) || m_FileContent[m_Pos[E_INDEX::FILE]] == '_' || m_FileContent[m_Pos[E_INDEX::FILE]] == '.')) {
+		argument += m_FileContent[m_Pos[E_INDEX::FILE]];
+		m_Pos[E_INDEX::FILE]++;
+		m_Pos[E_INDEX::COLUMN]++;
+	}
+	if (argument.empty() || !std::isalpha(static_cast<int>((argument.rfind('.') + 1)))) {
+		return false;
+	}
+	return true;
+}
+
 
 /**
  *					[ Argument Checker ]
- *     **** WARNING: if directive is block type, argumentChecker must return true. if not return false. ****
+ *		**** WARNING: if directive is block type, argumentChecker must return true. if not return false. ****
+ *		server / location과 같은 directive는 stack에 status 넣은 후 구조체를 생성하여 push_back 해줘야 됨
+ * 		location같은 경우 location에 중첩이 가능하기 때문에 stack에 status를 넣기 전, top을 확인하여 location에 넣을지, server에 넣을지 결정해야 됨
+ *		server나 location이나 block에서 push_back한 것이기 때문에 directives나 argument에서 실제 값을 넣어줄 때는 vector의 맨 마지막만 확인하여 사용하면 된다.
+ *		근데 location 중첩은 안 하는 것이 정신 건강에 좋을 법함. (실제 directives나 argument에서 값을 넣을 때 location의 얼마나 깊이에 있는 앤지 알 수가 있나 싶음)
 */
 const bool	CONF::ConfParser::mainBlockArgumentChecker(const std::vector<std::string>&args, const unsigned char& status) {
 	switch (status) {
@@ -222,6 +243,7 @@ const bool	CONF::ConfParser::httpBlockArgumentChecker(const std::vector<std::str
 			if (args.size() != 1) {
 				throw ConfParserException(m_FileName, args.at(0), "invalid number of Include arguments!", m_Pos);
 			}
+			// MIME type 파싱
 			handleInclude(args[0]);
 			return false;
 		}
@@ -268,10 +290,10 @@ const bool	CONF::ConfParser::argumentChecker(const std::vector<std::string>& arg
 			return (httpBlockArgumentChecker(args, status));
 		}
 		case CONF::E_BLOCK_STATUS::SERVER: {
-
+			return (serverBlockArgumentChecker(args, status));
 		}
 		case CONF::E_BLOCK_STATUS::LOCATION: {
-
+			return (locationBlockArgumentChecker(args, status));
 		}
 		default:
 			throw ConfParserException(m_FileName, "", "Invalid configure file!", m_Pos);
@@ -279,23 +301,62 @@ const bool	CONF::ConfParser::argumentChecker(const std::vector<std::string>& arg
 }
 
 
+// WARNING: 매개변수로 경로가 들어오면 무조건 앞에 '/'를 붙여준다.
+// 따라서 나중에 경로를 탐색할 때 맨 앞의 인자가 empty면 절대경로이고, 아니면 상대경로이다.
+
 /**
  *					[ Argument Utils ]
 */
-void	CONF::ConfParser::rootParser(std::string& argument) {
+void	CONF::ConfParser::absPathArgumentParser(strVec& argument) {
 	const size_t		argumentLength = (std::strchr(&(m_FileContent[m_Pos[E_INDEX::FILE]]), E_ABNF::LF) - m_FileContent.c_str()) - m_Pos[E_INDEX::FILE] - 1;
-	const std::string	uri = m_FileContent.substr(m_Pos[E_INDEX::FILE], argumentLength);
+	const std::string	uri = "/" + m_FileContent.substr(m_Pos[E_INDEX::FILE], argumentLength);
 	size_t	uriPos = 0;
-	URIParser::absPath(uri, uriPos, m_MainBlock->m_HTTP_block.m_Root);
+	URIParser::absPath(uri, uriPos, argument);
 	m_Pos[E_INDEX::FILE] += argumentLength + 1;
 	m_Pos[E_INDEX::COLUMN] += argumentLength + 1;
 }
 
-void	CONF::ConfParser::indexParser(std::string& argument) {
-
+void	CONF::ConfParser::digitArgumentParser(std::string& argument) {
+	while (m_Pos[E_INDEX::FILE] < m_FileSize && std::isdigit(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]]))) {
+		argument += m_FileContent[m_Pos[E_INDEX::FILE]];
+		m_Pos[E_INDEX::FILE]++;
+		m_Pos[E_INDEX::COLUMN]++;
+	}
+	if (!ABNF::isWSP(m_FileContent, m_Pos[E_INDEX::FILE]) && m_FileContent[m_Pos[E_INDEX::FILE]] != E_ABNF::SEMICOLON && m_FileContent[m_Pos[E_INDEX::FILE]] != E_ABNF::LF) {
+		throw ConfParserException(m_FileName, argument, "invalid type of Worker Connections arguments!", m_Pos);
+	}
 }
 
+// DISCUSSION: index는 file이나 absPath가 올 수 있음.
+// File || absPath 형식으로 해서 파싱을 호출할지
+// 그냥 string으로 저장한 후 argumentChecker에서 처리할지
+// 아래 error page와 같이 의논해야 함 (에러 페이지는 file, http://uri, absPath가 온다.)
+void	CONF::ConfParser::indexArgumentParser(std::string& argument) {
+}
 
+// DISCUSSION: error_page는 http:// 스킴이 올 수 있음.. 
+/*
+	error_page 404 /not_found.html;
+	error_page 500 501 502 503 504 /server_error.html;
+	error_page 403 http://website.com/;
+	error_page 404 @notfound; # 지정한 location 블록으로 이동
+	error_page 404 =200 /index.html;
+
+	=200이랑 @를 처리해야될까...?
+	@는 location 블럭 탐색하여 처리하면 될 거 같은데 =200을 어떻게 처리할지 고민해봐야됨.
+*/
+void	CONF::ConfParser::errorPageArgumentParser(std::string& argument) {
+	while (m_Pos[E_INDEX::FILE] < m_FileSize && (std::isalnum(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]]))
+													|| m_FileContent[m_Pos[E_INDEX::FILE]] == URI::E_RESERVED::SLASH
+													|| m_FileContent[m_Pos[E_INDEX::FILE]] == URI::E_RESERVED::COLON
+													|| m_FileContent[m_Pos[E_INDEX::FILE]] == URI::E_MARK::UNDERSCORE
+													|| m_FileContent[m_Pos[E_INDEX::FILE]] == URI::E_MARK::PERIOD))
+	{
+		argument += m_FileContent[m_Pos[E_INDEX::FILE]];
+		m_Pos[E_INDEX::FILE]++;
+		m_Pos[E_INDEX::COLUMN]++;
+	}
+}
 
 
 /**
@@ -306,16 +367,11 @@ const std::string	CONF::ConfParser::mainArgument(const unsigned short& status) {
 
 	switch (status) {
 		case CONF::E_MAIN_BLOCK_STATUS::ERROR_LOG: {
-			const size_t	argumentLength = (std::strchr(&(m_FileContent[m_Pos[E_INDEX::FILE]]), E_ABNF::LF) - m_FileContent.c_str()) - m_Pos[E_INDEX::FILE] - 1;
-			const std::string uri = "/" + m_FileContent.substr(m_Pos[E_INDEX::FILE], argumentLength);
-			size_t	uriPos = 0;
-			URIParser::absPath(uri, uriPos, m_MainBlock->m_Error_log);
-			m_Pos[E_INDEX::FILE] += argumentLength + 1;
-			m_Pos[E_INDEX::COLUMN] += argumentLength + 1;
+			absPathArgumentParser(m_MainBlock->m_Error_log);
 			break;
 		}
 		default:
-			while (m_Pos[E_INDEX::FILE] < m_FileContent.size() && (std::isalnum(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]])) || m_FileContent[m_Pos[E_INDEX::FILE]] == '_' || m_FileContent[m_Pos[E_INDEX::FILE]] == '=')) {
+			while (m_Pos[E_INDEX::FILE] < m_FileSize && (std::isalnum(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]])) || m_FileContent[m_Pos[E_INDEX::FILE]] == '_' || m_FileContent[m_Pos[E_INDEX::FILE]] == '=')) {
 				(std::isalpha(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]])) ? argument += std::tolower(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]])) : argument += m_FileContent[m_Pos[E_INDEX::FILE]]);
 				m_Pos[E_INDEX::FILE]++;
 				m_Pos[E_INDEX::COLUMN]++;
@@ -329,14 +385,7 @@ const std::string	CONF::ConfParser::eventArgument(const unsigned short& status) 
 
 	switch (status) {
 		case CONF::E_EVENT_BLOCK_STATUS::WORKER_CONNECTIONS: {
-			while (m_Pos[E_INDEX::FILE] < m_FileContent.size() && std::isdigit(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]]))) {
-				argument += m_FileContent[m_Pos[E_INDEX::FILE]];
-				m_Pos[E_INDEX::FILE]++;
-				m_Pos[E_INDEX::COLUMN]++;
-			}
-			if (!ABNF::isWSP(m_FileContent, m_Pos[E_INDEX::FILE]) && m_FileContent[m_Pos[E_INDEX::FILE]] != E_ABNF::SEMICOLON && m_FileContent[m_Pos[E_INDEX::FILE]] != E_ABNF::LF) {
-				throw ConfParserException(m_FileName, argument, "invalid type of Worker Connections arguments!", m_Pos);
-			}
+			digitArgumentParser(argument);
 			break;
 		}
 		default:
@@ -350,28 +399,49 @@ const std::string	CONF::ConfParser::httpArgument(const unsigned short& status) {
 
 	switch (status) {
 		case CONF::E_HTTP_BLOCK_STATUS::ROOT: {
-			
+			absPathArgumentParser(m_MainBlock->m_HTTP_block.m_Root);
 			break;
 		}
-		case CONF::E_HTTP_BLOCK_STATUS::DEFAULT_TYPE: {
-			// TODO: Implement after MIME TYPE Parser 
+		case CONF::E_HTTP_BLOCK_STATUS::INDEX: {
+			indexArgumentParser(argument);
 			break;
 		}
 		case CONF::E_HTTP_BLOCK_STATUS::ERROR_PAGE: {
-			while (m_Pos[E_INDEX::FILE] < m_FileContent.size() && (std::isalnum(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]])) || m_FileContent[m_Pos[E_INDEX::FILE]] == '_' || m_FileContent[m_Pos[E_INDEX::FILE]] == '.')) {
-				argument += m_FileContent[m_Pos[E_INDEX::FILE]];
+			errorPageArgumentParser(argument);
+			break;
+		}
+		case CONF::E_HTTP_BLOCK_STATUS::ACCESS_LOG: {
+			absPathArgumentParser(m_MainBlock->m_HTTP_block.m_Access_log);
+			break;
+		}
+		// DISCUSSION: default와 합칠지 아니면 digit만 처리하는(event block) 형태로 둘지?
+		case CONF::E_HTTP_BLOCK_STATUS::KEEPALIVE_TIMEOUT: {
+			digitArgumentParser(argument);
+			break;
+		}
+		case CONF::E_HTTP_BLOCK_STATUS::INCLUDE: {
+			absPathArgumentParser(m_MainBlock->m_HTTP_block.m_Include);
+			break;
+		}
+		// autoindex, server
+		default:
+			while (m_Pos[E_INDEX::FILE] < m_FileSize && (std::isalnum(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]]))
+																		|| m_FileContent[m_Pos[E_INDEX::FILE]] == URI::E_RESERVED::SLASH
+																		|| m_FileContent[m_Pos[E_INDEX::FILE]] == URI::E_RESERVED::COLON
+																		|| m_FileContent[m_Pos[E_INDEX::FILE]] == URI::E_MARK::UNDERSCORE
+																		|| m_FileContent[m_Pos[E_INDEX::FILE]] == URI::E_MARK::PERIOD
+																		|| m_FileContent[m_Pos[E_INDEX::FILE]] == URI::E_MARK::HYPHEN))
+			{
+				(std::isalpha(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]])) ? argument += std::tolower(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]])) : argument += m_FileContent[m_Pos[E_INDEX::FILE]]);
 				m_Pos[E_INDEX::FILE]++;
 				m_Pos[E_INDEX::COLUMN]++;
 			}
-			if (argument.rfind(".html") != argument.length() - 5) {
-				throw ConfParserException(m_FileName, argument, "invalid type of Error Page arguments!", m_Pos);
-			}
-		}
 	}
+	return argument;
 }
 
 const std::string	CONF::ConfParser::argument(const unsigned char& block_status, const unsigned short& status) {
-	while (m_Pos[E_INDEX::FILE] < m_FileContent.size() && ABNF::isWSP(m_FileContent, m_Pos[E_INDEX::FILE])) {
+	while (m_Pos[E_INDEX::FILE] < m_FileSize && ABNF::isWSP(m_FileContent, m_Pos[E_INDEX::FILE])) {
 		m_Pos[E_INDEX::FILE]++;
 		m_Pos[E_INDEX::COLUMN]++;
 	}
@@ -432,11 +502,9 @@ const bool	CONF::ConfParser::isMultipleDirective(const unsigned char& block_stat
 
 /**
  *				Block마다 Directive가 올바른지 체크하는 함수들
+ *		함수 생긴게 다 비슷한데 어떻게 한 번에 처리 못 할까?
 */
 const unsigned short	CONF::ConfParser::mainDirectiveNameChecker(const std::string& name) {
-	if (name.empty()) {
-		throw ConfParserException(m_FileName, name, "directive name is empty!", m_Pos);
-	}
 	const statusShortMap::iterator&	it = m_MainStatusMap.find(name);
 	if (it != m_MainStatusMap.end()) {
 		((m_MainBlock->m_Status & it->second) && !isMultipleDirective(m_BlockStack.top(), it->second))
@@ -448,9 +516,6 @@ const unsigned short	CONF::ConfParser::mainDirectiveNameChecker(const std::strin
 }
 
 const unsigned short	CONF::ConfParser::eventDirectiveNameChecker(const std::string& name) {
-	if (name.empty()) {
-		throw ConfParserException(m_FileName, name, "directive name is empty!", m_Pos);
-	}
 	const statusBoolMap::iterator&	it = m_EventStatusMap.find(name);
 	if (it != m_EventStatusMap.end()) {
 		((m_MainBlock->m_Event_block.m_Status & it->second) && !isMultipleDirective(m_BlockStack.top(), it->second))
@@ -462,9 +527,6 @@ const unsigned short	CONF::ConfParser::eventDirectiveNameChecker(const std::stri
 }
 
 const unsigned short	CONF::ConfParser::httpDirectiveNameChecker(const std::string& name) {
-	if (name.empty()) {
-		throw ConfParserException(m_FileName, name, "directive name is empty!", m_Pos);
-	}
 	const statusShortMap::iterator&	it = m_HTTPstatusMap.find(name);
 	if (it != m_HTTPstatusMap.end()) {
 		((m_MainBlock->m_HTTP_block.m_Status & it->second) && !isMultipleDirective(m_BlockStack.top(), it->second))
@@ -475,15 +537,25 @@ const unsigned short	CONF::ConfParser::httpDirectiveNameChecker(const std::strin
 	}
 }
 
-// const unsigned short	CONF::ConfParser::serverDirectiveNameChecker(const std::string& name) {
+const unsigned short	CONF::ConfParser::serverDirectiveNameChecker(const std::string& name) {
+	const statusShortMap::iterator&	it = m_ServerStatusMap.find(name);
+	if (it != m_ServerStatusMap.end()) {
+		((m_MainBlock->m_HTTP_block.m_Server_block.m_Status & it->second) && !isMultipleDirective(m_BlockStack.top(), it->second))
+			? throw ConfParserException(m_FileName, name, "directive name is duplicated!", m_Pos) : m_MainBlock->m_HTTP_block.m_Server_block.m_Status |= it->second;
+		return it->second;
+	} else {
+		throw ConfParserException(m_FileName, name, "server directive name is invalid!", m_Pos);
+	}
+}
 
-// }
+const unsigned short	CONF::ConfParser::locationDirectiveNameChecker(const std::string& name) {
 
-// const unsigned short	CONF::ConfParser::locationDirectiveNameChecker(const std::string& name) {
-
-// }
+}
 
 const unsigned short	CONF::ConfParser::directiveNameChecker(const std::string& name) {
+	if (name.empty()) {
+		throw ConfParserException(m_FileName, name, "directive name is empty!", m_Pos);
+	}
 	switch (m_BlockStack.top()) {
 		case E_BLOCK_STATUS::MAIN:
 			return mainDirectiveNameChecker(name);
@@ -508,8 +580,8 @@ const unsigned short	CONF::ConfParser::directiveNameChecker(const std::string& n
 const unsigned short	CONF::ConfParser::directiveName() {
 	std::string	name;
 
-	while (m_Pos[E_INDEX::FILE] < m_FileContent.size() && (std::isalpha(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]])) || m_FileContent[m_Pos[E_INDEX::FILE]] == '_')) {
-		(std::isalpha(static_cast<unsigned char>(m_FileContent[m_Pos[E_INDEX::FILE]])) ? name += std::tolower(m_FileContent[m_Pos[E_INDEX::FILE]]) : name += m_FileContent[m_Pos[E_INDEX::FILE]]);
+	while (m_Pos[E_INDEX::FILE] < m_FileSize && (std::isalpha(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]])) || m_FileContent[m_Pos[E_INDEX::FILE]] == '_')) {
+		(std::isalpha(static_cast<int>(m_FileContent[m_Pos[E_INDEX::FILE]])) ? name += std::tolower(m_FileContent[m_Pos[E_INDEX::FILE]]) : name += m_FileContent[m_Pos[E_INDEX::FILE]]);
 		m_Pos[E_INDEX::FILE]++;
 		m_Pos[E_INDEX::COLUMN]++;
 	}
@@ -523,7 +595,7 @@ const bool	CONF::ConfParser::directives() {
 	const unsigned short&		status = directiveName();
 
 	std::vector<std::string>	args;
-	while (m_Pos[E_INDEX::FILE] < m_FileContent.size() && m_FileContent[m_Pos[E_INDEX::FILE]] != E_ABNF::SEMICOLON && m_FileContent[m_Pos[E_INDEX::FILE]] != E_ABNF::LF && m_FileContent[m_Pos[E_INDEX::FILE]] != E_CONF::LBRACE) {
+	while (m_Pos[E_INDEX::FILE] < m_FileSize && m_FileContent[m_Pos[E_INDEX::FILE]] != E_ABNF::SEMICOLON && m_FileContent[m_Pos[E_INDEX::FILE]] != E_ABNF::LF && m_FileContent[m_Pos[E_INDEX::FILE]] != E_CONF::LBRACE) {
 		args.push_back(argument(m_BlockStack.top(), status));
 	}
 	return (argumentChecker(args, status));
@@ -539,7 +611,7 @@ const bool	CONF::ConfParser::blockContent() {
 	}
 	m_Pos[E_INDEX::FILE]++;
 	m_Pos[E_INDEX::COLUMN]++;
-	while (m_Pos[E_INDEX::FILE] < m_FileContent.size() && m_FileContent[m_Pos[E_INDEX::FILE]] != E_CONF::RBRACE) {
+	while (m_Pos[E_INDEX::FILE] < m_FileSize && m_FileContent[m_Pos[E_INDEX::FILE]] != E_CONF::RBRACE) {
 		contextLines();
 		continue ;
 	}
@@ -564,8 +636,8 @@ const bool	CONF::ConfParser::context() {
 }
 
 const bool	CONF::ConfParser::contextLines() {
-	while (m_Pos[E_INDEX::FILE] < m_FileContent.size()) {
-		while (m_Pos[E_INDEX::FILE] < m_FileContent.size() && ABNF::isWSP(m_FileContent, m_Pos[E_INDEX::FILE])) {
+	while (m_Pos[E_INDEX::FILE] < m_FileSize) {
+		while (m_Pos[E_INDEX::FILE] < m_FileSize && ABNF::isWSP(m_FileContent, m_Pos[E_INDEX::FILE])) {
 			m_Pos[E_INDEX::FILE]++;
 			m_Pos[E_INDEX::COLUMN]++;
 		}
