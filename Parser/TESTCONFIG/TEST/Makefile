@@ -10,8 +10,12 @@ SRCS		:= ../../../utils/utilFunctions.cpp \
 				../../../utils/utilFunctions.cpp \
 				../../URIParser/BNF_utils/SchemeChecker.cpp \
 				../ConfParser/Exception/ConfParserException.cpp \
-				../ConfParser/ConfParser.cpp \
-				../../../File/File.cpp \
+				../ConfParser/AConfParser.cpp \
+				../../../FileDescriptor/FileDescriptor.cpp \
+				../../../FileDescriptor/File/ReadFile.cpp \
+				../ConfFile/ConfFile.cpp \
+				../ConfData/ConfMainBlock.cpp \
+				../ConfData/ConfEventBlock.cpp \
 				test.cpp
 				
 OBJS_DIR	:=	objs/
