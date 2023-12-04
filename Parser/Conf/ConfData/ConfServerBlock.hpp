@@ -25,7 +25,7 @@ namespace   CONF {
 	private: 
 		bool									m_Autoindex;
 		unsigned short							m_Port;
-		unsigned short							m_ServerStatus;
+		unsigned short							m_Status;
 		std::string								m_Root;
 		strVec									m_Server_name;
 		std::string								m_Error_page;
