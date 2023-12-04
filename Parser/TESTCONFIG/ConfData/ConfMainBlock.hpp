@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ConfParser/ConfParser.hpp"
+#include "../ConfParser/AConfParser.hpp"
 #include "ConfEventBlock.hpp"
 #include "ConfHTTPBlock.hpp"
 #include "ConfLocationBlock.hpp"
@@ -23,20 +23,20 @@
  */
 
 namespace   CONF {
-	class MainBlock : public ConfParser {
+	class MainBlock : public AConfParser {
 	private:
 		typedef std::map<std::string, std::string>		envMap;
 		typedef std::map<std::string, unsigned char>	statusMap;
 		typedef std::vector<std::string>				strVec;
 
-		bool					m_EventOrHttp; // true Event, false HTTP
+		bool					m_BlockSwitch; // true Event, false HTTP
 		bool					m_Daemon;
 		unsigned char			m_Status;
 		unsigned int			m_Worker_process;
 		unsigned long			m_Timer_resolution;
 		strVec					m_Error_log;
 		envMap					m_Env;
-		eventsBlock				m_Event_block;
+		EventsBlock				m_Event_block;
 		static httpBlock		m_HTTP_block;
 		statusMap				m_MainStatusMap;
 
@@ -48,7 +48,7 @@ namespace   CONF {
 
 		const bool				context();
 		const bool				blockContent();
-		const unsigned short	directiveNameChecker();
+		const unsigned short	directiveNameChecker(const std::string& name);
 
 		const std::string		argument(const unsigned short& status);
 		const bool				argumentChecker(const std::vector<std::string>& args, const unsigned short& status);
