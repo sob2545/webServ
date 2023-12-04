@@ -26,11 +26,15 @@ namespace   CONF {
 	struct httpBlock{
 		bool								m_Autoindex;
 		unsigned short						m_Status;
-		strVec								m_Root;
 		std::string							m_Default_type;
-		std::string							m_Error_page;
-		std::string							m_Access_log;
+		strVec								m_Root;
+		strVec								m_Access_log;
+		// DISCUSSION HTTP message에서 uri 뒤에 path로 서버를 찾아야 되는데,
+		// 이미 path를 분리하여 string vector로 저장해 놨음.
+		// 아마 map으로 전체적인 path URI를 저장하고, value 값으로 string vector를 저장하는게 좋을듯.
 		strVec								m_Index;
+		strVec								m_Include;
+		std::map<unsigned int, strVec>		m_Error_page;
 		std::map<std::string, std::string>	m_Mime_types;
 		std::map<std::string, serverBlock>	m_Server_block;
 	};
