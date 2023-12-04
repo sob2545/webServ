@@ -26,7 +26,7 @@ namespace   CONF {
 	 */
 	public:
 		static ConfBlock*		instance;
-		void					initInstance(const std::string& file);
+		static void				initInstance(const std::string& file);
 		static ConfBlock*		getInstance();
 
 	private:
