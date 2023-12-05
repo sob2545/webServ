@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ConfParser/AConfParser.hpp"
+#include "../Parser/AConfParser.hpp"
 #include "ConfEventBlock.hpp"
 #include "ConfHTTPBlock.hpp"
 #include "ConfLocationBlock.hpp"

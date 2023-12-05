@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ConfParser/Exception/ConfParserException.hpp"
+#include "../Parser/Exception/ConfParserException.hpp"
 #include "ConfMainBlock.hpp"
 #include <map>
 #include <vector>
@@ -23,20 +23,14 @@ namespace   CONF {
 	class ConfBlock {
 	/**
 	 * @brief	Singleton Instance
-	 * 
 	 */
 	public:
-		typedef std::map<std::string, std::string>		envMap;
-		typedef std::map<std::string, unsigned char>	statusMap;
-		typedef std::vector<std::string>				errorLogLocation;
-
-
 		static ConfBlock*		instance;
-		static ConfBlock*		initInstance(const std::string& file);
+		static void				initInstance(const std::string& file);
 		static ConfBlock*		getInstance();
 
 	private:
-		CONF::MainBlock		m_MainBlock;
+		static CONF::MainBlock		m_MainBlock;
 
 		ConfBlock(const std::string& file);
 		ConfBlock(const ConfBlock& other);
@@ -45,18 +39,11 @@ namespace   CONF {
 
 	/**
 	 * @brief	public function
-	 * 
 	 */
 	public:
-		// static const httpBlock&	getHttpBlock();
-		const bool				isDaemonOn();
-		const unsigned int&		getWorkerProcess();
-		const unsigned long& 	getTimeResolution();
-		const errorLogLocation&	getErrorLog();
-		const envMap&			getEnvMap();
-		const std::string&		getEnv(const std::string& key);
-		const unsigned int&		getWorkerConnections();
-
+		// TODO: delete debug function
 		void	print();
+
+		const MainBlock&	getMainBlock() const;
 	};
 }

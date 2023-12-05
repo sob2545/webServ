@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../../utils/utilFunctions.hpp"
-#include "../ConfParser/AConfParser.hpp"
+#include "../Parser/AConfParser.hpp"
 
 namespace   CONF {
 	class EventsBlock : public AConfParser {

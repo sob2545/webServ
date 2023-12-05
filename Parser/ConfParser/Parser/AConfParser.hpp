@@ -3,7 +3,7 @@
 #include "../../../utils/utilABNFFunctions.hpp"
 #include "../../URIParser/URIParser.hpp"
 
-#include "../ConfFile/ConfFile.hpp"
+#include "../File/ConfFile.hpp"
 #include "Exception/ConfParserException.hpp"
 #include "ConfParserUtils.hpp"
 #include <stack>

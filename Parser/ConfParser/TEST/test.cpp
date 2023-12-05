@@ -1,4 +1,4 @@
-#include "../ConfData/ConfBlock.hpp"
+#include "../Data/ConfBlock.hpp"
 #include <iostream>
 #include <fstream>
 

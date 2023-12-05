@@ -1,6 +1,6 @@
 #include "ConfBlock.hpp"
 #include "ConfMainBlock.hpp"
-#include "../ConfParser/Exception/ConfParserException.hpp"
+#include "../Parser/Exception/ConfParserException.hpp"
 
 // TODO: delete
 #include <iostream>
@@ -32,7 +32,7 @@ CONF::ConfBlock::~ConfBlock() {
 }
 
 
-const CONF::MainBlock&	CONF::ConfBlock::getHttpBlock() const {
+const CONF::MainBlock&	CONF::ConfBlock::getMainBlock() const {
 	return CONF::ConfBlock::m_MainBlock;
 }
 

@@ -5,17 +5,17 @@ RM			=	rm -rf
 
 SRCS		:= ../../../utils/utilFunctions.cpp \
 				../../../utils/utilABNFFunctions.cpp \
-				../ConfData/ConfBlock.cpp \
+				../Data/ConfBlock.cpp \
 				../../URIParser/URIParser.cpp \
 				../../../utils/utilFunctions.cpp \
 				../../URIParser/BNF_utils/SchemeChecker.cpp \
-				../ConfParser/Exception/ConfParserException.cpp \
-				../ConfParser/AConfParser.cpp \
+				../Parser/Exception/ConfParserException.cpp \
+				../Parser/AConfParser.cpp \
 				../../../FileDescriptor/FileDescriptor.cpp \
 				../../../FileDescriptor/File/ReadFile.cpp \
-				../ConfFile/ConfFile.cpp \
-				../ConfData/ConfMainBlock.cpp \
-				../ConfData/ConfEventBlock.cpp \
+				../File/ConfFile.cpp \
+				../Data/ConfMainBlock.cpp \
+				../Data/ConfEventBlock.cpp \
 				test.cpp
 				
 OBJS_DIR	:=	objs/
