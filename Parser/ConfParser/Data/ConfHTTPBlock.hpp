@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Parser/AConfParser.hpp"
 #include "ConfLocationBlock.hpp"
 #include "ConfServerBlock.hpp"
 #include <map>
@@ -23,8 +24,10 @@
 
 
 namespace   CONF {
-	class httpBlock{
-		
+	class HTTPBlock : public AConfParser {
+	private:
+		typedef std::map<std::string, unsigned short>	statusMap;
+
 		bool								m_Autoindex;
 		unsigned short						m_Status;
 		std::string							m_Default_type;
@@ -38,6 +41,26 @@ namespace   CONF {
 		std::map<unsigned int, strVec>		m_Error_page;
 		std::map<std::string, std::string>	m_Mime_types;
 		std::map<std::string, serverBlock>	m_Server_block;
-	};
+		statusMap							m_HTTPStatusMap;
 
+	private:
+		HTTPBlock(const HTTPBlock& other);
+		HTTPBlock& operator=(const HTTPBlock& other);
+
+		void					initHTTPStatusMap();
+
+		const bool				context();
+		const bool				blockContent();
+		const unsigned short	directiveNameChecker(const std::string& name);
+
+		const std::string		argument(const unsigned short& status);
+		const bool				argumentChecker(const std::vector<std::string>& args, const unsigned short& status);
+	
+	public:
+		HTTPBlock();
+		virtual ~HTTPBlock();
+
+		void					initialize();
+
+	};
 }

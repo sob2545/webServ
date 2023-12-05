@@ -177,7 +177,7 @@ const bool	CONF::MainBlock::blockContent() {
 		m_Event_block.initialize();
 		std::cout << "Event Block End" << std::endl;
 	} else {
-		// m_HTTP_block.initialize();
+		m_HTTP_block.initialize();
 	}
 	if (fileContent[Pos[E_INDEX::FILE]] != E_CONF::RBRACE) {
 		throw ConfParserException(fileName, "}", "Direct block has no brace!", Pos);
