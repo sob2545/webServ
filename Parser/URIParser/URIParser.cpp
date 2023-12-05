@@ -300,10 +300,37 @@ void	segment(const std::string& inputURI, size_t& pos, std::vector<std::string>&
 	}
 }
 
+void	segment(const std::string& inputURI, size_t& pos, std::string& absPath) {
+	size_t	startPos(pos);
+
+	while (pos < inputURI.size() && isPchar(inputURI, pos)) {
+		pos++;
+	}
+	absPath += inputURI.substr(startPos, (pos - startPos));
+	while (pos < inputURI.size() && inputURI.at(pos) == URI::E_RESERVED::SEMICOLON) {
+		startPos = pos;
+		pos++;
+		while (pos < inputURI.size() && isPchar(inputURI, pos)) {
+			pos++;
+		}
+		absPath += inputURI.substr(startPos, (pos - startPos));
+	}
+}
+
 void	pathSegments(const std::string& inputURI, size_t& pos, std::vector<std::string>& absPath) {
 	segment(inputURI, pos, absPath);
 
 	while (pos < inputURI.size() && inputURI.at(pos) == URI::E_RESERVED::SLASH) {
+		pos++;
+		segment(inputURI, pos, absPath);
+	}
+}
+
+void	pathSegments(const std::string& inputURI, size_t& pos, std::string& absPath) {
+	segment(inputURI, pos, absPath);
+
+	while (pos < inputURI.size() && inputURI.at(pos) == URI::E_RESERVED::SLASH) {
+		absPath += "/";
 		pos++;
 		segment(inputURI, pos, absPath);
 	}
@@ -323,6 +350,18 @@ bool	URIParser::absPath(const std::string& inputURI, size_t& pos, std::vector<st
 		return false;
 	}
 	else {
+		pos++;
+		pathSegments(inputURI, pos, absPath);
+		return true;
+	}
+}
+
+bool	URIParser::absPath(const std::string& inputURI, size_t& pos, std::string& absPath) {
+	if (pos >= inputURI.size() || inputURI.at(pos) != URI::E_RESERVED::SLASH) {
+		return false;
+	}
+	else {
+		absPath += "/";
 		pos++;
 		pathSegments(inputURI, pos, absPath);
 		return true;
