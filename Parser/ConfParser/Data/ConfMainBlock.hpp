@@ -37,7 +37,7 @@ namespace   CONF {
 		strVec					m_Error_log;
 		envMap					m_Env;
 		EventsBlock				m_Event_block;
-		static httpBlock		m_HTTP_block;
+		static HTTPBlock		m_HTTP_block;
 		statusMap				m_MainStatusMap;
 
 	private:
