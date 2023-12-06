@@ -43,7 +43,5 @@ void	CONF::ConfBlock::print() {
 	std::cout << "\tWorker_process: " << this->m_MainBlock.getWorkerProcess() << std::endl;
 	std::cout << "\tDaemon: " << (this->m_MainBlock.isDaemonOn()? "on" : "off") << std::endl;
 	std::cout << "\tTime_resolution: " << this->m_MainBlock.getTimeResolution() << std::endl;
-	for (const auto& log : this->m_MainBlock.getErrorLog()) {
-		std::cout << "\tError_log: " << log << std::endl;
-	}
+		std::cout << "\tError_log: " << this->m_MainBlock.getErrorLog() << std::endl;
  }
