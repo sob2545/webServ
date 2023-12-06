@@ -97,10 +97,14 @@ const bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args
 			return false;
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::ERROR_LOG: {
-			if (args.size() != 1) {
-				throw ConfParserException(fileName, args.at(0), "invalid number of Error Log arguments!", Pos);
+			std::cout << args.size() << std::endl;
+			std::cout << args.at(0) << std::endl;
+			std::cout << args.at(1) << std::endl;
+			if (args.size() == 2 && args.at(1).empty()) {
+				this->m_Error_log = args.at(0);
+				return false;
 			}
-			return false;
+			throw ConfParserException(fileName, args.at(0), "invalid number of Error Log arguments!", Pos);
 		}
 		// case CONF::E_MAIN_BLOCK_STATUS::HTTP_BLOCK: {
 		// 	if (args.size() > 1 || (args.size() == 1 && !args[0].empty())) {
@@ -134,7 +138,7 @@ const std::string	CONF::MainBlock::argument(const unsigned short& status) {
 
 	switch (status) {
 		case CONF::E_MAIN_BLOCK_STATUS::ERROR_LOG: {
-			absPathArgumentParser(this->m_Error_log);
+			stringPathArgumentParser(argument);
 			return (argument);
 		}
 	}
@@ -177,7 +181,7 @@ const bool	CONF::MainBlock::blockContent() {
 		m_Event_block.initialize();
 		std::cout << "Event Block End" << std::endl;
 	} else {
-		m_HTTP_block.initialize();
+		// m_HTTP_block.initialize();
 	}
 	if (fileContent[Pos[E_INDEX::FILE]] != E_CONF::RBRACE) {
 		throw ConfParserException(fileName, "}", "Direct block has no brace!", Pos);
@@ -228,7 +232,7 @@ const unsigned long&	CONF::MainBlock::getTimeResolution() {
 	return this->m_Timer_resolution;
 }
 
-const CONF::MainBlock::strVec&	CONF::MainBlock::getErrorLog() {
+const std::string&	CONF::MainBlock::getErrorLog() {
 	return this->m_Error_log;
 }
 

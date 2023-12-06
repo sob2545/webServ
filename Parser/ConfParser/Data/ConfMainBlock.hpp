@@ -34,7 +34,7 @@ namespace   CONF {
 		unsigned char			m_Status;
 		unsigned int			m_Worker_process;
 		unsigned long			m_Timer_resolution;
-		strVec					m_Error_log;
+		std::string				m_Error_log;
 		envMap					m_Env;
 		EventsBlock				m_Event_block;
 		static HTTPBlock		m_HTTP_block;
@@ -62,9 +62,9 @@ namespace   CONF {
 		const bool				isDaemonOn();
 		const unsigned int&		getWorkerProcess();
 		const unsigned long& 	getTimeResolution();
-		const strVec&			getErrorLog();
-		const envMap&			getEnvMap();
+		const std::string&		getErrorLog();
 		const std::string&		getEnv(const std::string& key);
+		const envMap&			getEnvMap();
 		const unsigned int&		getWorkerConnections();
 	};
 }
