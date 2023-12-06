@@ -1,5 +1,6 @@
 #include "ConfMainBlock.hpp"
 #include "../../ABNF_utils/ABNFFunctions.hpp"
+#include "ConfBlock.hpp"
 
 // TODO: delete
 #include <iostream>
@@ -12,7 +13,9 @@ CONF::MainBlock::MainBlock()
   m_Worker_process(4),
   m_Timer_resolution(0)
 {
-	 initMainStatusMap();
+	// TODO: env parsing
+	// CONF::ConfBlock::getInstance()->getShellEnv();
+	initMainStatusMap();
 }
 
 CONF::MainBlock::~MainBlock() {}
