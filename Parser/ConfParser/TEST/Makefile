@@ -4,11 +4,13 @@ CXXFLAGS	=	-std=c++98
 RM			=	rm -rf
 
 SRCS		:= ../../../utils/utilFunctions.cpp \
-				../../../utils/utilABNFFunctions.cpp \
+				../../../ABNF_utils/ABNFFunctions.cpp \
+				../../../BNF_utils/BNFFunctions.cpp \
 				../Data/ConfBlock.cpp \
 				../../URIParser/URIParser.cpp \
+				../../PathParser/PathParser.cpp \
 				../../../utils/utilFunctions.cpp \
-				../../URIParser/BNF_utils/SchemeChecker.cpp \
+				../../URIParser/SchemeChecker/SchemeChecker.cpp \
 				../Parser/Exception/ConfParserException.cpp \
 				../Parser/AConfParser.cpp \
 				../../../FileDescriptor/FileDescriptor.cpp \
