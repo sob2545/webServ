@@ -1,11 +1,10 @@
 #include "../Data/ConfBlock.hpp"
 #include <iostream>
-#include <fstream>
 
-int main() {
+int main(int ac, char** av, char** env) {
 	const std::string	fileName = "test.conf";
 	try {
-		CONF::ConfBlock::initInstance(fileName);
+		CONF::ConfBlock::initInstance(fileName, env);
 		CONF::ConfBlock::getInstance()->print();
 	} catch (ConfParserException& e) {
 		std::cerr << e.getMessage() << std::endl;
