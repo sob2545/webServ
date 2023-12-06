@@ -8,9 +8,11 @@ CONF::ConfBlock*	CONF::ConfBlock::instance = NULL;
 
 CONF::MainBlock		CONF::ConfBlock::m_MainBlock;
 
-void	CONF::ConfBlock::initInstance(const std::string& file) {
+char**				CONF::ConfBlock::m_ShellEnv = NULL;
+
+void	CONF::ConfBlock::initInstance(const std::string& file, char** env) {
 	if (CONF::ConfBlock::instance == NULL) {
-		CONF::ConfBlock::instance = new CONF::ConfBlock(file);
+		CONF::ConfBlock::instance = new CONF::ConfBlock(file, env);
 	}
 }
 
@@ -21,8 +23,9 @@ CONF::ConfBlock*	CONF::ConfBlock::getInstance() {
 	return CONF::ConfBlock::instance;
 }
 
-CONF::ConfBlock::ConfBlock(const std::string& file) {
+CONF::ConfBlock::ConfBlock(const std::string& file, char** env) {
 	CONF::ConfFile::InitInstance(file);
+	CONF::ConfBlock::m_ShellEnv = env;
 
 	CONF::ConfBlock::m_MainBlock.initialize();
 }
@@ -33,6 +36,10 @@ CONF::ConfBlock::~ConfBlock() {
 
 const CONF::MainBlock&	CONF::ConfBlock::getMainBlock() const {
 	return CONF::ConfBlock::m_MainBlock;
+}
+
+char**	CONF::ConfBlock::getShellEnv() const {
+	return CONF::ConfBlock::m_ShellEnv;
 }
 
 // DEBUG

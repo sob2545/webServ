@@ -22,13 +22,14 @@ namespace   CONF {
 	 */
 	public:
 		static ConfBlock*		instance;
-		static void				initInstance(const std::string& file);
+		static void				initInstance(const std::string& file, char** env);
 		static ConfBlock*		getInstance();
 
 	private:
 		static CONF::MainBlock		m_MainBlock;
+		static char**				m_ShellEnv;
 
-		ConfBlock(const std::string& file);
+		ConfBlock(const std::string& file, char** env);
 		ConfBlock(const ConfBlock& other);
 		ConfBlock&	operator=(const ConfBlock& other);
 		virtual ~ConfBlock();
@@ -41,5 +42,6 @@ namespace   CONF {
 		void	print();
 
 		const MainBlock&	getMainBlock() const;
+		char**				getShellEnv() const;
 	};
 }
