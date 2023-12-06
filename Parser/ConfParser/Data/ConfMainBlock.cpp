@@ -1,4 +1,5 @@
 #include "ConfMainBlock.hpp"
+#include "../../ABNF_utils/ABNFFunctions.hpp"
 
 // TODO: delete
 #include <iostream>
@@ -97,9 +98,6 @@ const bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args
 			return false;
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::ERROR_LOG: {
-			std::cout << args.size() << std::endl;
-			std::cout << args.at(0) << std::endl;
-			std::cout << args.at(1) << std::endl;
 			if (args.size() == 2 && args.at(1).empty()) {
 				this->m_Error_log = args.at(0);
 				return false;
