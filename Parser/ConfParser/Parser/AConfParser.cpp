@@ -56,18 +56,41 @@ const bool	CONF::AConfParser::fileName(std::string& argument) {
 	return true;
 }
 
+/*			absPath with string vector
 void	CONF::AConfParser::absPathArgumentParser(strVec& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
 	const size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
 	size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
 
-	const size_t		argumentLength = (std::strchr(&(fileContent[Pos[E_INDEX::FILE]]), E_ABNF::LF) - fileContent.c_str()) - Pos[E_INDEX::FILE] - 1;
-	const std::string	uri = "/" + fileContent.substr(Pos[E_INDEX::FILE], argumentLength);
-	size_t	uriPos = 0;
-	URIParser::absPath(uri, uriPos, argument);
-	Pos[E_INDEX::FILE] += argumentLength + 1;
-	Pos[E_INDEX::COLUMN] += argumentLength + 1;
+	const size_t	startPos = Pos[E_INDEX::FILE];
+	URIParser::absPath(fileContent, Pos[E_INDEX::FILE], argument);
+	Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startPos);
 }
+*/
+
+// 		Does absPath function need?
+void	CONF::AConfParser::absPathArgumentParser(std::string& argument) {
+	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
+	const size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
+
+	const size_t	startPos = Pos[E_INDEX::FILE];
+	URIParser::absPath(fileContent, Pos[E_INDEX::FILE], argument);
+	Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startPos);
+}
+
+void	CONF::AConfParser::stringPathArgumentParser(std::string& argument) {
+	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
+	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+
+	const size_t	startPos = Pos[E_INDEX::FILE];
+	if (URIParser::absPath(fileContent, Pos[E_INDEX::FILE], argument)
+			|| URIParser::relPath(fileContent, Pos[E_INDEX::FILE], argument)) {
+		Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startPos);
+	}
+}
+
 
 void	CONF::AConfParser::digitArgumentParser(std::string& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();

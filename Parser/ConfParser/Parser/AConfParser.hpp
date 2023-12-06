@@ -26,7 +26,9 @@ namespace CONF {
 		// common util functions
 		const bool		isMultipleDirective(const unsigned char& block_status, const unsigned short& directive_status);
 		const bool		fileName(std::string& argument);
-		void			absPathArgumentParser(strVec& argument);
+		// void			absPathArgumentParser(strVec& argument);
+		void			stringPathArgumentParser(std::string& argument);
+		void			absPathArgumentParser(std::string& argument);
 		void			digitArgumentParser(std::string& argument);
 		void			errorPageArgumentParser(std::string& argument);
 
