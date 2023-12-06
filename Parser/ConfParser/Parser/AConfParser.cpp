@@ -75,7 +75,7 @@ void	CONF::AConfParser::absPathArgumentParser(std::string& argument) {
 	size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
 
 	const size_t	startPos = Pos[E_INDEX::FILE];
-	URIParser::absPath(fileContent, Pos[E_INDEX::FILE], argument);
+	PathParser::File_AbsolutePath(fileContent, Pos[E_INDEX::FILE], argument);
 	Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startPos);
 }
 
@@ -85,8 +85,8 @@ void	CONF::AConfParser::stringPathArgumentParser(std::string& argument) {
 	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	const size_t	startPos = Pos[E_INDEX::FILE];
-	if (URIParser::absPath(fileContent, Pos[E_INDEX::FILE], argument)
-			|| URIParser::relPath(fileContent, Pos[E_INDEX::FILE], argument)) {
+	if (PathParser::File_AbsolutePath(fileContent, Pos[E_INDEX::FILE], argument)
+			|| PathParser::File_RelativePath(fileContent, Pos[E_INDEX::FILE], argument)) {
 		Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startPos);
 	}
 }
@@ -114,10 +114,10 @@ void	CONF::AConfParser::errorPageArgumentParser(std::string& argument) {
 	size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
 
 	while (Pos[E_INDEX::FILE] < fileSize && (std::isalnum(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))
-													|| fileContent[Pos[E_INDEX::FILE]] == URI::E_RESERVED::SLASH
-													|| fileContent[Pos[E_INDEX::FILE]] == URI::E_RESERVED::COLON
-													|| fileContent[Pos[E_INDEX::FILE]] == URI::E_MARK::UNDERSCORE
-													|| fileContent[Pos[E_INDEX::FILE]] == URI::E_MARK::PERIOD))
+													|| fileContent[Pos[E_INDEX::FILE]] == BNF::E_RESERVED::SLASH
+													|| fileContent[Pos[E_INDEX::FILE]] == BNF::E_RESERVED::COLON
+													|| fileContent[Pos[E_INDEX::FILE]] == BNF::E_MARK::UNDERSCORE
+													|| fileContent[Pos[E_INDEX::FILE]] == BNF::E_MARK::PERIOD))
 	{
 		argument += fileContent[Pos[E_INDEX::FILE]];
 		Pos[E_INDEX::FILE]++;
