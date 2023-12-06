@@ -1,5 +1,4 @@
-#include "utilABNFFunctions.hpp"
-#include <iostream>
+#include "ABNFFunctions.hpp"
 
 bool	ABNF::isLF(const std::string& file, size_t& pos) {
 	return ((file[pos] == E_ABNF::LF) ? true : false);
