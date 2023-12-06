@@ -1,10 +1,6 @@
 #pragma once
 
-#include "../Parser/Exception/ConfParserException.hpp"
 #include "ConfMainBlock.hpp"
-#include <map>
-#include <vector>
-
 
 /**
  * @brief	Main Block Status

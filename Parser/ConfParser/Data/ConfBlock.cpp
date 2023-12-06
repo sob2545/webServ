@@ -1,5 +1,4 @@
 #include "ConfBlock.hpp"
-#include "ConfMainBlock.hpp"
 #include "../Parser/Exception/ConfParserException.hpp"
 
 // TODO: delete
