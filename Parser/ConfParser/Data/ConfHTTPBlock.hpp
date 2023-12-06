@@ -31,8 +31,8 @@ namespace   CONF {
 		bool								m_Autoindex;
 		unsigned short						m_Status;
 		std::string							m_Default_type;
-		strVec								m_Root;
-		strVec								m_Access_log;
+		std::string							m_Root;
+		std::string							m_Access_log;
 		// DISCUSSION HTTP message에서 uri 뒤에 path로 서버를 찾아야 되는데,
 		// 이미 path를 분리하여 string vector로 저장해 놨음.
 		// 아마 map으로 전체적인 path URI를 저장하고, value 값으로 string vector를 저장하는게 좋을듯.
