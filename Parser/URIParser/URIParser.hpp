@@ -63,6 +63,7 @@ namespace URIParser {
 	bool		isValidURI(const std::string& inputURI, std::string& host);
 	bool		absPath(const std::string& inputURI, size_t& pos, std::vector<std::string>& absPath);
 	bool		absPath(const std::string& inputURI, size_t& pos, std::string& absPath);
+	bool		relPath(const std::string& inputURI, size_t& pos, std::string& absPath);
 	URI::data	Parser(const std::string& inputURI);
 	const bool	server(const std::string& inputURI, size_t& pos, std::string& host, unsigned short& port);
 	const bool	server(const std::string& inputURI, size_t& pos, std::string& hostname);

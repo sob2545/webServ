@@ -368,6 +368,16 @@ bool	URIParser::absPath(const std::string& inputURI, size_t& pos, std::string& a
 	}
 }
 
+bool	URIParser::relPath(const std::string& inputURI, size_t& pos, std::string& absPath) {
+	if (pos >= inputURI.size() || inputURI.at(pos) == URI::E_RESERVED::SLASH) {
+		return false;
+	}
+	else {
+		pathSegments(inputURI, pos, absPath);
+		return true;
+	}
+}
+
 // TODO: '//' 처리하면 안 되는데, netPath에서 처리하고 있음
 // netPath를 먼저 호출하지 않고 나중에 호출하여 absPath에서 '/'를 확인하고 netPath가 불려지도록 바꿔야 됨
 bool	netPath(const std::string& inputURI, size_t& pos, URI::data& uri) {
