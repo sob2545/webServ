@@ -65,6 +65,7 @@ namespace   CONF {
 		const std::string&		getErrorLog();
 		const std::string&		getEnv(const std::string& key);
 		const envMap&			getEnvMap();
+		envMap&					setEnvMap();
 		const unsigned int&		getWorkerConnections();
 	};
 }

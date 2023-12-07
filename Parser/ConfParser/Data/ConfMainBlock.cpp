@@ -1,6 +1,5 @@
 #include "ConfMainBlock.hpp"
 #include "../../ABNF_utils/ABNFFunctions.hpp"
-#include "ConfBlock.hpp"
 
 // TODO: delete
 #include <iostream>
@@ -13,8 +12,6 @@ CONF::MainBlock::MainBlock()
   m_Worker_process(4),
   m_Timer_resolution(0)
 {
-	// TODO: env parsing
-	// CONF::ConfBlock::getInstance()->getShellEnv();
 	initMainStatusMap();
 }
 
@@ -230,6 +227,10 @@ const std::string&	CONF::MainBlock::getErrorLog() {
 }
 
 const CONF::MainBlock::envMap&	CONF::MainBlock::getEnvMap() {
+	return this->m_Env;
+}
+
+CONF::MainBlock::envMap&	CONF::MainBlock::setEnvMap() {
 	return this->m_Env;
 }
 
