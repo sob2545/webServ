@@ -10,21 +10,17 @@ CONF::EventsBlock::~EventsBlock() {}
 
 
 const bool	CONF::EventsBlock::argumentChecker(const std::vector<std::string>& args, const unsigned short& status) {
-	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const std::string&	fileName = CONF::ConfFile::getInstance()->getFileName();
-	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	if (args.size() != 1) {
-		throw ConfParserException(fileName, args.at(0), "invalid number of Events arguments!", Pos);
+		throw ConfParserException(args.at(0), "invalid number of Events arguments!");
 	} else {
 		if (args.at(0).empty()) {
-			throw ConfParserException(fileName, args.at(0), "invalid number of Events arguments!", Pos);
+			throw ConfParserException(args.at(0), "invalid number of Events arguments!");
 		}
 		char*	endptr;
 		const long	argumentNumber = std::strtol(args[0].c_str(), &endptr, 10);
 		if (*endptr != '\0' || argumentNumber < 1) {
-			throw ConfParserException(fileName, args[0], "invalid number of Events arguments!", Pos);
+			throw ConfParserException(args[0], "invalid number of Events arguments!");
 		}
 		this->m_Worker_connections = static_cast<unsigned int>(argumentNumber);
 	}
@@ -46,17 +42,17 @@ const std::string	CONF::EventsBlock::argument(const unsigned short& status) {
 		digitArgumentParser(argument);
 		std::cout << "worker_connections: " << argument << std::endl;
 	} else {
-		throw ConfParserException(CONF::ConfFile::getInstance()->getFileName(), "", "is invalid Confgiure file!", Pos);
+		throw ConfParserException("", "is invalid Confgiure file!");
 	}
 	return (argument);
 }
 
 const unsigned short	CONF::EventsBlock::directiveNameChecker(const std::string& name) {
 	if (name == "worker_connections") {
-		(m_Status & E_EVENTS_BLOCK_STATUS::WORKER_CONNECTIONS) ? throw ConfParserException(CONF::ConfFile::getInstance()->getFileName(), name, "events directive is duplicated!", CONF::ConfFile::getInstance()->Pos()) : m_Status |= E_EVENTS_BLOCK_STATUS::WORKER_CONNECTIONS;
+		(m_Status & E_EVENTS_BLOCK_STATUS::WORKER_CONNECTIONS) ? throw ConfParserException(name, "events directive is duplicated!") : m_Status |= E_EVENTS_BLOCK_STATUS::WORKER_CONNECTIONS;
 		return (E_EVENTS_BLOCK_STATUS::WORKER_CONNECTIONS);
 	} else {
-		throw ConfParserException(CONF::ConfFile::getInstance()->getFileName(), name, "events directive name is invalid!", CONF::ConfFile::getInstance()->Pos());
+		throw ConfParserException(name, "events directive name is invalid!");
 	}
 }
 
@@ -70,7 +66,7 @@ const bool	CONF::EventsBlock::context() {
 		return (false);
 	}
 	if (directives()) {
-		throw ConfParserException(CONF::ConfFile::getInstance()->getFileName(), "", "is invalid Confgiure file!", Pos);
+		throw ConfParserException("", "is invalid Confgiure file!");
 	} else {
 		return (ABNF::isC_nl(fileContent, Pos[E_INDEX::FILE]) ? true : false);
 	}

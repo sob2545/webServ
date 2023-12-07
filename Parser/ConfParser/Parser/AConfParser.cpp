@@ -2,6 +2,9 @@
 #include "Exception/ConfParserException.hpp"
 #include <string>
 
+// TODO: delete
+#include <iostream>
+
 std::stack<unsigned char> CONF::AConfParser::m_BlockStack;
 
 CONF::AConfParser::AConfParser() {}
@@ -63,7 +66,7 @@ void	CONF::AConfParser::absPathArgumentParser(strVec& argument) {
 	size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
 
 	const size_t	startPos = Pos[E_INDEX::FILE];
-	URIParser::absPath(fileContent, Pos[E_INDEX::FILE], argument);
+	URIParser::relative(fileContent, Pos[E_INDEX::FILE], argument);
 	Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startPos);
 }
 */
@@ -75,7 +78,7 @@ void	CONF::AConfParser::absPathArgumentParser(std::string& argument) {
 	size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
 
 	const size_t	startPos = Pos[E_INDEX::FILE];
-	PathParser::File_AbsolutePath(fileContent, Pos[E_INDEX::FILE], argument);
+	PathParser::File_AbsolutePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument);
 	Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startPos);
 }
 
@@ -85,8 +88,8 @@ void	CONF::AConfParser::stringPathArgumentParser(std::string& argument) {
 	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	const size_t	startPos = Pos[E_INDEX::FILE];
-	if (PathParser::File_AbsolutePath(fileContent, Pos[E_INDEX::FILE], argument)
-			|| PathParser::File_RelativePath(fileContent, Pos[E_INDEX::FILE], argument)) {
+	if (PathParser::File_AbsolutePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)
+			|| PathParser::File_RelativePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)) {
 		Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startPos);
 	}
 }
@@ -94,7 +97,6 @@ void	CONF::AConfParser::stringPathArgumentParser(std::string& argument) {
 
 void	CONF::AConfParser::digitArgumentParser(std::string& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const std::string&	fileName = CONF::ConfFile::getInstance()->getFileName();
 	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
 	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
@@ -104,14 +106,14 @@ void	CONF::AConfParser::digitArgumentParser(std::string& argument) {
 		Pos[E_INDEX::COLUMN]++;
 	}
 	if (!ABNF::isWSP(fileContent, Pos[E_INDEX::FILE]) && fileContent[Pos[E_INDEX::FILE]] != E_ABNF::SEMICOLON && fileContent[Pos[E_INDEX::FILE]] != E_ABNF::LF) {
-		throw ConfParserException(fileName, argument, "invalid type of Worker Connections arguments!", Pos);
+		throw ConfParserException(argument, "invalid type of Worker Connections arguments!");
 	}
 }
 
 void	CONF::AConfParser::errorPageArgumentParser(std::string& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
+	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	while (Pos[E_INDEX::FILE] < fileSize && (std::isalnum(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))
 													|| fileContent[Pos[E_INDEX::FILE]] == BNF::E_RESERVED::SLASH

@@ -33,17 +33,16 @@ void	CONF::MainBlock::initMainStatusMap() {
 
 const bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args, const unsigned short& status) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const std::string&	fileName = CONF::ConfFile::getInstance()->getFileName();
 	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
 	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	switch (status) {
 		case CONF::E_MAIN_BLOCK_STATUS::ENV: {
 			if (args.size() != 1) {
-				throw ConfParserException(fileName, args.at(0), "invalid number of Environment arguments!", Pos);
+				throw ConfParserException(args.at(0), "invalid number of Environment arguments!");
 			} else {
 				if (args.at(0).empty()) {
-					throw ConfParserException(fileName, args.at(0), "invalid number of Environment arguments!", Pos);
+					throw ConfParserException(args.at(0), "invalid number of Environment arguments!");
 				}
 				std::pair<std::string, std::string>	env;
 				this->m_Env.insert(env);
@@ -52,15 +51,15 @@ const bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::WORKER_PROCESS: {
 			if (args.size() != 1) {
-				throw ConfParserException(fileName, args.at(0), "invalid number of Worker Processes arguments!", Pos);
+				throw ConfParserException(args.at(0), "invalid number of Worker Processes arguments!");
 			} else {
 				if (args.at(0).empty()) {
-					throw ConfParserException(fileName, args.at(0), "invalid number of Worker Processes arguments!", Pos);
+					throw ConfParserException(args.at(0), "invalid number of Worker Processes arguments!");
 				}
 				char*	endptr;
 				const long	argumentNumber = std::strtol(args[0].c_str(), &endptr, 10);
 				if (*endptr != '\0' || argumentNumber < 1) {
-					throw ConfParserException(fileName, args[0], "invalid number of Worker Processes arguments!", Pos);
+					throw ConfParserException(args[0], "invalid number of Worker Processes arguments!");
 				}
 				this->m_Worker_process = static_cast<unsigned int>(argumentNumber);
 			}
@@ -68,25 +67,25 @@ const bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::DAEMON: {
 			if (args.size() != 1) {
-				throw ConfParserException(fileName, args.at(0), "invalid number of Daemon arguments!", Pos);
+				throw ConfParserException(args.at(0), "invalid number of Daemon arguments!");
 			} else {
 				if (args.at(0) == "on") {
 					this->m_Daemon = true;
 				} else if (args.at(0) == "off") {
 					this->m_Daemon = false;
 				} else {
-					throw ConfParserException(fileName, args.at(0), "invalid number of Daemon arguments!", Pos);
+					throw ConfParserException(args.at(0), "invalid number of Daemon arguments!");
 				}
 			}
 			return false;
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::TIMER_RESOLUTION: {
 			if (args.size() != 1) {
-				throw ConfParserException(fileName, args.at(0), "invalid number of Timer Resolution arguments!", Pos);
+				throw ConfParserException(args.at(0), "invalid number of Timer Resolution arguments!");
 			} else {
 				char*	endptr;
 				const unsigned long	argumentNumber = static_cast<unsigned long>(std::strtol(args[0].c_str(), &endptr, 10));
-				argumentNumber > 0 ? this->m_Timer_resolution = argumentNumber : throw ConfParserException(fileName, args.at(0), "invalid number of Timer Resolution arguments!", Pos);
+				argumentNumber > 0 ? this->m_Timer_resolution = argumentNumber : throw ConfParserException(args.at(0), "invalid number of Timer Resolution arguments!");
 
 				const std::string	time = args[0].substr(endptr - args[0].c_str(), args[0].length());
 				// TODO: time check
@@ -95,7 +94,7 @@ const bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args
 				} else if (time == "s" || time.empty()) {
 					this->m_Timer_resolution *= 1000;
 				} else {
-					throw ConfParserException(fileName, args.at(0), "invalid number of Timer Resolution arguments!", Pos);
+					throw ConfParserException(args.at(0), "invalid number of Timer Resolution arguments!");
 				}
 			}
 			return false;
@@ -105,24 +104,24 @@ const bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args
 				this->m_Error_log = args.at(0);
 				return false;
 			}
-			throw ConfParserException(fileName, args.at(0), "invalid number of Error Log arguments!", Pos);
+			throw ConfParserException(args.at(0), "invalid number of Error Log arguments!");
 		}
 		// case CONF::E_MAIN_BLOCK_STATUS::HTTP_BLOCK: {
 		// 	if (args.size() > 1 || (args.size() == 1 && !args[0].empty())) {
-		// 		throw ConfParserException(fileName, args.at(0), "invalid number of HTTP arguments!", Pos);
+		// 		throw ConfParserException(args.at(0), "invalid number of HTTP arguments!");
 		// 	}
 		// 	m_BlockStack.push(CONF::E_BLOCK_STATUS::HTTP);
 		// 	return true;
 		// }
 		case CONF::E_MAIN_BLOCK_STATUS::EVENT_BLOCK: {
 			if (args.size() > 1 || (args.size() == 1 && !args[0].empty())) {
-				throw ConfParserException(fileName, args.at(0), "invalid number of Event arguments!", Pos);
+				throw ConfParserException(args.at(0), "invalid number of Event arguments!");
 			}
 			this->m_BlockSwitch = true;
 			return true;
 		}
 		default:
-			throw ConfParserException(fileName, "", "Invalid configure file!", Pos);
+			throw ConfParserException("", "Invalid configure file!");
 	}
 }
 
@@ -140,6 +139,7 @@ const std::string	CONF::MainBlock::argument(const unsigned short& status) {
 	switch (status) {
 		case CONF::E_MAIN_BLOCK_STATUS::ERROR_LOG: {
 			stringPathArgumentParser(argument);
+			std::cout << "main arg: " << argument << std::endl;
 			return (argument);
 		}
 	}
@@ -152,28 +152,23 @@ const std::string	CONF::MainBlock::argument(const unsigned short& status) {
 }
 
 const unsigned short	CONF::MainBlock::directiveNameChecker(const std::string& name) {
-	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const std::string&	fileName = CONF::ConfFile::getInstance()->getFileName();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
-
 	const statusMap::iterator	it = m_MainStatusMap.find(name);
 
 	if (it == m_MainStatusMap.end()) {
-		throw ConfParserException(fileName, name, "main directive name is invalid!", Pos);
+		throw ConfParserException(name, "main directive name is invalid!");
 	} else {
-		((m_Status & it->second) && !isMultipleDirective(m_BlockStack.top(), m_Status)) ? throw ConfParserException(fileName, name, "main directive is duplicated!", Pos) : m_Status |= it->second;
+		((m_Status & it->second) && !isMultipleDirective(m_BlockStack.top(), m_Status)) ? throw ConfParserException(name, "main directive is duplicated!") : m_Status |= it->second;
 		return it->second;
 	}
 }
 
 const bool	CONF::MainBlock::blockContent() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const std::string&	fileName = CONF::ConfFile::getInstance()->getFileName();
 	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 
 	if (fileContent[Pos[E_INDEX::FILE]] != E_CONF::LBRACE) {
-		throw ConfParserException(fileName, "{", "Direct block has no brace!", Pos);
+		throw ConfParserException("{", "Direct block has no brace!");
 	}
 	Pos[E_INDEX::FILE]++;
 	Pos[E_INDEX::COLUMN]++;
@@ -185,7 +180,7 @@ const bool	CONF::MainBlock::blockContent() {
 		// m_HTTP_block.initialize();
 	}
 	if (fileContent[Pos[E_INDEX::FILE]] != E_CONF::RBRACE) {
-		throw ConfParserException(fileName, "}", "Direct block has no brace!", Pos);
+		throw ConfParserException("}", "Direct block has no brace!");
 	}
 	Pos[E_INDEX::FILE]++;
 	Pos[E_INDEX::COLUMN]++;
@@ -209,13 +204,10 @@ const bool	CONF::MainBlock::context() {
 }
 
 void	CONF::MainBlock::initialize() {
-	const std::string&	fileName = CONF::ConfFile::getInstance()->getFileName();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
-
 	CONF::AConfParser::m_BlockStack.push(CONF::E_BLOCK_STATUS::MAIN);
 
 	if (!contextLines()) {
-		throw ConfParserException(fileName, "", "is invalid Confgiure file!", Pos);
+		throw ConfParserException("", "is invalid Confgiure file!");
 	}
 }
 

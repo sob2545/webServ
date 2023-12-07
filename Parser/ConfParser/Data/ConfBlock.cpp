@@ -18,7 +18,7 @@ void	CONF::ConfBlock::initInstance(const std::string& file, char** env) {
 
 CONF::ConfBlock*	CONF::ConfBlock::getInstance() {
 	if (CONF::ConfBlock::instance == NULL) {
-		throw ConfParserException("ConfBlock.cpp", "ConfBlock::getInstance()", "instance is NULL", CONF::ConfFile::getInstance()->Pos());
+		throw ConfParserException("ConfBlock::getInstance()", "instance is NULL");
 	}
 	return CONF::ConfBlock::instance;
 }

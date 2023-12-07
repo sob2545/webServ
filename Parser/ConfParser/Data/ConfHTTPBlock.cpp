@@ -24,13 +24,12 @@ void	CONF::HTTPBlock::initHTTPStatusMap() {
 
 const unsigned short	CONF::HTTPBlock::directiveNameChecker(const std::string& name) {
 const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const std::string&	fileName = CONF::ConfFile::getInstance()->getFileName();
 	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	const statusMap::iterator	it = m_HTTPStatusMap.find(name);
 
 	if (it == m_HTTPStatusMap.end()) {
-		throw ConfParserException(fileName, name, "HTTP directive name is invalid!", Pos);
+		throw ConfParserException(name, "HTTP directive name is invalid!");
 	} else {
 		((m_Status & it->second) && !isMultipleDirective(m_BlockStack.top(), m_Status)) ? throw ConfParserException(fileName, name, "main directive is duplicated!", Pos) : m_Status |= it->second;
 		return it->second;
