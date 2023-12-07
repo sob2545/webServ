@@ -12,7 +12,7 @@ private:
 public:
 	ConfParserException(const ConfParserException& other);
 	ConfParserException& operator=(const ConfParserException& other);
-	ConfParserException(const std::string& file, const std::string& error, const std::string& message, const size_t* pos);
+	ConfParserException(const std::string& error, const std::string& message);
 	virtual ~ConfParserException() throw();
 	virtual const char* what() const throw();
 	const std::string& getMessage() const;
