@@ -1,5 +1,10 @@
 #include "PathParser.hpp"
+#include "../ABNF_utils/ABNFFunctions.hpp"
+#include "../ConfParser/Parser/Exception/ConfParserException.hpp"
 #include <string>
+
+// TODO: delete this
+#include <iostream>
 
 /**
  *	@brief		segment / path-segments
@@ -10,6 +15,22 @@
 	*	@param inputURI:	입력받은 URI
 	*	@param pos:			현재 위치
 */
+
+const bool	isValidPath(const unsigned char& c) {
+	switch (c) {
+		case (E_PATH::FOWARD_SLASH):
+		case (E_PATH::DOUBLE_QUOTE):
+		case (E_PATH::SINGLE_QUOTE):
+		case (E_PATH::ASTERISK):
+		case (E_PATH::SEMICOLON):
+		case (E_PATH::LBRACE):
+		case (E_PATH::RBRACE):
+		case (E_PATH::LF):
+		case (E_PATH::EOL):
+			return false;
+	}
+	return true;
+}
 
 void	URI_Segment(const std::string& inputURI, size_t& pos, std::string& absPath) {
 	size_t	startPos(pos);
@@ -30,16 +51,6 @@ void	URI_Segment(const std::string& inputURI, size_t& pos, std::string& absPath)
 	}
 }
 
-void	File_Segment(const std::string& inputURI, size_t& pos, std::string& absPath) {
-	size_t	startPos(pos);
-
-	while (pos < inputURI.size() && BNF::isPchar(inputURI, pos)) {
-		pos++;
-	}
-	absPath += inputURI.substr(startPos, (pos - startPos));
-}
-
-
 void	URI_PathSegments(const std::string& inputURI, size_t& pos, std::string& absPath) {
 	URI_Segment(inputURI, pos, absPath);
 
@@ -50,13 +61,26 @@ void	URI_PathSegments(const std::string& inputURI, size_t& pos, std::string& abs
 	}
 }
 
+
+template <typename T>
+void	File_Segment(const std::string& inputURI, size_t& pos, std::string& absPath) {
+	size_t	startPos(pos);
+
+	while (pos < inputURI.size() && !ABNF::isWSP(inputURI, pos)) {
+		absPath += inputURI[pos];
+		(isValidPath(inputURI[pos])) ? pos++ : throw T(absPath, "Invalid Path");
+	}
+	absPath += inputURI.substr(startPos, (pos - startPos));
+}
+
+template <typename T>
 void	File_PathSegments(const std::string& inputURI, size_t& pos, std::string& absPath) {
-	File_Segment(inputURI, pos, absPath);
+	File_Segment<T>(inputURI, pos, absPath);
 
 	while (pos < inputURI.size() && inputURI.at(pos) == BNF::E_RESERVED::SLASH) {
 		absPath += "/";
 		pos++;
-		File_Segment(inputURI, pos, absPath);
+		File_Segment<T>(inputURI, pos, absPath);
 	}
 }
 
@@ -110,7 +134,7 @@ bool	PathParser::absPath(const std::string& inputURI, size_t& pos, std::vector<s
 }
 */
 
-bool	PathParser::URI_AbsolutePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
+const bool	PathParser::URI_AbsolutePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
 	if (pos >= inputURI.size() || inputURI.at(pos) != BNF::E_RESERVED::SLASH) {
 		return false;
 	}
@@ -122,7 +146,7 @@ bool	PathParser::URI_AbsolutePath(const std::string& inputURI, size_t& pos, std:
 	}
 }
 
-bool	PathParser::URI_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
+const bool	PathParser::URI_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
 	if (pos >= inputURI.size() || inputURI.at(pos) == BNF::E_RESERVED::SLASH) {
 		return false;
 	}
@@ -132,24 +156,29 @@ bool	PathParser::URI_RelativePath(const std::string& inputURI, size_t& pos, std:
 	}
 }
 
-bool	PathParser::File_AbsolutePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
+template <typename T>
+const bool	PathParser::File_AbsolutePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
 	if (pos >= inputURI.size() || inputURI.at(pos) != BNF::E_RESERVED::SLASH) {
 		return false;
 	}
 	else {
 		absPath += "/";
 		pos++;
-		File_PathSegments(inputURI, pos, absPath);
+		File_PathSegments<T>(inputURI, pos, absPath);
 		return true;
 	}
 }
 
-bool	PathParser::File_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
+template <typename T>
+const bool	PathParser::File_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
 	if (pos >= inputURI.size() || inputURI.at(pos) == BNF::E_RESERVED::SLASH) {
 		return false;
 	}
 	else {
-		File_PathSegments(inputURI, pos, absPath);
+		File_PathSegments<T>(inputURI, pos, absPath);
 		return true;
 	}
 }
+
+template const bool PathParser::File_AbsolutePath<ConfParserException>(const std::string&, size_t&, std::string&);
+template const bool PathParser::File_RelativePath<ConfParserException>(const std::string&, size_t&, std::string&);
