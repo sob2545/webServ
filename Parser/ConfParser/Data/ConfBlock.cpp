@@ -1,5 +1,7 @@
 #include "ConfBlock.hpp"
 #include "../Parser/Exception/ConfParserException.hpp"
+#include "ConfMainBlock.hpp"
+#include "../EnvParser/EnvParser.hpp"
 
 // TODO: delete
 #include <iostream>
@@ -7,8 +9,6 @@
 CONF::ConfBlock*	CONF::ConfBlock::instance = NULL;
 
 CONF::MainBlock		CONF::ConfBlock::m_MainBlock;
-
-char**				CONF::ConfBlock::m_ShellEnv = NULL;
 
 void	CONF::ConfBlock::initInstance(const std::string& file, char** env) {
 	if (CONF::ConfBlock::instance == NULL) {
@@ -25,7 +25,7 @@ CONF::ConfBlock*	CONF::ConfBlock::getInstance() {
 
 CONF::ConfBlock::ConfBlock(const std::string& file, char** env) {
 	CONF::ConfFile::InitInstance(file);
-	CONF::ConfBlock::m_ShellEnv = env;
+	ENV::EnvParser<EnvParserException>(this->m_MainBlock.setEnvMap(), env);
 
 	CONF::ConfBlock::m_MainBlock.initialize();
 }
@@ -38,14 +38,13 @@ const CONF::MainBlock&	CONF::ConfBlock::getMainBlock() const {
 	return CONF::ConfBlock::m_MainBlock;
 }
 
-char**	CONF::ConfBlock::getShellEnv() const {
-	return CONF::ConfBlock::m_ShellEnv;
-}
-
 // DEBUG
 void	CONF::ConfBlock::print() {
 	std::cout << "Main Block" << std::endl;
 	std::cout << "\tEnv: " << std::endl;
+	for (auto it = this->m_MainBlock.getEnvMap().begin(); it != this->m_MainBlock.getEnvMap().end(); ++it) {
+		std::cout << "\t" << it->first << " " << it->second;
+	}
 	std::cout << "\tWorker_process: " << this->m_MainBlock.getWorkerProcess() << std::endl;
 	std::cout << "\tDaemon: " << (this->m_MainBlock.isDaemonOn()? "on" : "off") << std::endl;
 	std::cout << "\tTime_resolution: " << this->m_MainBlock.getTimeResolution() << std::endl;

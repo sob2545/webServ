@@ -27,7 +27,6 @@ namespace   CONF {
 
 	private:
 		static CONF::MainBlock		m_MainBlock;
-		static char**				m_ShellEnv;
 
 		ConfBlock(const std::string& file, char** env);
 		ConfBlock(const ConfBlock& other);
@@ -42,6 +41,5 @@ namespace   CONF {
 		void	print();
 
 		const MainBlock&	getMainBlock() const;
-		char**				getShellEnv() const;
 	};
 }
