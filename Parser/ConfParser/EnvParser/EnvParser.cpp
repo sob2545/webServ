@@ -1,4 +1,5 @@
 #include "EnvParser.hpp"
+#include "../Parser/Exception/ConfParserException.hpp"
 
 
 /*
@@ -28,7 +29,6 @@ void	ENV::envLine(ENV::envMap& dest, const std::string& env, size_t& pos) {
 	pos++;
 	const size_t	start(pos);
 	while (env[pos]) {
-		key += env[pos];
 		pos++;
 	}
 	dest[key] = env.substr(start, pos - start);
@@ -51,6 +51,4 @@ void	ENV::EnvParser(envMap& dest, char** env) {
 }
 
 template void	ENV::EnvParser<EnvParserException>(ENV::envMap&, char**);
-
-// template void	ENV::EnvParser<ConfParserException>(ENV::envMap&, char**);
-// template void	ENV::envLine<ConfParserException>(ENV::envMap&, const std::string&, size_t&);
+template void	ENV::envLine<ConfParserException>(ENV::envMap&, const std::string&, size_t&);
