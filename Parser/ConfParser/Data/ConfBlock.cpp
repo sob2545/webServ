@@ -43,7 +43,7 @@ void	CONF::ConfBlock::print() {
 	std::cout << "Main Block" << std::endl;
 	std::cout << "\tEnv: " << std::endl;
 	for (auto it = this->m_MainBlock.getEnvMap().begin(); it != this->m_MainBlock.getEnvMap().end(); ++it) {
-		std::cout << "\t" << it->first << " " << it->second;
+		std::cout << "\t" << it->first << " " << it->second << std::endl;
 	}
 	std::cout << "\tWorker_process: " << this->m_MainBlock.getWorkerProcess() << std::endl;
 	std::cout << "\tDaemon: " << (this->m_MainBlock.isDaemonOn()? "on" : "off") << std::endl;
