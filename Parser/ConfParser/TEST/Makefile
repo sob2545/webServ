@@ -18,6 +18,8 @@ SRCS		:= ../../../utils/utilFunctions.cpp \
 				../File/ConfFile.cpp \
 				../Data/ConfMainBlock.cpp \
 				../Data/ConfEventBlock.cpp \
+				../EnvParser/EnvParser.cpp \
+				../EnvParser/Exception/EnvParserException.cpp \
 				test.cpp
 				
 OBJS_DIR	:=	objs/
