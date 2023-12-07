@@ -3,9 +3,6 @@
 #include "../ConfParser/Parser/Exception/ConfParserException.hpp"
 #include <string>
 
-// TODO: delete this
-#include <iostream>
-
 /**
  *	@brief		segment / path-segments
 	*	@details	'/' 기준으로 경로를 나누어 absPath에 저장한다.
@@ -66,11 +63,10 @@ template <typename T>
 void	File_Segment(const std::string& inputURI, size_t& pos, std::string& absPath) {
 	size_t	startPos(pos);
 
-	while (pos < inputURI.size() && !ABNF::isWSP(inputURI, pos)) {
+	while (pos < inputURI.size() && !ABNF::isWSP(inputURI, pos) && inputURI[pos] != BNF::E_RESERVED::SLASH) {
 		absPath += inputURI[pos];
 		(isValidPath(inputURI[pos])) ? pos++ : throw T(absPath, "Invalid Path");
 	}
-	absPath += inputURI.substr(startPos, (pos - startPos));
 }
 
 template <typename T>
@@ -171,7 +167,9 @@ const bool	PathParser::File_AbsolutePath(const std::string& inputURI, size_t& po
 
 template <typename T>
 const bool	PathParser::File_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
-	if (pos >= inputURI.size() || inputURI.at(pos) == BNF::E_RESERVED::SLASH) {
+	if (pos >= inputURI.size()
+			|| inputURI.at(pos) == BNF::E_RESERVED::SLASH
+			|| inputURI.at(pos) == BNF::E_RESERVED::SEMICOLON) {
 		return false;
 	}
 	else {
