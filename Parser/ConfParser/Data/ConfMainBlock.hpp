@@ -44,6 +44,7 @@ namespace   CONF {
 		MainBlock& operator=(const MainBlock& other);
 
 		void					initMainStatusMap();
+		const std::string		envArgumentParser(std::string& argument);
 
 		const bool				context();
 		const bool				blockContent();

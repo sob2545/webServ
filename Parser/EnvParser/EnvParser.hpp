@@ -6,5 +6,6 @@
 namespace ENV {
 	typedef std::map<std::string, std::string>		envMap;
 
-	void	Parser(envMap& dest, const char** env);
+	void		EnvParser(envMap& dest, const char** env);
+	const bool	envLine(envMap& dest, const std::string& env);
 }
