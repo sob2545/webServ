@@ -1,7 +1,9 @@
 #include "ConfMainBlock.hpp"
 #include "../../ABNF_utils/ABNFFunctions.hpp"
+#include "../EnvParser/EnvParser.hpp"
 
 // TODO: delete
+#include <cstddef>
 #include <iostream>
 
 CONF::MainBlock::MainBlock()
@@ -38,11 +40,8 @@ const bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args
 			if (args.size() != 1) {
 				throw ConfParserException(args.at(0), "invalid number of Environment arguments!");
 			} else {
-				if (args.at(0).empty()) {
-					throw ConfParserException(args.at(0), "invalid number of Environment arguments!");
-				}
-				std::pair<std::string, std::string>	env;
-				this->m_Env.insert(env);
+				size_t	idx(0);
+				ENV::envLine<ConfParserException>(this->m_Env, args[0], idx);
 			}
 			return false;
 		}
@@ -139,8 +138,21 @@ const std::string	CONF::MainBlock::argument(const unsigned short& status) {
 			std::cout << "main arg: " << argument << std::endl;
 			return (argument);
 		}
+		case CONF::E_MAIN_BLOCK_STATUS::ENV: {
+			while (Pos[E_INDEX::FILE] < fileSize
+					&& !ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])
+					&& fileContent[Pos[E_INDEX::FILE]] != BNF::E_RESERVED::SEMICOLON) {
+				argument += fileContent[Pos[E_INDEX::FILE]];
+				Pos[E_INDEX::FILE]++;
+				Pos[E_INDEX::COLUMN]++;
+			}
+			return (argument);
+		}
 	}
-	while (Pos[E_INDEX::FILE] < fileSize && (std::isalnum(static_cast<int>(fileContent[Pos[E_INDEX::FILE]])) || fileContent[Pos[E_INDEX::FILE]] == '_' || fileContent[Pos[E_INDEX::FILE]] == '=')) {
+	while (Pos[E_INDEX::FILE] < fileSize
+			&& (std::isalnum(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))
+				|| fileContent[Pos[E_INDEX::FILE]] == '_'
+				|| fileContent[Pos[E_INDEX::FILE]] == '=')) {
 		(std::isalpha(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))) ? argument += std::tolower(fileContent[Pos[E_INDEX::FILE]]) : argument += fileContent[Pos[E_INDEX::FILE]];
 		Pos[E_INDEX::FILE]++;
 		Pos[E_INDEX::COLUMN]++;
