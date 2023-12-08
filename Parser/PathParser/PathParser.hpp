@@ -13,6 +13,7 @@ namespace E_PATH {
 		SINGLE_QUOTE = '\'',
 		ASTERISK = '*',
 		SEMICOLON = ';',
+		COLON = ':',
 		LBRACE = '{',
 		RBRACE = '}',
 		LF = '\n',

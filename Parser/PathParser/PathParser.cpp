@@ -20,6 +20,7 @@ const bool	isValidPath(const unsigned char& c) {
 		case (E_PATH::SINGLE_QUOTE):
 		case (E_PATH::ASTERISK):
 		case (E_PATH::SEMICOLON):
+		case (E_PATH::COLON):
 		case (E_PATH::LBRACE):
 		case (E_PATH::RBRACE):
 		case (E_PATH::LF):
