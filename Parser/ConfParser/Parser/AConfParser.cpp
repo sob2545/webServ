@@ -110,21 +110,29 @@ void	CONF::AConfParser::digitArgumentParser(std::string& argument) {
 	}
 }
 
+// TODO: delete
 void	CONF::AConfParser::errorPageArgumentParser(std::string& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
 	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
 	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
-	while (Pos[E_INDEX::FILE] < fileSize && (std::isalnum(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))
-													|| fileContent[Pos[E_INDEX::FILE]] == BNF::E_RESERVED::SLASH
-													|| fileContent[Pos[E_INDEX::FILE]] == BNF::E_RESERVED::COLON
-													|| fileContent[Pos[E_INDEX::FILE]] == BNF::E_MARK::UNDERSCORE
-													|| fileContent[Pos[E_INDEX::FILE]] == BNF::E_MARK::PERIOD))
-	{
-		argument += fileContent[Pos[E_INDEX::FILE]];
-		Pos[E_INDEX::FILE]++;
-		Pos[E_INDEX::COLUMN]++;
+	const size_t		startPos = Pos[E_INDEX::FILE];
+
+	if (PathParser::File_AbsolutePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)
+				|| PathParser::File_RelativePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)) {
+		Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startPos);
+	} else {
+		argument.clear();
+		Pos[E_INDEX::FILE] = startPos;
+		// TODO: full URI Parser에서 맨 처음 alpha가 아니면 false 되도록 구현
+		if (URIParser::fullURIParser(fileContent, Pos[E_INDEX::FILE], argument)
+				|| digitArgumentParser(argument)) {
+			;
+		} else {
+			throw ConfParserException("", "invalid configure file!");
+		}
 	}
+
 }
 
 
