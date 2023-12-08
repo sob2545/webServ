@@ -21,7 +21,7 @@
  */
 
 namespace   CONF {
-	class serverBlock {
+	class ServerBlock : public AConfParser {
 	private: 
 		bool									m_Autoindex;
 		unsigned short							m_Port;
@@ -31,8 +31,28 @@ namespace   CONF {
 		std::string								m_Error_page;
 		std::string								m_Access_log;
 		strVec									m_Index;
-		std::map<std::string, locationBlock>	m_Location_block;
+		std::map<std::string, LocationBlock>	m_Location_block;
 
+	private:
+		ServerBlock(const ServerBlock& other);
+		ServerBlock& operator=(const ServerBlock& other);
+
+		void					initHTTPStatusMap();
+
+		const bool				context();
+		const bool				blockContent();
+		const unsigned short	directiveNameChecker(const std::string& name);
+
+		const std::string		argument(const unsigned short& status);
+		const bool				argumentChecker(const std::vector<std::string>& args, const unsigned short& status);
+	
+	public:
+		ServerBlock();
+		virtual ~ServerBlock();
+
+		void	initialize();
+
+		const std::string&	getServerName() const;
 
 	};
 }
