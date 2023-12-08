@@ -2,7 +2,6 @@
 
 #include "../Parser/AConfParser.hpp"
 #include "../../../Trie/Trie.hpp"
-#include "ConfLocationBlock.hpp"
 #include "ConfServerBlock.hpp"
 #include <map>
 #include <string>
