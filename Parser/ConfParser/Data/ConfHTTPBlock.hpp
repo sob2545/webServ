@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Parser/AConfParser.hpp"
+#include "../../../Trie/Trie.hpp"
 #include "ConfLocationBlock.hpp"
 #include "ConfServerBlock.hpp"
 #include <map>
@@ -22,6 +23,7 @@
  * 	0b 1000 0000 0000 0000 = server
  */
 
+// TODO: root, access_log, index, include 각각이 abs/rel 둘 중 어떤 것이 되는지 알아볼 것
 
 namespace   CONF {
 	class HTTPBlock : public AConfParser {
@@ -33,15 +35,12 @@ namespace   CONF {
 		std::string							m_Default_type;
 		std::string							m_Root;
 		std::string							m_Access_log;
-		// DISCUSSION HTTP message에서 uri 뒤에 path로 서버를 찾아야 되는데,
-		// 이미 path를 분리하여 string vector로 저장해 놨음.
-		// 아마 map으로 전체적인 path URI를 저장하고, value 값으로 string vector를 저장하는게 좋을듯.
-		strVec								m_Index;
-		strVec								m_Include;
-		std::map<unsigned int, strVec>		m_Error_page;
+		std::string							m_Include;
+		std::map<unsigned int, std::string>	m_Error_page;
 		std::map<std::string, std::string>	m_Mime_types;
-		std::map<std::string, serverBlock>	m_Server_block;
+		std::map<std::string, ServerBlock>	m_Server_block;
 		statusMap							m_HTTPStatusMap;
+		Trie								m_Index;
 
 	private:
 		HTTPBlock(const HTTPBlock& other);
