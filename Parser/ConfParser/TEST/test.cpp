@@ -2,6 +2,8 @@
 #include <iostream>
 
 int main(int ac, char** av, char** env) {
+	(void)ac;
+	(void)av;
 	const std::string	fileName = "test.conf";
 	try {
 		CONF::ConfBlock::initInstance(fileName, env);
