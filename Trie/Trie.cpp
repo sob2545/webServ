@@ -1,4 +1,5 @@
 #include "Trie.hpp"
+#include <string>
 
 Trie::Trie() : root(new TrieNode()) {}
 
@@ -38,4 +39,21 @@ bool	Trie::search(const std::string& key) {
 		node = node->children[key[i]];
 	}
 	return true;
+}
+
+const std::string	Trie::find(const std::string& key) const {
+	TrieNode* node = root;
+	std::string	result;
+
+	for (size_t i(0); i < key.length(); ++i) {
+		const char&	c = key[i];
+		if (node->children.find(key[i]) == node->children.end()) {
+			return result;
+		}
+		node = node->children[key[i]];
+		if (node->isEndOfWord) {
+			result = key.substr(0, i + 1);
+		}
+	}
+	return result;
 }

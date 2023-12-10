@@ -11,7 +11,7 @@ public:
 	Trie& operator=(const Trie& other);
 	~Trie();
 
-	void	insert(const std::string& key);
-	bool	search(const std::string& key);
-
+	void				insert(const std::string& key);
+	bool				search(const std::string& key);
+	const std::string	find(const std::string& key) const;
 };
