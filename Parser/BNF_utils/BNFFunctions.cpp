@@ -73,3 +73,9 @@ bool	BNF::isPchar(const std::string& inputURI, size_t& pos) {
 		return false;
 	}
 }
+
+bool	BNF::isUric(const std::string& inputURI, size_t& pos) {
+	return (BNF::isPchar(inputURI, pos)
+			|| inputURI.at(pos) == BNF::E_RESERVED::SLASH
+			|| inputURI.at(pos) == BNF::E_RESERVED::QUESTION_MARK);
+}

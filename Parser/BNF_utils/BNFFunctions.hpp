@@ -49,4 +49,5 @@ namespace BNF {
 	bool	isUnreserved(const std::string& inputURI, size_t& pos);
 	bool	isEscaped(const std::string& inputURI, size_t& pos);
 	bool	isPchar(const std::string& inputURI, size_t& pos);
+	bool	isUric(const std::string& inputURI, size_t& pos);
 }
