@@ -9,7 +9,8 @@ CONF::EventsBlock::EventsBlock(): m_Status(false), m_Worker_connections(1024) {}
 CONF::EventsBlock::~EventsBlock() {}
 
 
-const bool	CONF::EventsBlock::argumentChecker(const std::vector<std::string>& args, const unsigned short& status) {
+bool	CONF::EventsBlock::argumentChecker(const std::vector<std::string>& args, const unsigned short& status) {
+	static_cast<void>(status);
 
 	if (args.size() != 1) {
 		throw ConfParserException(args.at(0), "invalid number of Events arguments!");
@@ -47,7 +48,7 @@ const std::string	CONF::EventsBlock::argument(const unsigned short& status) {
 	return (argument);
 }
 
-const unsigned short	CONF::EventsBlock::directiveNameChecker(const std::string& name) {
+unsigned short	CONF::EventsBlock::directiveNameChecker(const std::string& name) {
 	if (name == "worker_connections") {
 		(m_Status & E_EVENTS_BLOCK_STATUS::WORKER_CONNECTIONS) ? throw ConfParserException(name, "events directive is duplicated!") : m_Status |= E_EVENTS_BLOCK_STATUS::WORKER_CONNECTIONS;
 		return (E_EVENTS_BLOCK_STATUS::WORKER_CONNECTIONS);
@@ -56,9 +57,8 @@ const unsigned short	CONF::EventsBlock::directiveNameChecker(const std::string& 
 	}
 }
 
-const bool	CONF::EventsBlock::context() {
+bool	CONF::EventsBlock::context() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
 	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	if (fileContent[Pos[E_INDEX::FILE]] == E_ABNF::SEMICOLON
