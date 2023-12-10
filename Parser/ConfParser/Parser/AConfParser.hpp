@@ -25,27 +25,30 @@ namespace CONF {
 		static std::stack<unsigned char>	m_BlockStack;
 
 		// common util functions
-		const bool		isMultipleDirective(const unsigned char& block_status, const unsigned short& directive_status);
-		const bool		fileName(std::string& argument);
+		bool		isMultipleDirective(const unsigned char& block_status, const unsigned short& directive_status);
+		bool		fileName(std::string& argument);
 		// void			absPathArgumentParser(strVec& argument);
-		void			stringPathArgumentParser(std::string& argument);
-		void			absPathArgumentParser(std::string& argument);
-		void			digitArgumentParser(std::string& argument);
 		void			errorPageArgumentParser(std::string& argument);
+
+		bool		stringPathArgumentParser(std::string& argument);
+		bool		absPathArgumentParser(std::string& argument);
+		bool		digitArgumentParser(std::string& argument);
+		bool		goToLocationBlockArgumentParser(std::string& argument);
+		bool		replaceErrorPageArgumentParser(std::string& argument);
 
 		// void			indexArgumentParser(std::string& arugment);
 
 		// common parsing functions
-		const bool						contextLines();
-		const bool						directives();
-		virtual const unsigned short	directiveName();
+		bool						contextLines();
+		bool						directives();
+		virtual unsigned short	directiveName();
 
 		// virtual functions
-		virtual const bool				context() = 0;
-		virtual const unsigned short	directiveNameChecker(const std::string& name) = 0;
+		virtual bool				context() = 0;
+		virtual unsigned short		directiveNameChecker(const std::string& name) = 0;
 
-		virtual const std::string		argument(const unsigned short& status) = 0;
-		virtual const bool				argumentChecker(const std::vector<std::string>& args, const unsigned short& status) = 0;
+		virtual const std::string	argument(const unsigned short& status) = 0;
+		virtual bool				argumentChecker(const std::vector<std::string>& args, const unsigned short& status) = 0;
 
 
 	private:
