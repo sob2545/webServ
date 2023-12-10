@@ -38,12 +38,12 @@ namespace   CONF {
 
 		void					initHTTPStatusMap();
 
-		const bool				context();
-		const bool				blockContent();
-		const unsigned short	directiveNameChecker(const std::string& name);
+		bool				context();
+		bool				blockContent();
+		unsigned short		directiveNameChecker(const std::string& name);
 
-		const std::string		argument(const unsigned short& status);
-		const bool				argumentChecker(const std::vector<std::string>& args, const unsigned short& status);
+		const std::string	argument(const unsigned short& status);
+		bool				argumentChecker(const std::vector<std::string>& args, const unsigned short& status);
 	
 	public:
 		LocationBlock();

@@ -46,12 +46,12 @@ namespace   CONF {
 		void					initMainStatusMap();
 		const std::string		envArgumentParser(std::string& argument);
 
-		const bool				context();
-		const bool				blockContent();
-		const unsigned short	directiveNameChecker(const std::string& name);
+		bool					context();
+		bool					blockContent();
+		unsigned short			directiveNameChecker(const std::string& name);
 
 		const std::string		argument(const unsigned short& status);
-		const bool				argumentChecker(const std::vector<std::string>& args, const unsigned short& status);
+		bool					argumentChecker(const std::vector<std::string>& args, const unsigned short& status);
 
 	public:
 		MainBlock();
@@ -59,13 +59,14 @@ namespace   CONF {
 
 		void					initialize();
 
-		const bool				isDaemonOn();
-		const unsigned int&		getWorkerProcess();
-		const unsigned long& 	getTimeResolution();
-		const std::string&		getErrorLog();
-		const std::string&		getEnv(const std::string& key);
-		const envMap&			getEnvMap();
+		const bool&				isDaemonOn() const;
+		const unsigned int&		getWorkerProcess() const;
+		const unsigned long& 	getTimeResolution() const;
+		const std::string&		getErrorLog() const;
+		const std::string&		getEnv(const std::string& key) const;
+		const envMap&			getEnvMap() const;
+		const unsigned int&		getWorkerConnections() const;
+		const CONF::HTTPBlock&	getHTTPBlock() const;
 		envMap&					setEnvMap();
-		const unsigned int&		getWorkerConnections();
 	};
 }
