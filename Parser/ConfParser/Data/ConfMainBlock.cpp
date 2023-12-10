@@ -1,10 +1,13 @@
 #include "ConfMainBlock.hpp"
 #include "../../ABNF_utils/ABNFFunctions.hpp"
 #include "../EnvParser/EnvParser.hpp"
+#include "ConfHTTPBlock.hpp"
 
 // TODO: delete
 #include <cstddef>
 #include <iostream>
+
+CONF::HTTPBlock	CONF::MainBlock::m_HTTP_block;
 
 CONF::MainBlock::MainBlock()
 : AConfParser(),
@@ -30,11 +33,7 @@ void	CONF::MainBlock::initMainStatusMap() {
 	m_MainStatusMap["events"] = E_MAIN_BLOCK_STATUS::EVENT_BLOCK;
 }
 
-const bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args, const unsigned short& status) {
-	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
-
+bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args, const unsigned short& status) {
 	switch (status) {
 		case CONF::E_MAIN_BLOCK_STATUS::ENV: {
 			if (args.size() != 1) {
@@ -96,19 +95,19 @@ const bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args
 			return false;
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::ERROR_LOG: {
-			if (args.size() == 2 && args.at(1).empty()) {
-				this->m_Error_log = args.at(0);
+			if (args.size() == 1) {
+				args[0].empty() ? throw ConfParserException(args.at(0), "invalid number of Error Log arguments!") : this->m_Error_log = args.at(0);
 				return false;
 			}
 			throw ConfParserException(args.at(0), "invalid number of Error Log arguments!");
 		}
-		// case CONF::E_MAIN_BLOCK_STATUS::HTTP_BLOCK: {
-		// 	if (args.size() > 1 || (args.size() == 1 && !args[0].empty())) {
-		// 		throw ConfParserException(args.at(0), "invalid number of HTTP arguments!");
-		// 	}
-		// 	m_BlockStack.push(CONF::E_BLOCK_STATUS::HTTP);
-		// 	return true;
-		// }
+		case CONF::E_MAIN_BLOCK_STATUS::HTTP_BLOCK: {
+			if (args.size() > 1 || (args.size() == 1 && !args[0].empty())) {
+				throw ConfParserException(args.at(0), "invalid number of HTTP arguments!");
+			}
+		this->m_BlockSwitch = false;
+			return true;
+		}
 		case CONF::E_MAIN_BLOCK_STATUS::EVENT_BLOCK: {
 			if (args.size() > 1 || (args.size() == 1 && !args[0].empty())) {
 				throw ConfParserException(args.at(0), "invalid number of Event arguments!");
@@ -160,7 +159,7 @@ const std::string	CONF::MainBlock::argument(const unsigned short& status) {
 	return (argument);
 }
 
-const unsigned short	CONF::MainBlock::directiveNameChecker(const std::string& name) {
+unsigned short	CONF::MainBlock::directiveNameChecker(const std::string& name) {
 	const statusMap::iterator	it = m_MainStatusMap.find(name);
 
 	if (it == m_MainStatusMap.end()) {
@@ -171,7 +170,7 @@ const unsigned short	CONF::MainBlock::directiveNameChecker(const std::string& na
 	}
 }
 
-const bool	CONF::MainBlock::blockContent() {
+bool	CONF::MainBlock::blockContent() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
 	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
@@ -182,11 +181,9 @@ const bool	CONF::MainBlock::blockContent() {
 	Pos[E_INDEX::FILE]++;
 	Pos[E_INDEX::COLUMN]++;
 	if (m_BlockSwitch) {
-		std::cout << "Event Block" << std::endl;
 		m_Event_block.initialize();
-		std::cout << "Event Block End" << std::endl;
 	} else {
-		// m_HTTP_block.initialize();
+		m_HTTP_block.initialize();
 	}
 	if (fileContent[Pos[E_INDEX::FILE]] != E_CONF::RBRACE) {
 		throw ConfParserException("}", "Direct block has no brace!");
@@ -197,7 +194,7 @@ const bool	CONF::MainBlock::blockContent() {
 	return true;
 }
 
-const bool	CONF::MainBlock::context() {
+bool	CONF::MainBlock::context() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
 	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
@@ -222,23 +219,23 @@ void	CONF::MainBlock::initialize() {
 
 //			Getter Functions
 
-const bool	CONF::MainBlock::isDaemonOn() {
+const bool&	CONF::MainBlock::isDaemonOn() const {
 	return this->m_Daemon;
 }
 
-const unsigned int&	CONF::MainBlock::getWorkerProcess() {
+const unsigned int&	CONF::MainBlock::getWorkerProcess() const {
 	return this->m_Worker_process;
 }
 
-const unsigned long&	CONF::MainBlock::getTimeResolution() {
+const unsigned long&	CONF::MainBlock::getTimeResolution() const {
 	return this->m_Timer_resolution;
 }
 
-const std::string&	CONF::MainBlock::getErrorLog() {
+const std::string&	CONF::MainBlock::getErrorLog() const {
 	return this->m_Error_log;
 }
 
-const CONF::MainBlock::envMap&	CONF::MainBlock::getEnvMap() {
+const CONF::MainBlock::envMap&	CONF::MainBlock::getEnvMap() const {
 	return this->m_Env;
 }
 
@@ -246,10 +243,18 @@ CONF::MainBlock::envMap&	CONF::MainBlock::setEnvMap() {
 	return this->m_Env;
 }
 
-const std::string&	CONF::MainBlock::getEnv(const std::string& key) {
-	return this->m_Env[key];
+const std::string&	CONF::MainBlock::getEnv(const std::string& key) const {
+	envMap::const_iterator	it = this->m_Env.find(key);
+	if (it == this->m_Env.end()) {
+		throw ConfParserException(key, "invalid Environment variable!");
+	}
+	return it->second;
 }
 
-const unsigned int&	CONF::MainBlock::getWorkerConnections() {
+const unsigned int&	CONF::MainBlock::getWorkerConnections() const {
 	return this->m_Event_block.m_Worker_connections;
+}
+
+const CONF::HTTPBlock&	CONF::MainBlock::getHTTPBlock() const {
+	return this->m_HTTP_block;
 }
