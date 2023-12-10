@@ -24,9 +24,7 @@ namespace URI {
 
 
 namespace URIParser {
-	const bool	isValidHost(const std::string& inputURI, std::string& host);
-	const bool	server(const std::string& inputURI, size_t& pos, std::string& host, unsigned short& port);
-	const bool	server(const std::string& inputURI, size_t& pos, std::string& hostname);
-	URI::data	Parser(const std::string& inputURI);
+	bool	setServer(const std::string& inputURI, size_t& pos, std::string& argument, unsigned short& port);
+	bool	errorPageParser(const std::string& inputURI, size_t& pos, std::string& argument);
 }
 
