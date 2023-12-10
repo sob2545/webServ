@@ -18,8 +18,12 @@ SRCS		:= ../../../utils/utilFunctions.cpp \
 				../File/ConfFile.cpp \
 				../Data/ConfMainBlock.cpp \
 				../Data/ConfEventBlock.cpp \
+				../Data/ConfHTTPBlock.cpp \
 				../EnvParser/EnvParser.cpp \
 				../EnvParser/Exception/EnvParserException.cpp \
+				../../MIMEParser/MIMEParser.cpp \
+				../../../Trie/Trie.cpp \
+				../../../Trie/TrieNode.cpp \
 				test.cpp
 				
 OBJS_DIR	:=	objs/
