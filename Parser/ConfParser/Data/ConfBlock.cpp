@@ -42,11 +42,29 @@ const CONF::MainBlock&	CONF::ConfBlock::getMainBlock() const {
 void	CONF::ConfBlock::print() {
 	std::cout << "Main Block" << std::endl;
 	std::cout << "\tEnv: " << std::endl;
+	/*
 	for (auto it = this->m_MainBlock.getEnvMap().begin(); it != this->m_MainBlock.getEnvMap().end(); ++it) {
 		std::cout << "\t" << it->first << " " << it->second << std::endl;
 	}
+	*/
 	std::cout << "\tWorker_process: " << this->m_MainBlock.getWorkerProcess() << std::endl;
 	std::cout << "\tDaemon: " << (this->m_MainBlock.isDaemonOn()? "on" : "off") << std::endl;
 	std::cout << "\tTime_resolution: " << this->m_MainBlock.getTimeResolution() << std::endl;
 		std::cout << "\tError_log: " << this->m_MainBlock.getErrorLog() << std::endl;
+	
+	std::cout << "HTTP Block" << std::endl;
+	for (auto it = this->m_MainBlock.getHTTPBlock().getMime_types().begin(); it != this->m_MainBlock.getHTTPBlock().getMime_types().end(); ++it) {
+		std::cout << "\t" << it->first << " ";
+		for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+			std::cout << *it2 << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << "\t========" << std::endl;
+	std::cout << "\tDefault_type: " << this->m_MainBlock.getHTTPBlock().getDefault_type() << std::endl;
+	std::cout << "\tAccess log: " << this->m_MainBlock.getHTTPBlock().getAccess_log() << std::endl;
+	std::cout << "\tRoot: " << this->m_MainBlock.getHTTPBlock().getRoot() << std::endl;
+	std::cout << "\tAutoindex: " << (this->m_MainBlock.getHTTPBlock().getAutoindex()? "on" : "off") << std::endl;
+	std::cout << "\tIndex: " << this->m_MainBlock.getHTTPBlock().getIndex("index.html") << std::endl;
+
  }
