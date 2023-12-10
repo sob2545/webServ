@@ -29,12 +29,12 @@ template <typename T>
 void	File_PathSegments(const std::string& inputURI, size_t& pos, std::string& absPath);
 
 namespace PathParser {
-	const bool	URI_AbsolutePath(const std::string& inputURI, size_t& pos, std::string& absPath);
-	const bool	URI_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath);
+	bool	URI_AbsolutePath(const std::string& inputURI, size_t& pos, std::string& absPath);
+	bool	URI_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath);
 
 	template <typename T>
-	const bool	File_AbsolutePath(const std::string& inputURI, size_t& pos, std::string& absPath);
+	bool	File_AbsolutePath(const std::string& inputURI, size_t& pos, std::string& absPath);
 
 	template <typename T>
-	const bool	File_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath);
+	bool	File_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath);
 }
