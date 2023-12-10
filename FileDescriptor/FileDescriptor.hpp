@@ -14,5 +14,5 @@ public:
     FileDescriptor(const int fd);
 	virtual ~FileDescriptor();
 
-	const int getFd() const;
+	const int& getFd() const;
 };
