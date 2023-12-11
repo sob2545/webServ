@@ -1,18 +1,18 @@
 #include "URIParser.hpp"
 #include "SchemeChecker/SchemeChecker.hpp"
-#include <cstddef>
 #include <string>
 
-
-// TODO: URI 매개변수를 std::string으로 변경
-// TODO: 다른 곳에서 사용하는 함수만 BNFdata에 정의
+// TODO: delete and change exception class with template
+#include <iostream>
+#include "../ConfParser/Parser/Exception/ConfParserException.hpp"
 
 // TODO: compareOneCharcter throw 정의 해야됨
 void	compareOneCharacter(const std::string& inputURI, size_t& pos, const unsigned char& toCmp) {
-	const size_t&	URILength = inputURI.length();
+	const size_t&		URILength = inputURI.length();
+	const std::string	src(&inputURI[pos]);
 
 	if (pos >= URILength || inputURI[pos] != toCmp) {
-		throw ;
+		throw ConfParserException(inputURI.substr(pos, 1), "is not uri format");
 	}
 	pos++;
 }
@@ -73,9 +73,9 @@ void	Fragment(const std::string& inputURI, size_t& pos, std::string& fragment) {
 const std::string	domainlabel(const std::string& inputURI, size_t& pos) {
 	std::string	label;
 
-	if (pos >= inputURI.size() || !std::isalnum(static_cast<unsigned char>(inputURI.at(pos))))
-		throw ;
-	while (pos < inputURI.size() && (std::isalnum(static_cast<unsigned char>(inputURI.at(pos))) || inputURI.at(pos) == BNF::E_MARK::HYPHEN)) {
+	if (pos >= inputURI.size() || !std::isalnum(static_cast<int>(inputURI.at(pos))))
+		throw ConfParserException(label, "is invalid host name");
+	while (pos < inputURI.size() && (std::isalnum(static_cast<int>(inputURI.at(pos))) || inputURI.at(pos) == BNF::E_MARK::HYPHEN)) {
 		label += inputURI.at(pos);
 		pos++;
 	}
@@ -86,9 +86,9 @@ void	toplabel(const std::string& host) {
 	const size_t	dotPos = host.rfind(BNF::E_MARK::PERIOD);
 
 	if (dotPos != std::string::npos && !std::isalpha(static_cast<int>(host.at(dotPos + 1)))) {
-		throw ;
+		throw ConfParserException(host, "is invalid host name");
 	} else if (dotPos == std::string::npos && !std::isalpha(static_cast<int>(host.at(0)))) {
-		throw ;
+		throw ConfParserException(host, "is invalid host name");
 	}
 }
 
@@ -150,7 +150,7 @@ void	splitPort(const std::string& inputURI, size_t& pos, unsigned short& port) {
 	std::string	portStr;
 
 	if (pos >= inputURI.size() || !std::isdigit(static_cast<int>(inputURI.at(pos)))) {
-		throw ;
+		throw ConfParserException(portStr, "is invalid host name");
 	}
 	portStr += inputURI.at(pos);
 	pos++;
@@ -180,6 +180,7 @@ void	hierPart(const std::string& inputURI, size_t& pos, std::string& argument) {
 	compareOneCharacter(inputURI, pos, BNF::E_RESERVED::SLASH);
 	compareOneCharacter(inputURI, pos, BNF::E_RESERVED::SLASH);
 
+	argument += "//";
 	setHost(inputURI, pos, argument);
 	PathParser::URI_AbsolutePath(inputURI, pos, argument);
 }
@@ -211,7 +212,7 @@ bool	scheme(const std::string& inputURI, size_t& pos, std::string& scheme) {
 	}
 
 	if 	(scheme.empty() || !SchemeChecker::instance().isValidScheme(scheme)) {
-		throw ;
+		return false;
 	}
 	return true;
 }
@@ -234,6 +235,7 @@ bool	URIParser::errorPageParser(const std::string& inputURI, size_t& pos, std::s
 		return false;
 	}
 	compareOneCharacter(inputURI, pos, BNF::E_RESERVED::COLON);
+	argument += ":";
 	hierPart(inputURI, pos, argument);
 	return true;
 }
