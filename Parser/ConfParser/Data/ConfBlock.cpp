@@ -2,6 +2,7 @@
 #include "../Parser/Exception/ConfParserException.hpp"
 #include "ConfMainBlock.hpp"
 #include "../EnvParser/EnvParser.hpp"
+#include "errorPageData/errorPageData.hpp"
 
 // TODO: delete
 #include <iostream>
@@ -42,11 +43,10 @@ const CONF::MainBlock&	CONF::ConfBlock::getMainBlock() const {
 void	CONF::ConfBlock::print() {
 	std::cout << "Main Block" << std::endl;
 	std::cout << "\tEnv: " << std::endl;
-	/*
 	for (auto it = this->m_MainBlock.getEnvMap().begin(); it != this->m_MainBlock.getEnvMap().end(); ++it) {
 		std::cout << "\t" << it->first << " " << it->second << std::endl;
 	}
-	*/
+	std::cout << "===================================\n";
 	std::cout << "\tWorker_process: " << this->m_MainBlock.getWorkerProcess() << std::endl;
 	std::cout << "\tDaemon: " << (this->m_MainBlock.isDaemonOn()? "on" : "off") << std::endl;
 	std::cout << "\tTime_resolution: " << this->m_MainBlock.getTimeResolution() << std::endl;
@@ -65,6 +65,12 @@ void	CONF::ConfBlock::print() {
 	std::cout << "\tAccess log: " << this->m_MainBlock.getHTTPBlock().getAccess_log() << std::endl;
 	std::cout << "\tRoot: " << this->m_MainBlock.getHTTPBlock().getRoot() << std::endl;
 	std::cout << "\tAutoindex: " << (this->m_MainBlock.getHTTPBlock().getAutoindex()? "on" : "off") << std::endl;
-	std::cout << "\tIndex: " << this->m_MainBlock.getHTTPBlock().getIndex("index.html") << std::endl;
+	std::cout << "\tIndex: " << this->m_MainBlock.getHTTPBlock().getIndex("index.htmllll") << std::endl;
+
+	std::cout << "\t==================\n";
+	for (auto it = this->m_MainBlock.getHTTPBlock().getError_page().begin(); it != this->m_MainBlock.getHTTPBlock().getError_page().end(); ++it) {
+		std::cout << it->first << ": " << (int)it->second.m_Type << " " << it->second.m_Path << std::endl;
+		std::cout << ((it->second.m_Type == E_ERRORPAGE::REPLACE) ? it->second.m_Replace : 0) << std::endl;
+	}
 
  }

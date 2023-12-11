@@ -1,9 +1,12 @@
 #include "../Data/ConfBlock.hpp"
 #include <iostream>
+#include <unistd.h>
 
 int main(int ac, char** av, char** env) {
 	(void)ac;
 	(void)av;
+	system("clear");
+
 	const std::string	fileName = "test.conf";
 	try {
 		CONF::ConfBlock::initInstance(fileName, env);
