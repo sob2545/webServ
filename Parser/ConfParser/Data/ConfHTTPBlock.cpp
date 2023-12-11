@@ -1,7 +1,10 @@
 #include "ConfHTTPBlock.hpp"
 #include "ConfServerBlock.hpp"
+#include <cctype>
+#include <cstddef>
 #include <string>
 #include "../../MIMEParser/MIMEParser.hpp"
+#include "errorPageData/errorPageData.hpp"
 
 // TODO: delete
 #include <iostream>
@@ -69,19 +72,7 @@ bool	CONF::HTTPBlock::argumentChecker(const std::vector<std::string>& args, cons
 			return false;
 		}
 		case CONF::E_HTTP_BLOCK_STATUS::ERROR_PAGE: {
-			for (size_t i = 0; i < args.size() - 1; i++) {
-				if (args[i].empty()) {
-					throw ConfParserException(args[i], "invalid number of Error Page arguments!");
-				}
-
-				// TODO: check error page more detail (ex: goto location, replace status code)
-				char*	endptr;
-				const long	argumentNumber = std::strtol(args[i].c_str(), &endptr, 10);
-				if (*endptr != '\0' || argumentNumber < 100 || argumentNumber > 599) {
-					throw ConfParserException(args[i], "invalid number of Error Page arguments!");
-				}
-				this->m_Error_page.insert(std::make_pair(static_cast<unsigned int>(argumentNumber), ""));
-			}
+			errorPageParser(args, this->m_Error_page);
 			return false;
 		}
 		case CONF::E_HTTP_BLOCK_STATUS::ACCESS_LOG: {
@@ -106,7 +97,6 @@ bool	CONF::HTTPBlock::argumentChecker(const std::vector<std::string>& args, cons
 				throw ConfParserException(args.at(0), "invalid number of Include arguments!");
 			} else {
 				(args[0].empty()) ? throw ConfParserException(args[0], "invalid number of Include arguments!") : 0;
-				std::cout << "include : " << args[0] << std::endl;
 				const size_t		dotPos = args[0].rfind('.');
 				const std::string&	extension = args[0].substr(dotPos + 1, args[0].size() - dotPos);
 				if (extension == "types") {
@@ -149,12 +139,7 @@ const std::string	CONF::HTTPBlock::argument(const unsigned short& status) {
 		case CONF::E_HTTP_BLOCK_STATUS::ACCESS_LOG:
 		case CONF::E_HTTP_BLOCK_STATUS::INDEX:
 		case CONF::E_HTTP_BLOCK_STATUS::INCLUDE:
-			if (!stringPathArgumentParser(argument)) {
-				throw ConfParserException(argument, "invalid root argument format!");
-			}
-			return (argument);
-			// TODO: delete, is it work?
-			// return (stringPathArgumentParser(argument) ? argument : throw ConfParserException(argument, "invalid root argument format!"));
+			return (stringPathArgumentParser(argument) ? argument : throw ConfParserException(argument, "invalid root argument format!"));
 		case CONF::E_HTTP_BLOCK_STATUS::ERROR_PAGE: {
 			errorPageArgumentParser(argument);
 			return (argument);
@@ -275,7 +260,7 @@ const std::string&	CONF::HTTPBlock::getDefault_type() const {
 	return (this->m_Default_type);
 }
 
-const std::map<unsigned short, std::string>&	CONF::HTTPBlock::getError_page() const {
+const std::map<unsigned short, CONF::errorPageData>&	CONF::HTTPBlock::getError_page() const {
 	return (this->m_Error_page);
 }
 
