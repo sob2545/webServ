@@ -5,6 +5,8 @@
 
 struct TrieNode {
 	typedef std::map<char, TrieNode*>::iterator TrieIterator;
+	typedef std::map<char, TrieNode*> TrieMap;
+
 	std::map<char, TrieNode*> children;
 	bool isEndOfWord;
 

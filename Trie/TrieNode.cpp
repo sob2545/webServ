@@ -11,8 +11,10 @@ TrieNode& TrieNode::operator=(const TrieNode& other) {
 		}
 		children.clear();
 
-		children = other.children;
-		isEndOfWord = other.isEndOfWord;
+		for (TrieMap::const_iterator it = other.children.begin(); it != other.children.end(); ++it) {
+            children[it->first] = new TrieNode(*(it->second));
+        }
+        isEndOfWord = other.isEndOfWord;
 	}
 	return *this;
 }
