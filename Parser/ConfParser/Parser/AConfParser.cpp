@@ -1,5 +1,6 @@
 #include "AConfParser.hpp"
 #include "Exception/ConfParserException.hpp"
+#include <cstddef>
 #include <string>
 
 // TODO: delete
@@ -43,22 +44,10 @@ bool	CONF::AConfParser::isMultipleDirective(const unsigned char& block_status, c
 	}
 }
 
-bool	CONF::AConfParser::fileName(std::string& argument) {
-	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
-
-	while (Pos[E_INDEX::FILE] < fileSize && (std::isalnum(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))
-			|| fileContent[Pos[E_INDEX::FILE]] == '_'
-			|| fileContent[Pos[E_INDEX::FILE]] == '.')) {
-		argument += fileContent[Pos[E_INDEX::FILE]];
-		Pos[E_INDEX::FILE]++;
-		Pos[E_INDEX::COLUMN]++;
-	}
-	if (argument.empty() || !std::isalpha(static_cast<int>((argument.rfind('.') + 1)))) {
-		return false;
-	}
-	return true;
+void	CONF::AConfParser::fileName(std::string& argument) {
+	const size_t	lastSlashPos = argument.find_last_of('/');
+	argument.find('.', lastSlashPos) != std::string::npos ? throw ConfParserException(argument, "Invalid Path") : 0;
+	std::isalpha(static_cast<int>(argument[argument.rfind('.') + 1])) ? 0 : throw ConfParserException(argument, "Invalid Path");
 }
 
 /*			absPath with string vector
@@ -89,9 +78,11 @@ void	CONF::AConfParser::absPathArgumentParser(std::string& argument) {
 bool	CONF::AConfParser::stringPathArgumentParser(std::string& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
 	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	size_t&				file = Pos[E_INDEX::FILE];
 
 	const size_t	startPos = Pos[E_INDEX::FILE];
-	if (fileContent[Pos[E_INDEX::FILE]] == E_ABNF::SEMICOLON) {
+	if (fileContent[Pos[E_INDEX::FILE]] == E_ABNF::SEMICOLON
+			|| fileContent[Pos[E_INDEX::FILE]] == E_ABNF::LF) {
 		Pos[E_INDEX::FILE]++;
 		Pos[E_INDEX::COLUMN]++;
 		return false;
@@ -103,33 +94,6 @@ bool	CONF::AConfParser::stringPathArgumentParser(std::string& argument) {
 	} else {
 		return false;
 	}
-}
-
-
-bool	CONF::AConfParser::replaceErrorPageArgumentParser(std::string& argument) {
-	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
-
-	if (fileContent[Pos[E_INDEX::FILE]] != '=') {
-		return false;
-	}
-	return ((digitArgumentParser(argument)) ? true : throw ConfParserException(argument, "invalid type of Error Page arguments!"));
-}
-
-bool	CONF::AConfParser::goToLocationBlockArgumentParser(std::string& argument) {
-	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
-
-	if (fileContent[Pos[E_INDEX::FILE]] != '@') {
-		return false;
-	}
-	argument += fileContent[Pos[E_INDEX::FILE]];
-	Pos[E_INDEX::FILE]++;
-	Pos[E_INDEX::COLUMN]++;
-
-	stringPathArgumentParser(argument);
-	argument.find('.') == std::string::npos ? 0 : throw ConfParserException(argument, "invalid type of Go To Location Block arguments!");
-	return (true);
 }
 
 bool	CONF::AConfParser::digitArgumentParser(std::string& argument) {
@@ -156,25 +120,54 @@ void	CONF::AConfParser::errorPageArgumentParser(std::string& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
 	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
-	const size_t		startPos = Pos[E_INDEX::FILE];
+	const size_t		startFilePos = Pos[E_INDEX::FILE];
 
-	if (PathParser::File_AbsolutePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)
-				|| PathParser::File_RelativePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)) {
-		Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startPos);
+	argument.clear();
+	// TODO: full URI Parser에서 맨 처음 alpha가 아니면 false 되도록 구현
+	(URIParser::errorPageParser(fileContent, Pos[E_INDEX::FILE], argument)
+		|| PathParser::File_AbsolutePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)
+		|| PathParser::File_RelativePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)) ? 
+	Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startFilePos) : throw ConfParserException("", "not path");
+}
+
+
+void	CONF::AConfParser::errorPageParser(const std::vector<std::string>& args, errorPageMap& errorMap) {
+	const size_t	argumentSize = args.size();
+
+	(argumentSize < 2) ? throw ConfParserException("", "invalid number of error page arguments!") : 0;
+
+	(args[argumentSize - 1].empty()) ? throw ConfParserException("", "invalid error page arguments!") : 0;
+	const std::string	path = args[argumentSize - 1];
+
+	(args[argumentSize - 2].empty()) ? throw ConfParserException("", "invalid error page arguments!") : 0;
+	const char&			startSymbol = args[argumentSize - 2][0];
+	CONF::errorPageData	data;
+	if (path[0] == '@') {
+		data.m_Type = E_ERRORPAGE::REPLACE;
 	} else {
-		argument.clear();
-		Pos[E_INDEX::FILE] = startPos;
-		// TODO: full URI Parser에서 맨 처음 alpha가 아니면 false 되도록 구현
-		if (URIParser::errorPageParser(fileContent, Pos[E_INDEX::FILE], argument)
-				|| replaceErrorPageArgumentParser(argument)
-				|| goToLocationBlockArgumentParser(argument)
-				|| digitArgumentParser(argument)) {
-			;
+		if (std::isdigit(static_cast<int>(startSymbol))) {
+			data.m_Type = E_ERRORPAGE::DEFAULT;
+		} else if (startSymbol == BNF::E_RESERVED::EQUALS) {
+			data.m_Type = E_ERRORPAGE::REPLACE;
+			char*	ptr;
+			const short replaceCode = strtol(args[argumentSize - 2].c_str() + 1, &ptr, 10);
+			(*ptr != '\0' || replaceCode < 0 || replaceCode > 599) ? throw ConfParserException(args[argumentSize - 2], "is invalid error page replace arguments!") : data.m_Replace = replaceCode;
 		} else {
-			throw ConfParserException(argument, "invalid configure file!");
+			throw ConfParserException(args[argumentSize - 2], "is invalid error page arguments!");
 		}
 	}
+	data.m_Path = path;
+	const size_t	lastArgument = (data.m_Type > 1) ? 2 : 1;
+	char*	endPos;
+	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end() - lastArgument; ++it) {
+		endPos = NULL;
+		const short	statusCode = strtol(it->c_str(), &endPos, 10);
+		(*endPos != '\0' || statusCode < 0 || statusCode > 599) ? throw ConfParserException(*it, "is invalid error page arguments!") : 0;
+		errorMap.insert(std::make_pair(statusCode, data));
+	}
 }
+
+
 
 
 /**
