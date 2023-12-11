@@ -4,8 +4,7 @@
 #include "../../../Trie/Trie.hpp"
 #include "../../MIMEParser/Exception/MIMEParserException.hpp"
 // #include "ConfServerBlock.hpp"
-#include <map>
-#include <string>
+
 #include <vector>
 
 /**
@@ -29,8 +28,8 @@ namespace   CONF {
 	class HTTPBlock : public AConfParser {
 	private:
 		typedef std::map<std::string, unsigned short>				statusMap;
-		typedef std::map<unsigned short, std::string>				errorPageMap;
 		typedef std::map<std::string, std::vector<std::string> >	TypeMap ;
+		typedef std::map<unsigned short, errorPageData> errorPageMap;
 
 		bool									m_Autoindex;
 		unsigned short							m_Status;
