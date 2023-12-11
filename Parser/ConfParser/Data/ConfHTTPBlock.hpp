@@ -2,6 +2,7 @@
 
 #include "../Parser/AConfParser.hpp"
 #include "../../../Trie/Trie.hpp"
+#include "../../MIMEParser/Exception/MIMEParserException.hpp"
 // #include "ConfServerBlock.hpp"
 #include <map>
 #include <string>

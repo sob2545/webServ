@@ -110,7 +110,7 @@ bool	CONF::HTTPBlock::argumentChecker(const std::vector<std::string>& args, cons
 				const size_t		dotPos = args[0].rfind('.');
 				const std::string&	extension = args[0].substr(dotPos + 1, args[0].size() - dotPos);
 				if (extension == "types") {
-					MIME::Parser(args[0], this->m_Mime_types);
+					MIME::Parser<MIMEParserException>(args[0], this->m_Mime_types);
 				}
 			}
 			return false;
@@ -161,7 +161,7 @@ const std::string	CONF::HTTPBlock::argument(const unsigned short& status) {
 		}
 		case CONF::E_HTTP_BLOCK_STATUS::DEFAULT_TYPE: {
 			const size_t	startPos = Pos[E_INDEX::FILE];
-			argument = MIME::type(fileContent, Pos[E_INDEX::FILE]);
+			argument = MIME::type<ConfParserException>(fileContent, Pos[E_INDEX::FILE]);
 			Pos[E_INDEX::COLUMN] += Pos[E_INDEX::FILE] - startPos;
 			return (argument);
 		}
