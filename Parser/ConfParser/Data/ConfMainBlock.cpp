@@ -134,13 +134,13 @@ const std::string	CONF::MainBlock::argument(const unsigned short& status) {
 	switch (status) {
 		case CONF::E_MAIN_BLOCK_STATUS::ERROR_LOG: {
 			stringPathArgumentParser(argument);
-			std::cout << "main arg: " << argument << std::endl;
 			return (argument);
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::ENV: {
 			while (Pos[E_INDEX::FILE] < fileSize
 					&& !ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])
-					&& fileContent[Pos[E_INDEX::FILE]] != BNF::E_RESERVED::SEMICOLON) {
+					&& fileContent[Pos[E_INDEX::FILE]] != BNF::E_RESERVED::SEMICOLON
+					&& fileContent[Pos[E_INDEX::FILE]] != E_ABNF::LF) {
 				argument += fileContent[Pos[E_INDEX::FILE]];
 				Pos[E_INDEX::FILE]++;
 				Pos[E_INDEX::COLUMN]++;
