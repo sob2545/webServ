@@ -66,7 +66,8 @@ template <typename T>
 void	File_Segment(const std::string& inputURI, size_t& pos, std::string& absPath) {
 	while (pos < inputURI.size() && !ABNF::isWSP(inputURI, pos)
 			&& inputURI[pos] != BNF::E_RESERVED::SLASH
-			&& inputURI[pos] != BNF::E_RESERVED::SEMICOLON) {
+			&& inputURI[pos] != BNF::E_RESERVED::SEMICOLON
+			&& inputURI[pos] != E_ABNF::LF) {
 		absPath += inputURI[pos];
 		(isValidPath(inputURI[pos])) ? pos++ : throw T(absPath, "Invalid Path");
 	}
@@ -82,9 +83,6 @@ void	File_PathSegments(const std::string& inputURI, size_t& pos, std::string& ab
 		pos++;
 		File_Segment<T>(inputURI, pos, absPath);
 	}
-	const size_t	lastSlashPos = absPath.find_last_of('/') + startPos;
-	absPath.find('.', lastSlashPos) != std::string::npos ? throw T(absPath, "Invalid Path") : 0;
-	std::isalpha(static_cast<int>(absPath[absPath.rfind('.') + 1])) ? 0 : throw T(absPath, "Invalid Path");
 }
 
 /**
