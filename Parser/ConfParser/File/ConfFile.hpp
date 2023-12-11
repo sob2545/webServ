@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../../FileDescriptor/File/ReadFile.hpp"
-#include <cstddef>
 
 namespace E_INDEX {
 	enum E_INDEX {
