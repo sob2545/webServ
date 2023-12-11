@@ -7,7 +7,7 @@
 	
 	env         = key "=" value
 
-	key         = ALPHA *(ALPHA / DIGIT / "_")
+	key         = (ALPHA / "_") *(ALPHA / DIGIT / "_")
 
 	value       = *VCHAR
 */
