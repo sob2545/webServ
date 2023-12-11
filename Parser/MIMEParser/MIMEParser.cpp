@@ -1,4 +1,7 @@
 #include "MIMEParser.hpp"
+#include "./MIMEFile/MIMEFile.hpp"
+#include "Exception/MIMEParserException.hpp"
+#include <cstddef>
 #include <string>
 
 // TODO: throw MIME template으로 변경하여 사용할 것
@@ -23,14 +26,17 @@
 	PCHAR         = ALPHA | DIGIT | "+" | "-" | "."
 */
 
-void	errorCode(const std::string& fileContent, size_t& Pos) {
+template <typename T>
+void	errorCode(const std::string& fileContent) {
 	const size_t	fileSize = fileContent.size();
+	size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
 
-	while (Pos < fileSize && ABNF::isWSP(fileContent, Pos)) {
-		Pos++;
-		ABNF::isC_nl(fileContent, Pos);
+	while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
+		Pos[E_INDEX::FILE]++;
+		Pos[E_INDEX::COLUMN]++;
+		ABNF::isC_nl(fileContent, Pos[E_INDEX::FILE]);
 	}
-	(Pos != fileSize) ? throw ConfParserException(fileContent.substr(Pos), "invalid MIME type file!") : 0;
+	(Pos[E_INDEX::FILE] != fileSize) ? throw T(fileContent.substr(Pos[E_INDEX::FILE]), "invalid MIME type file!") : 0;
 }
 
 
@@ -43,24 +49,30 @@ bool	isMIMETypeName(const char& c) {
 			|| c == E_MIME::PLUS);
 }
 
-void	element(const std::string& fileName, const std::string& typeName, size_t& Pos, MIME::TypeMap& MIMEType) {
+template <typename T>
+void	element(const std::string& fileName, const std::string& typeName, MIME::TypeMap& MIMEType) {
 	const size_t	fileSize = fileName.size();
-	while (Pos < fileSize && (ABNF::isWSP(fileName, Pos) || fileName[Pos] == E_MIME::LF)) {
-		Pos++;
+	size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
+
+	while (Pos[E_INDEX::FILE] < fileSize && (ABNF::isWSP(fileName, Pos[E_INDEX::FILE]) || fileName[Pos[E_INDEX::FILE]] == E_MIME::LF)) {
+		Pos[E_INDEX::FILE]++;
+		Pos[E_INDEX::COLUMN]++;
 	}
-	if (fileName[Pos] == E_MIME::RBRACE) {
+	if (fileName[Pos[E_INDEX::FILE]] == E_MIME::RBRACE) {
 		return ;
 	}
 
 	std::string	elementName;
-	while (Pos < fileSize && std::isalnum(fileName[Pos])) {
-		elementName += fileName[Pos];
-		Pos++;
+	while (Pos[E_INDEX::FILE] < fileSize && std::isalnum(fileName[Pos[E_INDEX::FILE]])) {
+		elementName += fileName[Pos[E_INDEX::FILE]];
+		Pos[E_INDEX::FILE]++;
+		Pos[E_INDEX::COLUMN]++;
 	}
-	(elementName.empty()) ? throw ConfParserException(elementName, "invalid type of MIME Type element!") : 0;
+	(elementName.empty()) ? throw T(elementName, "invalid type of MIME Type element!") : 0;
 	MIMEType[typeName].push_back(elementName);
 }
 
+template <typename T>
 const std::string	MIME::type(const std::string& fileName, size_t& Pos) {
 	const size_t	fileSize = fileName.size();
 
@@ -69,75 +81,98 @@ const std::string	MIME::type(const std::string& fileName, size_t& Pos) {
 		typeName += fileName[Pos];
 		Pos++;
 	}
-	(typeName.empty()) ? throw ConfParserException(typeName, "invalid type of MIME Type typename!") : 0;
+	(typeName.empty()) ? throw T(typeName, "invalid type of MIME Type typename!") : 0;
 	return typeName;
 }
 
-bool	line(const std::string& fileContent, size_t& Pos, MIME::TypeMap& MIMEType) {
-	if (fileContent[Pos] == E_MIME::SEMICOLON
-			|| fileContent[Pos] == E_MIME::LF
-			|| fileContent[Pos] == E_MIME::RBRACE) {
+template <typename T>
+bool	line(const std::string& fileContent, MIME::TypeMap& MIMEType) {
+	size_t*	Pos = MIME::MIMEFile::getInstance()->Pos();
+
+	if (fileContent[Pos[E_INDEX::FILE]] == E_MIME::SEMICOLON
+			|| fileContent[Pos[E_INDEX::FILE]] == E_MIME::LF
+			|| fileContent[Pos[E_INDEX::FILE]] == E_MIME::RBRACE) {
 		return false;
 	}
 
-	const std::string& typeName = MIME::type(fileContent, Pos);
-	while (Pos < fileContent.size() && fileContent[Pos] != E_MIME::SEMICOLON) {
-		element(fileContent, typeName, Pos, MIMEType);
+	const size_t	startPos = Pos[E_INDEX::FILE];
+	const std::string& typeName = MIME::type<T>(fileContent, Pos[E_INDEX::FILE]);
+	Pos[E_INDEX::COLUMN] += Pos[E_INDEX::FILE] - startPos;
+
+	while (Pos[E_INDEX::FILE] < fileContent.size() && fileContent[Pos[E_INDEX::FILE]] != E_MIME::SEMICOLON) {
+		element<T>(fileContent, typeName, MIMEType);
 	}
-	return (ABNF::isC_nl(fileContent, Pos));
+	return (ABNF::isC_nl(fileContent, Pos[E_INDEX::FILE]));
 }
 
-void	typelist(const std::string& fileContent, size_t& Pos, MIME::TypeMap& MIMEType) {
+template <typename T>
+void	typelist(const std::string& fileContent, MIME::TypeMap& MIMEType) {
 	const size_t	fileSize = fileContent.size();
+	size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
 
-	while (Pos < fileSize) {
-		while (Pos < fileSize && ABNF::isWSP(fileContent, Pos)) {
-			Pos++;
+	while (Pos[E_INDEX::FILE] < fileSize) {
+		while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
+			Pos[E_INDEX::FILE]++;
+			Pos[E_INDEX::COLUMN]++;
 		}
-		if (line(fileContent, Pos, MIMEType) || ABNF::isC_nl(fileContent, Pos)) {
+		if (line<T>(fileContent, MIMEType) || ABNF::isC_nl(fileContent, Pos[E_INDEX::FILE])) {
+			Pos[E_INDEX::LINE]++;
+			Pos[E_INDEX::COLUMN] = 1;
 		} else {
 			return ;
 		}
 	}
 }
 
-void	typeBlock(const std::string& fileContent, size_t& Pos, MIME::TypeMap& MIMEType) {
+template <typename T>
+void	typeBlock(const std::string& fileContent, MIME::TypeMap& MIMEType) {
 	const size_t	fileSize = fileContent.size();
+	size_t*			Pos = MIME::MIMEFile::getInstance()->Pos(); 
 
-	while (Pos < fileSize && ABNF::isWSP(fileContent, Pos)) {
-		Pos++;
+	while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
+		Pos[E_INDEX::FILE]++;
+		Pos[E_INDEX::COLUMN]++;
 	}
-	if (fileContent[Pos] != E_MIME::LBRACE) {
-		throw ConfParserException("{", "invalid type of MIME Type typelist!");
+	if (fileContent[Pos[E_INDEX::FILE]] != E_MIME::LBRACE) {
+		throw T("{", "invalid type of MIME Type typelist!");
 	}
-	Pos++;
-	typelist(fileContent, Pos, MIMEType);
-	if (fileContent[Pos] != E_MIME::RBRACE) {
-		throw ConfParserException("}", "invalid type of MIME Type typelist!");
+	Pos[E_INDEX::FILE]++;
+	Pos[E_INDEX::COLUMN]++;
+	typelist<T>(fileContent, MIMEType);
+	if (fileContent[Pos[E_INDEX::FILE]] != E_MIME::RBRACE) {
+		throw T("}", "invalid type of MIME Type typelist!");
 	}
-	Pos++;
-	errorCode(fileContent, Pos);
+	Pos[E_INDEX::FILE]++;
+	Pos[E_INDEX::COLUMN]++;
+	errorCode<T>(fileContent);
 }
 
-void	title(const std::string& fileContent, size_t& Pos) {
+template <typename T>
+void	title(const std::string& fileContent) {
 	const size_t	fileSize = fileContent.size();
+	size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
 
-	while (Pos < fileSize && ABNF::isWSP(fileContent, Pos)) {
-		Pos++;
+	while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
+		Pos[E_INDEX::FILE]++;
+		Pos[E_INDEX::COLUMN]++;
 	}
 	std::string	typeName;
-	while (Pos < fileSize && std::isalpha(fileContent[Pos])) {
-		typeName += fileContent[Pos];
-		Pos++;
+	while (Pos[E_INDEX::FILE] < fileSize && std::isalpha(fileContent[Pos[E_INDEX::FILE]])) {
+		typeName += fileContent[Pos[E_INDEX::FILE]];
+		Pos[E_INDEX::FILE]++;
+		Pos[E_INDEX::COLUMN]++;
 	}
-	(typeName != "types") ? throw ConfParserException(typeName, "invalid type of MIME Type title!") : 0;
+	(typeName != "types") ? throw T(typeName, "invalid type of MIME Type title!") : 0;
 }
 
+template <typename T>
 void	MIME::Parser(const std::string& fileName, TypeMap& MIMEType) {
-	ReadFile			file(fileName);
-	const std::string&	fileContent = file.getFileContent();
-	size_t				Pos(0);
+	MIME::MIMEFile::InitInstance(fileName);
+	const std::string&	fileContent = MIME::MIMEFile::getInstance()->getFileContent();
 
-	title(fileContent, Pos);
-	typeBlock(fileContent, Pos, MIMEType);
+	title<T>(fileContent);
+	typeBlock<T>(fileContent, MIMEType);
 }
+
+template void				MIME::Parser<MIMEParserException>(const std::string&, TypeMap&);
+template const std::string	MIME::type<ConfParserException>(const std::string& fileName, size_t& Pos);
