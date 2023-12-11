@@ -22,6 +22,8 @@ SRCS		:= ../../../utils/utilFunctions.cpp \
 				../EnvParser/EnvParser.cpp \
 				../EnvParser/Exception/EnvParserException.cpp \
 				../../MIMEParser/MIMEParser.cpp \
+				../../MIMEParser/Exception/MIMEParserException.cpp \
+				../../MIMEParser/MIMEFile/MIMEFile.cpp \
 				../../../Trie/Trie.cpp \
 				../../../Trie/TrieNode.cpp \
 				test.cpp
