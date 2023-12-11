@@ -7,7 +7,7 @@ void	printURI(const URI::data& uri) {
 	std::cout << "host: " << uri.host << std::endl;
 	std::cout << "port: " << uri.port << std::endl;
 	std::cout << "path: \n";
-	for (size_t k = 0; k < uri.absPath.size(); ++k) {
+	for (std::size_t k = 0; k < uri.absPath.size(); ++k) {
 		std::cout << uri.absPath[k] << "\n";
 	}
 	for (auto it = uri.query.begin(); it != uri.query.end(); ++it) {
@@ -31,13 +31,13 @@ int main() {
 		std::cerr << RED << "Error: cannot open file" << RESET << std::endl;
 		return 1;
 	}
-	size_t	i(1);
+	std::size_t	i(1);
 	while (std::getline(file, inputURI)) {
 		try {
 			URI::data data = URIParser::Parser(inputURI);
 			printURI(data);
 			// std::string		host;
-			// size_t			pos(0);
+			// std::size_t			pos(0);
 			// URIParser::host(inputURI, pos, host);
 			// std::cout << "host : " << host << std::endl;
 		}

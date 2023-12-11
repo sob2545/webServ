@@ -13,9 +13,9 @@ int main() {
     std::cout << First::getInstance()->getSecInstance().getName() << std::endl;
     First::Destroy();
 
-    size_t  i = 10;
+    std::size_t  i = 10;
 
-    const size_t& tmp = i;
+    const std::size_t& tmp = i;
     while (i < 15) {
         ++i;
     }

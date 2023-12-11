@@ -26,6 +26,6 @@ void	CONF::ConfFile::Destroy() {
 	CONF::ConfFile::instance = NULL;
 }
 
-size_t*	CONF::ConfFile::Pos() {
+std::size_t*	CONF::ConfFile::Pos() {
 	return m_Pos;
 }

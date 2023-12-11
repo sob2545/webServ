@@ -15,8 +15,8 @@ namespace E_ABNF {
 }
 
 namespace ABNF {
-    bool	isLF(const std::string& file, const size_t& pos);
-    bool	isWSP(const std::string& file, size_t& pos);
-    bool	isComment(const std::string& file, size_t& pos);
-    bool	isC_nl(const std::string& file, size_t& pos);
+    bool	isLF(const std::string& file, const std::size_t& pos);
+    bool	isWSP(const std::string& file, std::size_t& pos);
+    bool	isComment(const std::string& file, std::size_t& pos);
+    bool	isC_nl(const std::string& file, std::size_t& pos);
 }

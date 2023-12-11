@@ -26,6 +26,6 @@ void	MIME::MIMEFile::Destroy() {
 	MIME::MIMEFile::instance = NULL;
 }
 
-size_t*	MIME::MIMEFile::Pos() {
+std::size_t*	MIME::MIMEFile::Pos() {
 	return m_Pos;
 }

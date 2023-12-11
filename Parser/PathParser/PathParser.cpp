@@ -32,8 +32,8 @@ bool	isValidPath(const unsigned char& c) {
 	return true;
 }
 
-void	URI_Segment(const std::string& inputURI, size_t& pos, std::string& absPath) {
-	size_t	startPos(pos);
+void	URI_Segment(const std::string& inputURI, std::size_t& pos, std::string& absPath) {
+	std::size_t	startPos(pos);
 
 	while (pos < inputURI.size() && BNF::isPchar(inputURI, pos)) {
 		pos++;
@@ -51,7 +51,7 @@ void	URI_Segment(const std::string& inputURI, size_t& pos, std::string& absPath)
 	}
 }
 
-void	URI_PathSegments(const std::string& inputURI, size_t& pos, std::string& absPath) {
+void	URI_PathSegments(const std::string& inputURI, std::size_t& pos, std::string& absPath) {
 	URI_Segment(inputURI, pos, absPath);
 
 	while (pos < inputURI.size() && inputURI.at(pos) == BNF::E_RESERVED::SLASH) {
@@ -63,7 +63,7 @@ void	URI_PathSegments(const std::string& inputURI, size_t& pos, std::string& abs
 
 
 template <typename T>
-void	File_Segment(const std::string& inputURI, size_t& pos, std::string& absPath) {
+void	File_Segment(const std::string& inputURI, std::size_t& pos, std::string& absPath) {
 	while (pos < inputURI.size() && !ABNF::isWSP(inputURI, pos)
 			&& inputURI[pos] != BNF::E_RESERVED::SLASH
 			&& inputURI[pos] != BNF::E_RESERVED::SEMICOLON
@@ -74,8 +74,8 @@ void	File_Segment(const std::string& inputURI, size_t& pos, std::string& absPath
 }
 
 template <typename T>
-void	File_PathSegments(const std::string& inputURI, size_t& pos, std::string& absPath) {
-	const size_t	startPos(pos);
+void	File_PathSegments(const std::string& inputURI, std::size_t& pos, std::string& absPath) {
+	const std::size_t	startPos(pos);
 	File_Segment<T>(inputURI, pos, absPath);
 
 	while (pos < inputURI.size() && inputURI.at(pos) == BNF::E_RESERVED::SLASH) {
@@ -97,8 +97,8 @@ void	File_PathSegments(const std::string& inputURI, size_t& pos, std::string& ab
 
 /*				============ absPath backup for get param with string vector ===========
 
-void	segment(const std::string& inputURI, size_t& pos, std::vector<std::string>& absPath) {
-	size_t	startPos(pos);
+void	segment(const std::string& inputURI, std::size_t& pos, std::vector<std::string>& absPath) {
+	std::size_t	startPos(pos);
 
 	while (pos < inputURI.size() && BNF::isPchar(inputURI, pos)) {
 		pos++;
@@ -114,7 +114,7 @@ void	segment(const std::string& inputURI, size_t& pos, std::vector<std::string>&
 	}
 }
 
-void	pathSegments(const std::string& inputURI, size_t& pos, std::vector<std::string>& absPath) {
+void	pathSegments(const std::string& inputURI, std::size_t& pos, std::vector<std::string>& absPath) {
 	segment(inputURI, pos, absPath);
 
 	while (pos < inputURI.size() && inputURI.at(pos) == BNF::E_RESERVED::SLASH) {
@@ -123,7 +123,7 @@ void	pathSegments(const std::string& inputURI, size_t& pos, std::vector<std::str
 	}
 }
 
-bool	PathParser::absPath(const std::string& inputURI, size_t& pos, std::vector<std::string>& absPath) {
+bool	PathParser::absPath(const std::string& inputURI, std::size_t& pos, std::vector<std::string>& absPath) {
 	if (pos >= inputURI.size() || inputURI.at(pos) != BNF::E_RESERVED::SLASH) {
 		return false;
 	}
@@ -135,7 +135,7 @@ bool	PathParser::absPath(const std::string& inputURI, size_t& pos, std::vector<s
 }
 */
 
-bool	PathParser::URI_AbsolutePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
+bool	PathParser::URI_AbsolutePath(const std::string& inputURI, std::size_t& pos, std::string& absPath) {
 	if (pos >= inputURI.size() || inputURI.at(pos) != BNF::E_RESERVED::SLASH) {
 		return false;
 	}
@@ -147,7 +147,7 @@ bool	PathParser::URI_AbsolutePath(const std::string& inputURI, size_t& pos, std:
 	}
 }
 
-bool	PathParser::URI_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
+bool	PathParser::URI_RelativePath(const std::string& inputURI, std::size_t& pos, std::string& absPath) {
 	if (pos >= inputURI.size() || inputURI.at(pos) == BNF::E_RESERVED::SLASH) {
 		return false;
 	}
@@ -158,7 +158,7 @@ bool	PathParser::URI_RelativePath(const std::string& inputURI, size_t& pos, std:
 }
 
 template <typename T>
-bool	PathParser::File_AbsolutePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
+bool	PathParser::File_AbsolutePath(const std::string& inputURI, std::size_t& pos, std::string& absPath) {
 	if (pos >= inputURI.size() || inputURI.at(pos) != BNF::E_RESERVED::SLASH) {
 		return false;
 	}
@@ -171,7 +171,7 @@ bool	PathParser::File_AbsolutePath(const std::string& inputURI, size_t& pos, std
 }
 
 template <typename T>
-bool	PathParser::File_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath) {
+bool	PathParser::File_RelativePath(const std::string& inputURI, std::size_t& pos, std::string& absPath) {
 	if (pos >= inputURI.size()
 			|| inputURI.at(pos) == BNF::E_RESERVED::SLASH
 			|| inputURI.at(pos) == BNF::E_RESERVED::SEMICOLON) {
@@ -183,5 +183,5 @@ bool	PathParser::File_RelativePath(const std::string& inputURI, size_t& pos, std
 	}
 }
 
-template bool PathParser::File_AbsolutePath<ConfParserException>(const std::string&, size_t&, std::string&);
-template bool PathParser::File_RelativePath<ConfParserException>(const std::string&, size_t&, std::string&);
+template bool PathParser::File_AbsolutePath<ConfParserException>(const std::string&, std::size_t&, std::string&);
+template bool PathParser::File_RelativePath<ConfParserException>(const std::string&, std::size_t&, std::string&);

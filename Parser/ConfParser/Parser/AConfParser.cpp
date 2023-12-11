@@ -45,7 +45,7 @@ bool	CONF::AConfParser::isMultipleDirective(const unsigned char& block_status, c
 }
 
 void	CONF::AConfParser::fileName(std::string& argument) {
-	const size_t	lastSlashPos = argument.find_last_of('/');
+	const std::size_t	lastSlashPos = argument.find_last_of('/');
 	argument.find('.', lastSlashPos) != std::string::npos ? throw ConfParserException(argument, "Invalid Path") : 0;
 	std::isalpha(static_cast<int>(argument[argument.rfind('.') + 1])) ? 0 : throw ConfParserException(argument, "Invalid Path");
 }
@@ -53,10 +53,10 @@ void	CONF::AConfParser::fileName(std::string& argument) {
 /*			absPath with string vector
 void	CONF::AConfParser::absPathArgumentParser(strVec& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
+	const std::size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	std::size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
 
-	const size_t	startPos = Pos[E_INDEX::FILE];
+	const std::size_t	startPos = Pos[E_INDEX::FILE];
 	URIParser::relative(fileContent, Pos[E_INDEX::FILE], argument);
 	Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startPos);
 }
@@ -66,10 +66,10 @@ void	CONF::AConfParser::absPathArgumentParser(strVec& argument) {
 /*
 void	CONF::AConfParser::absPathArgumentParser(std::string& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
+	const std::size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	std::size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
 
-	const size_t	startPos = Pos[E_INDEX::FILE];
+	const std::size_t	startPos = Pos[E_INDEX::FILE];
 	PathParser::File_AbsolutePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument);
 	Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startPos);
 }
@@ -77,10 +77,10 @@ void	CONF::AConfParser::absPathArgumentParser(std::string& argument) {
 
 bool	CONF::AConfParser::stringPathArgumentParser(std::string& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
-	size_t&				file = Pos[E_INDEX::FILE];
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	std::size_t&				file = Pos[E_INDEX::FILE];
 
-	const size_t	startPos = Pos[E_INDEX::FILE];
+	const std::size_t	startPos = Pos[E_INDEX::FILE];
 	if (fileContent[Pos[E_INDEX::FILE]] == E_ABNF::SEMICOLON
 			|| fileContent[Pos[E_INDEX::FILE]] == E_ABNF::LF) {
 		Pos[E_INDEX::FILE]++;
@@ -98,8 +98,8 @@ bool	CONF::AConfParser::stringPathArgumentParser(std::string& argument) {
 
 bool	CONF::AConfParser::digitArgumentParser(std::string& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	const std::size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	if (!std::isdigit(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))) {
 		return false;
@@ -118,21 +118,21 @@ bool	CONF::AConfParser::digitArgumentParser(std::string& argument) {
 // TODO: delete
 void	CONF::AConfParser::errorPageArgumentParser(std::string& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
-	const size_t		startFilePos = Pos[E_INDEX::FILE];
+	const std::size_t		startFilePos = Pos[E_INDEX::FILE];
 
 	argument.clear();
 	// TODO: full URI Parser에서 맨 처음 alpha가 아니면 false 되도록 구현
-	(URIParser::errorPageParser(fileContent, Pos[E_INDEX::FILE], argument)
+	(URIParser::errorPageParser<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)
 		|| PathParser::File_AbsolutePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)
 		|| PathParser::File_RelativePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)) ? 
 	Pos[E_INDEX::COLUMN] += ((Pos[E_INDEX::FILE]) - startFilePos) : throw ConfParserException("", "not path");
 }
 
 
-void	CONF::AConfParser::errorPageParser(const std::vector<std::string>& args, errorPageMap& errorMap) {
-	const size_t	argumentSize = args.size();
+void	CONF::AConfParser::errorPageChecker(const std::vector<std::string>& args, errorPageMap& errorMap) {
+	const std::size_t	argumentSize = args.size();
 
 	(argumentSize < 2) ? throw ConfParserException("", "invalid number of error page arguments!") : 0;
 
@@ -157,7 +157,7 @@ void	CONF::AConfParser::errorPageParser(const std::vector<std::string>& args, er
 		}
 	}
 	data.m_Path = path;
-	const size_t	lastArgument = (data.m_Type > 1) ? 2 : 1;
+	const std::size_t	lastArgument = (data.m_Type > 1) ? 2 : 1;
 	char*	endPos;
 	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end() - lastArgument; ++it) {
 		endPos = NULL;
@@ -175,8 +175,8 @@ void	CONF::AConfParser::errorPageParser(const std::vector<std::string>& args, er
 */
 unsigned short	CONF::AConfParser::directiveName() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
+	const std::size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	std::size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
 	std::string	name;
 
 	while (Pos[E_INDEX::FILE] < fileSize
@@ -191,8 +191,8 @@ unsigned short	CONF::AConfParser::directiveName() {
 
 bool	CONF::AConfParser::directives() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
+	const std::size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	std::size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
 
 	if (fileContent[Pos[E_INDEX::FILE]] == E_CONF::RBRACE) {
 		return (false);
@@ -211,8 +211,8 @@ bool	CONF::AConfParser::directives() {
 
 bool	CONF::AConfParser::contextLines() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	const std::size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	while (Pos[E_INDEX::FILE] < fileSize) {
 		while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {

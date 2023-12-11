@@ -28,8 +28,8 @@
 
 template <typename T>
 void	errorCode(const std::string& fileContent) {
-	const size_t	fileSize = fileContent.size();
-	size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
+	const std::size_t	fileSize = fileContent.size();
+	std::size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
 
 	while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
 		Pos[E_INDEX::FILE]++;
@@ -51,8 +51,8 @@ bool	isMIMETypeName(const char& c) {
 
 template <typename T>
 void	element(const std::string& fileName, const std::string& typeName, MIME::TypeMap& MIMEType) {
-	const size_t	fileSize = fileName.size();
-	size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
+	const std::size_t	fileSize = fileName.size();
+	std::size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
 
 	while (Pos[E_INDEX::FILE] < fileSize && (ABNF::isWSP(fileName, Pos[E_INDEX::FILE]) || fileName[Pos[E_INDEX::FILE]] == E_MIME::LF)) {
 		Pos[E_INDEX::FILE]++;
@@ -73,8 +73,8 @@ void	element(const std::string& fileName, const std::string& typeName, MIME::Typ
 }
 
 template <typename T>
-const std::string	MIME::type(const std::string& fileName, size_t& Pos) {
-	const size_t	fileSize = fileName.size();
+const std::string	MIME::type(const std::string& fileName, std::size_t& Pos) {
+	const std::size_t	fileSize = fileName.size();
 
 	std::string	typeName;
 	while (Pos < fileSize && isMIMETypeName(fileName[Pos])) {
@@ -87,7 +87,7 @@ const std::string	MIME::type(const std::string& fileName, size_t& Pos) {
 
 template <typename T>
 bool	line(const std::string& fileContent, MIME::TypeMap& MIMEType) {
-	size_t*	Pos = MIME::MIMEFile::getInstance()->Pos();
+	std::size_t*	Pos = MIME::MIMEFile::getInstance()->Pos();
 
 	if (fileContent[Pos[E_INDEX::FILE]] == E_MIME::SEMICOLON
 			|| fileContent[Pos[E_INDEX::FILE]] == E_MIME::LF
@@ -95,7 +95,7 @@ bool	line(const std::string& fileContent, MIME::TypeMap& MIMEType) {
 		return false;
 	}
 
-	const size_t	startPos = Pos[E_INDEX::FILE];
+	const std::size_t	startPos = Pos[E_INDEX::FILE];
 	const std::string& typeName = MIME::type<T>(fileContent, Pos[E_INDEX::FILE]);
 	Pos[E_INDEX::COLUMN] += Pos[E_INDEX::FILE] - startPos;
 
@@ -107,8 +107,8 @@ bool	line(const std::string& fileContent, MIME::TypeMap& MIMEType) {
 
 template <typename T>
 void	typelist(const std::string& fileContent, MIME::TypeMap& MIMEType) {
-	const size_t	fileSize = fileContent.size();
-	size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
+	const std::size_t	fileSize = fileContent.size();
+	std::size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
 
 	while (Pos[E_INDEX::FILE] < fileSize) {
 		while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
@@ -126,8 +126,8 @@ void	typelist(const std::string& fileContent, MIME::TypeMap& MIMEType) {
 
 template <typename T>
 void	typeBlock(const std::string& fileContent, MIME::TypeMap& MIMEType) {
-	const size_t	fileSize = fileContent.size();
-	size_t*			Pos = MIME::MIMEFile::getInstance()->Pos(); 
+	const std::size_t	fileSize = fileContent.size();
+	std::size_t*			Pos = MIME::MIMEFile::getInstance()->Pos(); 
 
 	while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
 		Pos[E_INDEX::FILE]++;
@@ -149,8 +149,8 @@ void	typeBlock(const std::string& fileContent, MIME::TypeMap& MIMEType) {
 
 template <typename T>
 void	title(const std::string& fileContent) {
-	const size_t	fileSize = fileContent.size();
-	size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
+	const std::size_t	fileSize = fileContent.size();
+	std::size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
 
 	while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
 		Pos[E_INDEX::FILE]++;
@@ -175,4 +175,4 @@ void	MIME::Parser(const std::string& fileName, TypeMap& MIMEType) {
 }
 
 template void				MIME::Parser<MIMEParserException>(const std::string&, TypeMap&);
-template const std::string	MIME::type<ConfParserException>(const std::string& fileName, size_t& Pos);
+template const std::string	MIME::type<ConfParserException>(const std::string& fileName, std::size_t& Pos);

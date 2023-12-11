@@ -13,7 +13,7 @@ ConfParserException::ConfParserException(const std::string& error, const std::st
 		return ;
 	}
 	const std::string&	file = CONF::ConfFile::getInstance()->getFileName();
-	const size_t*		pos = CONF::ConfFile::getInstance()->Pos();
+	const std::size_t*		pos = CONF::ConfFile::getInstance()->Pos();
 
 	res << BOLDWHITE << file << ":" << pos[1] << ":" << pos[2] << BOLDRED << " Error:" << BOLDWHITE << " \"" << error << "\" " << message << RESET;
 	m_Message = res.str();

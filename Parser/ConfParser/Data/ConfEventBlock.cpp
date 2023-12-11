@@ -30,8 +30,8 @@ bool	CONF::EventsBlock::argumentChecker(const std::vector<std::string>& args, co
 
 const std::string	CONF::EventsBlock::argument(const unsigned short& status) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	const std::size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
 		Pos[E_INDEX::FILE]++;
@@ -59,7 +59,7 @@ unsigned short	CONF::EventsBlock::directiveNameChecker(const std::string& name) 
 
 bool	CONF::EventsBlock::context() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	if (fileContent[Pos[E_INDEX::FILE]] == E_ABNF::SEMICOLON
 			|| fileContent[Pos[E_INDEX::FILE]] == E_ABNF::LF) {

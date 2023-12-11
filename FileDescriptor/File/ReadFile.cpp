@@ -34,6 +34,6 @@ const std::string&	ReadFile::getFileContent() const {
 	return this->m_FileContent;
 }
 
-const size_t&	ReadFile::getFileSize() const {
+const std::size_t&	ReadFile::getFileSize() const {
 	return this->m_FileSize;
 }

@@ -2,7 +2,7 @@
 #include "Color.hpp"
 #include <string>
 
-bool	Utils::compareOneCharacter(const std::string& inputURI, size_t& pos, const unsigned char toCmp) {
+bool	Utils::compareOneCharacter(const std::string& inputURI, std::size_t& pos, const unsigned char toCmp) {
 	if (inputURI.at(pos) != toCmp) {
 		std::stringstream	msg;
 

@@ -36,7 +36,7 @@ namespace CONF {
 
 		void		fileName(std::string& argument);
 		void		errorPageArgumentParser(std::string& argument);
-		void		errorPageParser(const std::vector<std::string>& args, errorPageMap& errorMap);
+		void		errorPageChecker(const std::vector<std::string>& args, errorPageMap& errorMap);
 
 		// void			indexArgumentParser(std::string& arugment);
 

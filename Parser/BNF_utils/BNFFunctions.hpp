@@ -43,11 +43,11 @@ namespace BNF {
 		};
 	}
 
-	bool	isPcharReserved(const std::string& inputURI, size_t& pos);
-	bool	isReserved(const std::string& inputURI, size_t& pos);
-	bool	isMark(const std::string& inputURI, size_t& pos);
-	bool	isUnreserved(const std::string& inputURI, size_t& pos);
-	bool	isEscaped(const std::string& inputURI, size_t& pos);
-	bool	isPchar(const std::string& inputURI, size_t& pos);
-	bool	isUric(const std::string& inputURI, size_t& pos);
+	bool	isPcharReserved(const std::string& inputURI, std::size_t& pos);
+	bool	isReserved(const std::string& inputURI, std::size_t& pos);
+	bool	isMark(const std::string& inputURI, std::size_t& pos);
+	bool	isUnreserved(const std::string& inputURI, std::size_t& pos);
+	bool	isEscaped(const std::string& inputURI, std::size_t& pos);
+	bool	isPchar(const std::string& inputURI, std::size_t& pos);
+	bool	isUric(const std::string& inputURI, std::size_t& pos);
 }

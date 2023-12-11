@@ -23,18 +23,18 @@ namespace E_PATH {
 
 
 template <typename T>
-void	File_Segment(const std::string& inputURI, size_t& pos, std::string& absPath);
+void	File_Segment(const std::string& inputURI, std::size_t& pos, std::string& absPath);
 
 template <typename T>
-void	File_PathSegments(const std::string& inputURI, size_t& pos, std::string& absPath);
+void	File_PathSegments(const std::string& inputURI, std::size_t& pos, std::string& absPath);
 
 namespace PathParser {
-	bool	URI_AbsolutePath(const std::string& inputURI, size_t& pos, std::string& absPath);
-	bool	URI_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath);
+	bool	URI_AbsolutePath(const std::string& inputURI, std::size_t& pos, std::string& absPath);
+	bool	URI_RelativePath(const std::string& inputURI, std::size_t& pos, std::string& absPath);
 
 	template <typename T>
-	bool	File_AbsolutePath(const std::string& inputURI, size_t& pos, std::string& absPath);
+	bool	File_AbsolutePath(const std::string& inputURI, std::size_t& pos, std::string& absPath);
 
 	template <typename T>
-	bool	File_RelativePath(const std::string& inputURI, size_t& pos, std::string& absPath);
+	bool	File_RelativePath(const std::string& inputURI, std::size_t& pos, std::string& absPath);
 }

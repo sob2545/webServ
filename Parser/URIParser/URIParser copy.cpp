@@ -22,19 +22,19 @@
  *
 */
 
-const bool	isUric(const std::string& inputURI, size_t& pos) {
+const bool	isUric(const std::string& inputURI, std::size_t& pos) {
 	return (BNF::isPchar(inputURI, pos)
 			|| inputURI.at(pos) == BNF::E_RESERVED::SLASH
 			|| inputURI.at(pos) == BNF::E_RESERVED::QUESTION_MARK);
 }
 
-const bool	isValidSchemeSyntax(const std::string& inputURI, size_t& pos) {
+const bool	isValidSchemeSyntax(const std::string& inputURI, std::size_t& pos) {
 	const unsigned char c = static_cast<unsigned char>(inputURI.at(pos));
 
 	return (std::isalnum(c) || inputURI[pos] == '+' || inputURI[pos] == '-' || inputURI[pos] == '.');
 }
 
-const bool	splitAddressNumber(const std::string& inputURI, size_t& pos, std::string& host) {
+const bool	splitAddressNumber(const std::string& inputURI, std::size_t& pos, std::string& host) {
 	if (pos >= inputURI.size() || !std::isdigit(static_cast<unsigned char>(inputURI.at(pos)))) {
 		return false;
 	}
@@ -47,7 +47,7 @@ const bool	splitAddressNumber(const std::string& inputURI, size_t& pos, std::str
 	return true;
 }
 
-void	splitPort(const std::string& inputURI, size_t& pos, unsigned short& port) {
+void	splitPort(const std::string& inputURI, std::size_t& pos, unsigned short& port) {
 	std::string	portStr;
 	if (pos >= inputURI.size() || !std::isdigit(static_cast<unsigned char>(inputURI.at(pos)))) {
 		throw Utils::errorMessageGenerator(inputURI, pos, "is invalid port syntax");
@@ -68,7 +68,7 @@ void	splitPort(const std::string& inputURI, size_t& pos, unsigned short& port) {
  * @param pos:		현재 위치
  * @param scheme:	저장할 URI의 scheme
 */
-void	scheme(const std::string& inputURI, size_t& pos, std::string& scheme) {
+void	scheme(const std::string& inputURI, std::size_t& pos, std::string& scheme) {
 	std::string	newScheme;
 
 	if (std::isalpha(inputURI.at(pos))) {
@@ -92,7 +92,7 @@ void	scheme(const std::string& inputURI, size_t& pos, std::string& scheme) {
 	*	@param pos:			현재 위치
 	*	@return:			각각의 함수에 따라 true / false
 */
-const std::string	domainlabel(const std::string& inputURI, size_t& pos) {
+const std::string	domainlabel(const std::string& inputURI, std::size_t& pos) {
 	std::string	label;
 
 	if (pos >= inputURI.size() || !std::isalnum(static_cast<unsigned char>(inputURI.at(pos))))
@@ -104,8 +104,8 @@ const std::string	domainlabel(const std::string& inputURI, size_t& pos) {
 	return label;
 }
 
-void	toplabel(const std::string& inputURI, size_t& pos, const std::string& host) {
-	const size_t	dotPos = host.rfind(BNF::E_MARK::PERIOD);
+void	toplabel(const std::string& inputURI, std::size_t& pos, const std::string& host) {
+	const std::size_t	dotPos = host.rfind(BNF::E_MARK::PERIOD);
 
 	if (dotPos != std::string::npos && !std::isalpha(static_cast<unsigned char>(host.at(dotPos + 1)))) {
 		throw Utils::errorMessageGenerator(inputURI, dotPos + 1, "is invalid toplabel syntax");
@@ -122,7 +122,7 @@ void	toplabel(const std::string& inputURI, size_t& pos, const std::string& host)
 	*	@param pos:			현재 위치
 	*	@return:			각각의 함수에 따라 true / false
 */
-const bool	hostname(const std::string& inputURI, size_t& pos, std::string& host) {
+const bool	hostname(const std::string& inputURI, std::size_t& pos, std::string& host) {
 	host += domainlabel(inputURI, pos);
 	while (pos < inputURI.size() && inputURI.at(pos) == BNF::E_MARK::PERIOD) {
 		pos++;
@@ -133,7 +133,7 @@ const bool	hostname(const std::string& inputURI, size_t& pos, std::string& host)
 	return true;
 }
 
-const bool	IPv4address(const std::string& inputURI, size_t& pos, std::string& host) {
+const bool	IPv4address(const std::string& inputURI, std::size_t& pos, std::string& host) {
 	for (int i = 0; i < 3;) {
 		if (!splitAddressNumber(inputURI, pos, host))
 			return false;
@@ -159,11 +159,11 @@ const bool	IPv4address(const std::string& inputURI, size_t& pos, std::string& ho
 	*	@return:			각각의 함수에 따라 true / false
 
 */
-const bool	host(const std::string& inputURI, size_t& pos, std::string& host) {
+const bool	host(const std::string& inputURI, std::size_t& pos, std::string& host) {
 	return (IPv4address(inputURI, pos, host) || hostname(inputURI, pos, host));
 }
 
-void	port(const std::string& inputURI, size_t& pos, unsigned short& port) {
+void	port(const std::string& inputURI, std::size_t& pos, unsigned short& port) {
 	if (pos < inputURI.size() && inputURI.at(pos) == BNF::E_RESERVED::COLON) {
 		pos++;
 		splitPort(inputURI, pos, port);
@@ -172,7 +172,7 @@ void	port(const std::string& inputURI, size_t& pos, unsigned short& port) {
 		port = 80;
 }
 
-const bool	setPortDetermineDefault(const std::string& inputURI, size_t& pos, unsigned short& port) {
+const bool	setPortDetermineDefault(const std::string& inputURI, std::size_t& pos, unsigned short& port) {
 	if (pos < inputURI.size() && inputURI.at(pos) == BNF::E_RESERVED::COLON) {
 		pos++;
 		splitPort(inputURI, pos, port);
@@ -184,24 +184,24 @@ const bool	setPortDetermineDefault(const std::string& inputURI, size_t& pos, uns
 	}
 }
 
-void	server(const std::string& inputURI, size_t& pos, URI::data& uri) {
+void	server(const std::string& inputURI, std::size_t& pos, URI::data& uri) {
 	host(inputURI, pos, uri.host);
 	port(inputURI, pos, uri.port);
 }
 
-const bool	URIParser::server(const std::string& inputURI, size_t& pos, std::string& hostname, unsigned short& server_port) {
+const bool	URIParser::server(const std::string& inputURI, std::size_t& pos, std::string& hostname, unsigned short& server_port) {
 	host(inputURI, pos, hostname);
 	return (setPortDetermineDefault(inputURI, pos, server_port));
 }
 
-const bool	URIParser::server(const std::string& inputURI, size_t& pos, std::string& hostname) {
+const bool	URIParser::server(const std::string& inputURI, std::size_t& pos, std::string& hostname) {
 	return (host(inputURI, pos, hostname));
 }
 
 
 // TODO: '//' 처리하면 안 되는데, netPath에서 처리하고 있음
 // netPath를 먼저 호출하지 않고 나중에 호출하여 absPath에서 '/'를 확인하고 netPath가 불려지도록 바꿔야 됨
-const bool	netPath(const std::string& inputURI, size_t& pos, URI::data& uri) {
+const bool	netPath(const std::string& inputURI, std::size_t& pos, URI::data& uri) {
 	/*
 	Utils::compareOneCharacter(inputURI, pos, E_RESERVED::SLASH);
 	if ((pos < inputURI.size()) && (inputURI.at(pos) != E_RESERVED::SLASH)) {
@@ -222,14 +222,14 @@ const bool	netPath(const std::string& inputURI, size_t& pos, URI::data& uri) {
 	*	@param inputURI:	입력받은 URI
 	*	@param pos:			현재 위치
 */
-void	query(const std::string& inputURI, size_t& pos, URI::data& uri) {
+void	query(const std::string& inputURI, std::size_t& pos, URI::data& uri) {
 	if (pos < inputURI.size() && inputURI.at(pos) == BNF::E_RESERVED::QUESTION_MARK) {
 		pos++;
 	}
 	else {
 		return ;
 	}
-	size_t	start(pos);
+	std::size_t	start(pos);
 	std::string	key;
 	while (pos < inputURI.size() && isUric(inputURI, pos)) {
 		switch (inputURI.at(pos)) {
@@ -254,14 +254,14 @@ void	query(const std::string& inputURI, size_t& pos, URI::data& uri) {
 	*	@details	hier-part = net-path / abs-path [ "?" query ]
 	*				absoluteURI = scheme ":" hier-part [ "?" query ]
 */
-void	hierPart(const std::string& inputURI, size_t& pos, URI::data& uri) {
+void	hierPart(const std::string& inputURI, std::size_t& pos, URI::data& uri) {
 	if (!PathParser::URI_AbsolutePath(inputURI, pos, uri.absPath) && !netPath(inputURI, pos, uri)) {
 		throw Utils::errorMessageGenerator(inputURI, pos, "is invalid host syntax");
 	}
 	query(inputURI, pos, uri);
 }
 
-void	absoluteURI(const std::string& inputURI, size_t& pos, URI::data& uri) {
+void	absoluteURI(const std::string& inputURI, std::size_t& pos, URI::data& uri) {
 	/*
 		*  Scheme part is not required
 	scheme(inputURI, pos, uri.scheme);
@@ -270,14 +270,14 @@ void	absoluteURI(const std::string& inputURI, size_t& pos, URI::data& uri) {
 	hierPart(inputURI, pos, uri);
 }
 
-void	Fragment(const std::string& inputURI, size_t& pos, URI::data& uri) {
+void	Fragment(const std::string& inputURI, std::size_t& pos, URI::data& uri) {
 	if (pos < inputURI.size() && inputURI.at(pos) == '#') {
 		pos++;
 	} else {
 		return ;
 	}
 
-	const size_t	start(pos);
+	const std::size_t	start(pos);
 	while (pos < inputURI.size() && isUric(inputURI, pos)) {
 		pos++;
 	}
@@ -286,7 +286,7 @@ void	Fragment(const std::string& inputURI, size_t& pos, URI::data& uri) {
 
 URI::data	URIParser::Parser(const std::string& inputURI) {
 	URI::data	uri;
-	size_t		pos(0);
+	std::size_t		pos(0);
 
 	absoluteURI(inputURI, pos, uri);
 	// TODO: Fragment 보기전에 빈 `//` 있는지 체크할 것
@@ -298,12 +298,12 @@ URI::data	URIParser::Parser(const std::string& inputURI) {
 	return uri;
 }
 
-const bool	fullURIParser(const std::string& content, size_t& pos, std::string& argument) {
+const bool	fullURIParser(const std::string& content, std::size_t& pos, std::string& argument) {
 
 }
 
 const bool	URIParser::isValidURI(const std::string& inputURI, std::string& hostStr) {
-	size_t	pos(0);
+	std::size_t	pos(0);
 	host(inputURI, pos, hostStr);
 	return ((inputURI.size() == hostStr.size()) ? true : false);
 }

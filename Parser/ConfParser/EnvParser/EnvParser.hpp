@@ -11,5 +11,5 @@ namespace ENV {
 	void	EnvParser(envMap& dest, char** env);
 
 	template <typename T>
-	void	envLine(envMap& dest, const std::string& env, size_t& pos);
+	void	envLine(envMap& dest, const std::string& env, std::size_t& pos);
 }

@@ -13,7 +13,7 @@
 */
 
 template <typename T>
-void	ENV::envLine(ENV::envMap& dest, const std::string& env, size_t& pos) {
+void	ENV::envLine(ENV::envMap& dest, const std::string& env, std::size_t& pos) {
 	std::string	key;
 
 	if (env.empty() || (!std::isalpha(static_cast<int>(env[pos])) && env[pos] != '_')) {
@@ -27,7 +27,7 @@ void	ENV::envLine(ENV::envMap& dest, const std::string& env, size_t& pos) {
 		throw T(key, "Environment syntax error '=' is not found");
 	}
 	pos++;
-	const size_t	start(pos);
+	const std::size_t	start(pos);
 	while (env[pos]) {
 		pos++;
 	}
@@ -40,8 +40,8 @@ void	ENV::envLine(ENV::envMap& dest, const std::string& env, size_t& pos) {
 
 template <typename T>
 void	ENV::EnvParser(envMap& dest, char** env) {
-	size_t	idx(0);
-	size_t	pos;
+	std::size_t	idx(0);
+	std::size_t	pos;
 
 	while (env[idx]) {
 		pos = 0;
@@ -51,4 +51,4 @@ void	ENV::EnvParser(envMap& dest, char** env) {
 }
 
 template void	ENV::EnvParser<EnvParserException>(ENV::envMap&, char**);
-template void	ENV::envLine<ConfParserException>(ENV::envMap&, const std::string&, size_t&);
+template void	ENV::envLine<ConfParserException>(ENV::envMap&, const std::string&, std::size_t&);

@@ -13,7 +13,7 @@ namespace E_INDEX {
 namespace CONF {
 	class ConfFile : public ReadFile {
 	private:
-		size_t				m_Pos[3];
+		std::size_t				m_Pos[3];
 		static ConfFile*	instance;
 
 		ConfFile(const ConfFile& other);
@@ -27,6 +27,6 @@ namespace CONF {
 		virtual ~ConfFile();
 
 		void	Destroy();
-		size_t*	Pos();
+		std::size_t*	Pos();
 	};
 }

@@ -26,7 +26,7 @@ namespace MIME {
 	typedef std::map<std::string, std::vector<std::string> >	TypeMap;
 	
 	template <typename T>
-	const std::string	type(const std::string& fileName, size_t& Pos);
+	const std::string	type(const std::string& fileName, std::size_t& Pos);
 
 	template <typename T>
 	void				Parser(const std::string& fileName, TypeMap& MIMEType);

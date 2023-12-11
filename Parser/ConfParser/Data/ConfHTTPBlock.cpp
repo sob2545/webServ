@@ -36,8 +36,8 @@ void	CONF::HTTPBlock::initHTTPStatusMap() {
 
 bool	CONF::HTTPBlock::argumentChecker(const std::vector<std::string>& args, const unsigned short& status) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	const std::size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	switch (status) {
 		case CONF::E_HTTP_BLOCK_STATUS::ROOT: {
@@ -49,7 +49,7 @@ bool	CONF::HTTPBlock::argumentChecker(const std::vector<std::string>& args, cons
 			return false;
 		}
 		case CONF::E_HTTP_BLOCK_STATUS::INDEX: {
-			for (size_t i = 0; i < args.size(); i++) {
+			for (std::size_t i = 0; i < args.size(); i++) {
 				(args[i].empty()) ? throw ConfParserException(args.at(0), "invalid number of Index arguments!") : this->m_Index.insert(args[i]);
 			}
 			return false;
@@ -72,7 +72,7 @@ bool	CONF::HTTPBlock::argumentChecker(const std::vector<std::string>& args, cons
 			return false;
 		}
 		case CONF::E_HTTP_BLOCK_STATUS::ERROR_PAGE: {
-			errorPageParser(args, this->m_Error_page);
+			errorPageChecker(args, this->m_Error_page);
 			return false;
 		}
 		case CONF::E_HTTP_BLOCK_STATUS::ACCESS_LOG: {
@@ -97,7 +97,7 @@ bool	CONF::HTTPBlock::argumentChecker(const std::vector<std::string>& args, cons
 				throw ConfParserException(args.at(0), "invalid number of Include arguments!");
 			} else {
 				(args[0].empty()) ? throw ConfParserException(args[0], "invalid number of Include arguments!") : 0;
-				const size_t		dotPos = args[0].rfind('.');
+				const std::size_t		dotPos = args[0].rfind('.');
 				const std::string&	extension = args[0].substr(dotPos + 1, args[0].size() - dotPos);
 				if (extension == "types") {
 					MIME::Parser<MIMEParserException>(args[0], this->m_Mime_types);
@@ -125,8 +125,8 @@ bool	CONF::HTTPBlock::argumentChecker(const std::vector<std::string>& args, cons
 
 const std::string	CONF::HTTPBlock::argument(const unsigned short& status) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	const std::size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	std::string	argument;
 	while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
@@ -145,7 +145,7 @@ const std::string	CONF::HTTPBlock::argument(const unsigned short& status) {
 			return (argument);
 		}
 		case CONF::E_HTTP_BLOCK_STATUS::DEFAULT_TYPE: {
-			const size_t	startPos = Pos[E_INDEX::FILE];
+			const std::size_t	startPos = Pos[E_INDEX::FILE];
 			argument = MIME::type<ConfParserException>(fileContent, Pos[E_INDEX::FILE]);
 			Pos[E_INDEX::COLUMN] += Pos[E_INDEX::FILE] - startPos;
 			return (argument);
@@ -175,7 +175,7 @@ const std::string	CONF::HTTPBlock::argument(const unsigned short& status) {
 
 unsigned short	CONF::HTTPBlock::directiveNameChecker(const std::string& name) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	const statusMap::iterator	it = m_HTTPStatusMap.find(name);
 
@@ -189,7 +189,7 @@ unsigned short	CONF::HTTPBlock::directiveNameChecker(const std::string& name) {
 
 bool	CONF::HTTPBlock::blockContent() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 
 	if (fileContent[Pos[E_INDEX::FILE]] != E_CONF::LBRACE) {
@@ -216,8 +216,8 @@ bool	CONF::HTTPBlock::blockContent() {
 
 bool	CONF::HTTPBlock::context() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	const std::size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	if (fileContent[Pos[E_INDEX::FILE]] == E_ABNF::SEMICOLON
 			|| fileContent[Pos[E_INDEX::FILE]] == E_ABNF::LF) {

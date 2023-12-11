@@ -13,7 +13,7 @@ MIMEParserException::MIMEParserException(const std::string& error, const std::st
 		return ;
 	}
 	const std::string&	file = MIME::MIMEFile::getInstance()->getFileName();
-	const size_t*		pos = MIME::MIMEFile::getInstance()->Pos();
+	const std::size_t*		pos = MIME::MIMEFile::getInstance()->Pos();
 
 	res << BOLDWHITE << file << ":" << pos[1] << ":" << pos[2] << BOLDRED << " Error:" << BOLDWHITE << " \"" << error << "\" " << message << RESET;
 	m_Message = res.str();

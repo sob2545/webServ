@@ -39,7 +39,7 @@ bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args, cons
 			if (args.size() != 1) {
 				throw ConfParserException(args.at(0), "invalid number of Environment arguments!");
 			} else {
-				size_t	idx(0);
+				std::size_t	idx(0);
 				ENV::envLine<ConfParserException>(this->m_Env, args[0], idx);
 			}
 			return false;
@@ -122,8 +122,8 @@ bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args, cons
 
 const std::string	CONF::MainBlock::argument(const unsigned short& status) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	const size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	const std::size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	std::string	argument;
 	while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
@@ -172,7 +172,7 @@ unsigned short	CONF::MainBlock::directiveNameChecker(const std::string& name) {
 
 bool	CONF::MainBlock::blockContent() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 
 	if (fileContent[Pos[E_INDEX::FILE]] != E_CONF::LBRACE) {
@@ -196,7 +196,7 @@ bool	CONF::MainBlock::blockContent() {
 
 bool	CONF::MainBlock::context() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
-	size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
+	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	if (fileContent[Pos[E_INDEX::FILE]] == E_ABNF::SEMICOLON
 			|| fileContent[Pos[E_INDEX::FILE]] == E_ABNF::LF) {

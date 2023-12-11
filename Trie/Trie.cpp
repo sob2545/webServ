@@ -20,7 +20,7 @@ Trie::~Trie() {
 void	Trie::insert(const std::string& key) {
 	TrieNode* node = root;
 
-	for (size_t i(0); i < key.length(); ++i) {
+	for (std::size_t i(0); i < key.length(); ++i) {
 		if (node->children.find(key[i]) == node->children.end()) {
 			node->children[key[i]] = new TrieNode();
 		}
@@ -32,7 +32,7 @@ void	Trie::insert(const std::string& key) {
 bool	Trie::search(const std::string& key) {
 	TrieNode* node = root;
 
-	for (size_t i(0); i < key.length(); ++i) {
+	for (std::size_t i(0); i < key.length(); ++i) {
 		if (node->children.find(key[i]) == node->children.end()) {
 			return false;
 		}
@@ -45,7 +45,7 @@ const std::string	Trie::find(const std::string& key) const {
 	TrieNode* node = root;
 	std::string	result;
 
-	for (size_t i(0); i < key.length(); ++i) {
+	for (std::size_t i(0); i < key.length(); ++i) {
 		const char&	c = key[i];
 		if (node->children.find(key[i]) == node->children.end()) {
 			return result;
