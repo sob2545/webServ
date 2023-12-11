@@ -3,6 +3,7 @@
 #include "../../ABNF_utils/ABNFFunctions.hpp"
 #include "../../PathParser/PathParser.hpp"
 #include "../../URIParser/URIParser.hpp"
+#include "../Data/errorPageData/errorPageData.hpp"
 
 #include "../File/ConfFile.hpp"
 #include "Exception/ConfParserException.hpp"
@@ -20,21 +21,22 @@ namespace	E_CONF {
 namespace CONF {
 	class AConfParser {
 	protected:
-		typedef std::vector<std::string>	strVec;
+		typedef std::vector<std::string>				strVec;
+		typedef std::map<unsigned short, errorPageData>	errorPageMap;
 
 		static std::stack<unsigned char>	m_BlockStack;
 
 		// common util functions
 		bool		isMultipleDirective(const unsigned char& block_status, const unsigned short& directive_status);
-		bool		fileName(std::string& argument);
 		// void			absPathArgumentParser(strVec& argument);
-		void			errorPageArgumentParser(std::string& argument);
 
 		bool		stringPathArgumentParser(std::string& argument);
 		bool		absPathArgumentParser(std::string& argument);
 		bool		digitArgumentParser(std::string& argument);
-		bool		goToLocationBlockArgumentParser(std::string& argument);
-		bool		replaceErrorPageArgumentParser(std::string& argument);
+
+		void		fileName(std::string& argument);
+		void		errorPageArgumentParser(std::string& argument);
+		void		errorPageParser(const std::vector<std::string>& args, errorPageMap& errorMap);
 
 		// void			indexArgumentParser(std::string& arugment);
 

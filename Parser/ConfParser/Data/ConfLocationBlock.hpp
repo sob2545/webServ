@@ -2,6 +2,7 @@
 
 #include "../../../utils/utilFunctions.hpp"
 #include "../Parser/AConfParser.hpp"
+
 #include <map>
 #include <vector>
 
@@ -23,12 +24,13 @@ namespace   CONF {
 	class LocationBlock : public AConfParser {
 	private:
 		typedef	std::vector<std::string>	strVec;
+		typedef std::map<unsigned short, errorPageData> errorPageMap;
 
 		bool							m_Autoindex;
 		bool							m_Internal;
 		unsigned short					m_LocationStatus;
 		std::string						m_Root;
-		std::string						m_Error_page;
+		errorPageMap					m_Error_page;
 		std::string						m_Access_log;
 		strVec							m_Index;
 	

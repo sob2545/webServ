@@ -23,12 +23,14 @@
 namespace   CONF {
 	class ServerBlock : public AConfParser {
 	private: 
+		typedef std::map<unsigned short, errorPageData> errorPageMap;
+
 		bool									m_Autoindex;
 		unsigned short							m_Port;
 		unsigned short							m_Status;
 		std::string								m_Root;
 		strVec									m_Server_name;
-		std::string								m_Error_page;
+		errorPageMap							m_Error_page;
 		std::string								m_Access_log;
 		strVec									m_Index;
 		std::map<std::string, LocationBlock>	m_Location_block;
@@ -37,7 +39,7 @@ namespace   CONF {
 		ServerBlock(const ServerBlock& other);
 		ServerBlock& operator=(const ServerBlock& other);
 
-		void					initHTTPStatusMap();
+		void				initHTTPStatusMap();
 
 		bool				context();
 		bool				blockContent();
