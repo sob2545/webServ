@@ -24,7 +24,10 @@ namespace URI {
 
 
 namespace URIParser {
-	bool	setServer(const std::string& inputURI, size_t& pos, std::string& argument, unsigned short& port);
-	bool	errorPageParser(const std::string& inputURI, size_t& pos, std::string& argument);
+	template <typename T>
+	bool	setServer(const std::string& inputURI, std::size_t& pos, std::string& argument, unsigned short& port);
+
+	template <typename T>
+	bool	errorPageParser(const std::string& inputURI, std::size_t& pos, std::string& argument);
 }
 

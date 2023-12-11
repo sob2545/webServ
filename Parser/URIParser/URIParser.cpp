@@ -7,8 +7,9 @@
 #include "../ConfParser/Parser/Exception/ConfParserException.hpp"
 
 // TODO: compareOneCharcter throw 정의 해야됨
-void	compareOneCharacter(const std::string& inputURI, size_t& pos, const unsigned char& toCmp) {
-	const size_t&		URILength = inputURI.length();
+template <typename T>
+void	compareOneCharacter(const std::string& inputURI, std::size_t& pos, const unsigned char& toCmp) {
+	const std::size_t&		URILength = inputURI.length();
 	const std::string	src(&inputURI[pos]);
 
 	if (pos >= URILength || inputURI[pos] != toCmp) {
@@ -20,14 +21,14 @@ void	compareOneCharacter(const std::string& inputURI, size_t& pos, const unsigne
 /**
  *			Query setter
 */
-void	query(const std::string& inputURI, size_t& pos, URI::QueryMap& query) {
+void	query(const std::string& inputURI, std::size_t& pos, URI::QueryMap& query) {
 	if (pos < inputURI.size() && inputURI.at(pos) == BNF::E_RESERVED::QUESTION_MARK) {
 		pos++;
 	}
 	else {
 		return ;
 	}
-	size_t	start(pos);
+	std::size_t	start(pos);
 	std::string	key;
 
 	while (pos < inputURI.size() && BNF::isUric(inputURI, pos)) {
@@ -52,14 +53,14 @@ void	query(const std::string& inputURI, size_t& pos, URI::QueryMap& query) {
 /**
  *		Fragment setter
 */
-void	Fragment(const std::string& inputURI, size_t& pos, std::string& fragment) {
+void	Fragment(const std::string& inputURI, std::size_t& pos, std::string& fragment) {
 	if (pos < inputURI.size() && inputURI.at(pos) == '#') {
 		pos++;
 	} else {
 		return ;
 	}
 
-	const size_t	start(pos);
+	const std::size_t	start(pos);
 	while (pos < inputURI.size() && BNF::isUric(inputURI, pos)) {
 		pos++;
 	}
@@ -70,7 +71,8 @@ void	Fragment(const std::string& inputURI, size_t& pos, std::string& fragment) {
 /**
  *			Hostname setter
 */
-const std::string	domainlabel(const std::string& inputURI, size_t& pos) {
+template <typename T>
+const std::string	domainlabel(const std::string& inputURI, std::size_t& pos) {
 	std::string	label;
 
 	if (pos >= inputURI.size() || !std::isalnum(static_cast<int>(inputURI.at(pos))))
@@ -82,8 +84,9 @@ const std::string	domainlabel(const std::string& inputURI, size_t& pos) {
 	return label;
 }
 
+template <typename T>
 void	toplabel(const std::string& host) {
-	const size_t	dotPos = host.rfind(BNF::E_MARK::PERIOD);
+	const std::size_t	dotPos = host.rfind(BNF::E_MARK::PERIOD);
 
 	if (dotPos != std::string::npos && !std::isalpha(static_cast<int>(host.at(dotPos + 1)))) {
 		throw ConfParserException(host, "is invalid host name");
@@ -92,14 +95,15 @@ void	toplabel(const std::string& host) {
 	}
 }
 
-bool	hostname(const std::string& inputURI, size_t& pos, std::string& host) {
-	host += domainlabel(inputURI, pos);
+template <typename T>
+bool	hostname(const std::string& inputURI, std::size_t& pos, std::string& host) {
+	host += domainlabel<T>(inputURI, pos);
 	while (pos < inputURI.size() && inputURI.at(pos) == BNF::E_MARK::PERIOD) {
 		pos++;
 		host += '.';
-		host += domainlabel(inputURI, pos);
+		host += domainlabel<T>(inputURI, pos);
 	}
-	toplabel(host);
+	toplabel<T>(host);
 	return true;
 }
 
@@ -107,7 +111,7 @@ bool	hostname(const std::string& inputURI, size_t& pos, std::string& host) {
 /**
  *			Address setter
 */
-bool	splitAddressNumber(const std::string& inputURI, size_t& pos, std::string& host) {
+bool	splitAddressNumber(const std::string& inputURI, std::size_t& pos, std::string& host) {
 	if (pos >= inputURI.size() || !std::isdigit(static_cast<int>(inputURI.at(pos)))) {
 		return false;
 	}
@@ -122,7 +126,7 @@ bool	splitAddressNumber(const std::string& inputURI, size_t& pos, std::string& h
 	return ((addressPart <= 255) ? true : throw );
 }
 
-bool	IPv4address(const std::string& inputURI, size_t& pos, std::string& host) {
+bool	IPv4address(const std::string& inputURI, std::size_t& pos, std::string& host) {
 	for (int i = 0; i < 3;) {
 		if (!splitAddressNumber(inputURI, pos, host))
 			return false;
@@ -139,18 +143,20 @@ bool	IPv4address(const std::string& inputURI, size_t& pos, std::string& host) {
 	return true;
 }
 
-bool	setHost(const std::string& inputURI, size_t& pos, std::string& host) {
-	return (IPv4address(inputURI, pos, host) || hostname(inputURI, pos, host));
+template <typename T>
+bool	setHost(const std::string& inputURI, std::size_t& pos, std::string& host) {
+	return (IPv4address(inputURI, pos, host) || hostname<T>(inputURI, pos, host));
 }
 
 /**
  *			Port setter
 */
-void	splitPort(const std::string& inputURI, size_t& pos, unsigned short& port) {
+template <typename T>
+void	splitPort(const std::string& inputURI, std::size_t& pos, unsigned short& port) {
 	std::string	portStr;
 
 	if (pos >= inputURI.size() || !std::isdigit(static_cast<int>(inputURI.at(pos)))) {
-		throw ConfParserException(portStr, "is invalid host name");
+		throw T(portStr, "is invalid host name");
 	}
 	portStr += inputURI.at(pos);
 	pos++;
@@ -161,10 +167,11 @@ void	splitPort(const std::string& inputURI, size_t& pos, unsigned short& port) {
 	port = static_cast<unsigned short>(std::atoi(portStr.c_str()));
 }
 
-bool	setPort(const std::string& inputURI, size_t& pos, unsigned short& port) {
+template <typename T>
+bool	setPort(const std::string& inputURI, std::size_t& pos, unsigned short& port) {
 	if (pos < inputURI.size() && inputURI.at(pos) == BNF::E_RESERVED::COLON) {
 		pos++;
-		splitPort(inputURI, pos, port);
+		splitPort<T>(inputURI, pos, port);
 		return true;
 	}
 	else {
@@ -176,12 +183,13 @@ bool	setPort(const std::string& inputURI, size_t& pos, unsigned short& port) {
 
 // RFC3986 부터 authroity가 나오고 absolutePath가 나옴
 // hierPart에서 port를 설정하지 않음
-void	hierPart(const std::string& inputURI, size_t& pos, std::string& argument) {
-	compareOneCharacter(inputURI, pos, BNF::E_RESERVED::SLASH);
-	compareOneCharacter(inputURI, pos, BNF::E_RESERVED::SLASH);
+template <typename T>
+void	hierPart(const std::string& inputURI, std::size_t& pos, std::string& argument) {
+	compareOneCharacter<T>(inputURI, pos, BNF::E_RESERVED::SLASH);
+	compareOneCharacter<T>(inputURI, pos, BNF::E_RESERVED::SLASH);
 
 	argument += "//";
-	setHost(inputURI, pos, argument);
+	setHost<T>(inputURI, pos, argument);
 	PathParser::URI_AbsolutePath(inputURI, pos, argument);
 }
 
@@ -189,7 +197,7 @@ void	hierPart(const std::string& inputURI, size_t& pos, std::string& argument) {
 /**
  *			Scheme Part
 */
-bool	isValidSchemeSyntax(const std::string& inputURI, size_t& pos) {
+bool	isValidSchemeSyntax(const std::string& inputURI, std::size_t& pos) {
 	const unsigned char c = static_cast<unsigned char>(inputURI.at(pos));
 
 	return (std::isalnum(c)
@@ -198,8 +206,9 @@ bool	isValidSchemeSyntax(const std::string& inputURI, size_t& pos) {
 			|| inputURI[pos] == BNF::E_MARK::PERIOD);
 }
 
-bool	scheme(const std::string& inputURI, size_t& pos, std::string& scheme) {
-	const size_t	URILength = inputURI.length();
+template <typename T>
+bool	scheme(const std::string& inputURI, std::size_t& pos, std::string& scheme) {
+	const std::size_t	URILength = inputURI.length();
 
 	if (std::isalpha(inputURI.at(pos))) {
 		scheme += inputURI[pos++];
@@ -222,21 +231,26 @@ bool	scheme(const std::string& inputURI, size_t& pos, std::string& scheme) {
  *			URI Parsing API
 */
 // setServer는 기본 포트면 false, 지정된 포트가 있으면 true
-bool	URIParser::setServer(const std::string& inputURI, size_t& pos, std::string& argument, unsigned short& port) {
-	setHost(inputURI, pos, argument);
-	return (setPort(inputURI, pos, port));
+template <typename T>
+bool	URIParser::setServer(const std::string& inputURI, std::size_t& pos, std::string& argument, unsigned short& port) {
+	setHost<T>(inputURI, pos, argument);
+	return (setPort<T>(inputURI, pos, port));
 }
 
-bool	URIParser::errorPageParser(const std::string& inputURI, size_t& pos, std::string& argument) {
-	const size_t	startPos = pos;
-	if (!scheme(inputURI, pos, argument)) {
+template <typename T>
+bool	URIParser::errorPageParser(const std::string& inputURI, std::size_t& pos, std::string& argument) {
+	const std::size_t	startPos = pos;
+	if (!scheme<T>(inputURI, pos, argument)) {
 		pos = startPos;
 		argument.clear();
 		return false;
 	}
-	compareOneCharacter(inputURI, pos, BNF::E_RESERVED::COLON);
+	compareOneCharacter<T>(inputURI, pos, BNF::E_RESERVED::COLON);
 	argument += ":";
-	hierPart(inputURI, pos, argument);
+	hierPart<T>(inputURI, pos, argument);
 	return true;
 }
 
+
+template bool	URIParser::setServer<ConfParserException>(const std::string&, std::size_t&, std::string&, unsigned short&);
+template bool	URIParser::errorPageParser<ConfParserException>(const std::string&, std::size_t&, std::string&);
