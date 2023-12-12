@@ -3,7 +3,7 @@
 #include "../Parser/AConfParser.hpp"
 #include "../../../Trie/Trie.hpp"
 #include "../../MIMEParser/Exception/MIMEParserException.hpp"
-// #include "ConfServerBlock.hpp"
+#include "ConfServerBlock.hpp"
 
 #include <vector>
 
@@ -41,7 +41,11 @@ namespace   CONF {
 		Trie									m_Index;
 		errorPageMap							m_Error_page;
 		TypeMap									m_Mime_types;
-		// std::map<std::string, ServerBlock>		m_Server_block;
+		// TODO: server block map의 value를 ServerBlock*로 변경
+		// 여러 개의 server_name이 있을 때 같은 pointer를 공유하도록 함
+		// 소멸자에서 delete 할 때 댕글링 포인터 잘 설정하여 double free 방지할 것!
+		// 중복된 server_name이 나오면 후속 요소가 무시됨 -> find 했을 때, it가 존재하면 무시
+		std::map<std::string, ServerBlock*>		m_Server_block;
 		static statusMap						m_HTTPStatusMap;
 
 	private:
@@ -59,7 +63,7 @@ namespace   CONF {
 	
 	public:
 		HTTPBlock();
-		// const ServerBlock&	operator[](const std::string& server_name) const;
+		const ServerBlock&	operator[](const std::string& server_name) const;
 		virtual ~HTTPBlock();
 
 		void					initialize();

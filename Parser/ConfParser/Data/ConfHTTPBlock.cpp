@@ -47,6 +47,7 @@ bool	CONF::HTTPBlock::argumentChecker(const std::vector<std::string>& args, cons
 			return false;
 		}
 		case CONF::E_HTTP_BLOCK_STATUS::INDEX: {
+			args.empty() ? throw ConfParserException("", "index argument is empty!") : 0;
 			for (std::size_t i = 0; i < args.size(); i++) {
 				(args[i].empty()) ? throw ConfParserException(args.at(0), "invalid number of Index arguments!") : this->m_Index.insert(args[i]);
 			}
@@ -235,9 +236,9 @@ void	CONF::HTTPBlock::initialize() {
 	contextLines();
 }
 
-// const ServerBlock&	CONF::HTTPBlock::operator[](const std::string& server_name) const {
-// 	return (this->m_Server_block.find(server_name));
-// }
+const CONF::ServerBlock&	CONF::HTTPBlock::operator[](const std::string& server_name) const {
+	for (std::map<std::string, )
+}
 
 const bool&	CONF::HTTPBlock::getAutoindex() const {
 	return (this->m_Autoindex);
