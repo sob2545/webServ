@@ -37,13 +37,13 @@ namespace   CONF {
 		envMap					m_Env;
 		EventsBlock				m_Event_block;
 		static HTTPBlock		m_HTTP_block;
-		statusMap				m_MainStatusMap;
+		static statusMap		m_MainStatusMap;
 
 	private:
 		MainBlock(const MainBlock& other);
 		MainBlock& operator=(const MainBlock& other);
 
-		void					initMainStatusMap();
+		static void				initMainStatusMap();
 		const std::string		envArgumentParser(std::string& argument);
 
 		bool					context();

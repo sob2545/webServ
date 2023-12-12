@@ -7,7 +7,8 @@
 #include <cstddef>
 #include <iostream>
 
-CONF::HTTPBlock	CONF::MainBlock::m_HTTP_block;
+CONF::HTTPBlock							CONF::MainBlock::m_HTTP_block;
+std::map<std::string, unsigned char>	CONF::MainBlock::m_MainStatusMap;
 
 CONF::MainBlock::MainBlock()
 : AConfParser(),
@@ -16,9 +17,7 @@ CONF::MainBlock::MainBlock()
   m_Status(0),
   m_Worker_process(4),
   m_Timer_resolution(0)
-{
-	initMainStatusMap();
-}
+{}
 
 CONF::MainBlock::~MainBlock() {}
 
@@ -211,6 +210,7 @@ bool	CONF::MainBlock::context() {
 
 void	CONF::MainBlock::initialize() {
 	CONF::AConfParser::m_BlockStack.push(CONF::E_BLOCK_STATUS::MAIN);
+	initMainStatusMap();
 
 	if (!contextLines()) {
 		throw ConfParserException("", "is invalid Confgiure file!");

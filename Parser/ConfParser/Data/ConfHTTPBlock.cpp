@@ -1,5 +1,4 @@
 #include "ConfHTTPBlock.hpp"
-#include "ConfServerBlock.hpp"
 #include <string>
 #include "../../MIMEParser/MIMEParser.hpp"
 #include "errorPageData/errorPageData.hpp"
@@ -8,14 +7,15 @@
 #include <iostream>
 #include <sys/_types/_size_t.h>
 
+std::map<std::string, unsigned short>	CONF::HTTPBlock::m_HTTPStatusMap;
+
 CONF::HTTPBlock::HTTPBlock()
 : AConfParser(),
   m_Autoindex(false),
   m_Status(0),
   m_KeepAliveTime(75),
-  m_Default_type("text/plain") {
-	initHTTPStatusMap();
-}
+  m_Default_type("text/plain")
+{}
 
 CONF::HTTPBlock::~HTTPBlock() {}
 
@@ -230,13 +230,14 @@ bool	CONF::HTTPBlock::context() {
 
 void	CONF::HTTPBlock::initialize() {
 	CONF::AConfParser::m_BlockStack.push(CONF::E_BLOCK_STATUS::HTTP);
+	initHTTPStatusMap();
 
 	contextLines();
 }
 
-const ServerBlock&	CONF::HTTPBlock::operator[](const std::string& server_name) const {
-	return (this->m_Server_block.find(server_name));
-}
+// const ServerBlock&	CONF::HTTPBlock::operator[](const std::string& server_name) const {
+// 	return (this->m_Server_block.find(server_name));
+// }
 
 const bool&	CONF::HTTPBlock::getAutoindex() const {
 	return (this->m_Autoindex);

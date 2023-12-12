@@ -3,7 +3,7 @@
 #include "../Parser/AConfParser.hpp"
 #include "../../../Trie/Trie.hpp"
 #include "../../MIMEParser/Exception/MIMEParserException.hpp"
-#include "ConfServerBlock.hpp"
+// #include "ConfServerBlock.hpp"
 
 #include <vector>
 
@@ -41,14 +41,14 @@ namespace   CONF {
 		Trie									m_Index;
 		errorPageMap							m_Error_page;
 		TypeMap									m_Mime_types;
-		std::map<std::string, ServerBlock>		m_Server_block;
-		statusMap								m_HTTPStatusMap;
+		// std::map<std::string, ServerBlock>		m_Server_block;
+		static statusMap						m_HTTPStatusMap;
 
 	private:
 		HTTPBlock(const HTTPBlock& other);
 		HTTPBlock& operator=(const HTTPBlock& other);
 
-		void				initHTTPStatusMap();
+		static void			initHTTPStatusMap();
 
 		bool				context();
 		bool				blockContent();
@@ -59,7 +59,7 @@ namespace   CONF {
 	
 	public:
 		HTTPBlock();
-		const ServerBlock&	operator[](const std::string& server_name) const;
+		// const ServerBlock&	operator[](const std::string& server_name) const;
 		virtual ~HTTPBlock();
 
 		void					initialize();
