@@ -1,7 +1,5 @@
 #include "ConfHTTPBlock.hpp"
 #include "ConfServerBlock.hpp"
-#include <cctype>
-#include <cstddef>
 #include <string>
 #include "../../MIMEParser/MIMEParser.hpp"
 #include "errorPageData/errorPageData.hpp"
@@ -234,6 +232,10 @@ void	CONF::HTTPBlock::initialize() {
 	CONF::AConfParser::m_BlockStack.push(CONF::E_BLOCK_STATUS::HTTP);
 
 	contextLines();
+}
+
+const ServerBlock&	CONF::HTTPBlock::operator[](const std::string& server_name) const {
+	return (this->m_Server_block.find(server_name));
 }
 
 const bool&	CONF::HTTPBlock::getAutoindex() const {
