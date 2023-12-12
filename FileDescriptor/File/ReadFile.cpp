@@ -16,11 +16,13 @@ ReadFile::ReadFile(const std::string& filename) : FileDescriptor(0), m_FileName(
 	// read에 string을 매개변수로 넘기지 못한다.
 	char* tmp = new char[m_FileSize + 1];
 	const ssize_t readSize = read(m_Fd, &tmp[0], m_FileSize);
-	if (readSize < 0) {
+	if (readSize < 0 || m_FileSize != readSize) {
 		// TODO: exception class
+		delete [] tmp;
 		close(m_Fd);
 	}
-	m_FileContent.assign(tmp);
+	tmp[readSize] = '\0';
+	m_FileContent.assign(tmp, readSize);
 	delete [] tmp;
 }
 
