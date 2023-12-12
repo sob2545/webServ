@@ -1,8 +1,10 @@
 #pragma once
 
 #include "../../../utils/utilFunctions.hpp"
+#include "../../../Trie/Trie.hpp"
 #include "ConfLocationBlock.hpp"
-#include <map>
+#include <set>
+#include <string>
 #include <vector>
 
 /**
@@ -24,22 +26,26 @@ namespace   CONF {
 	class ServerBlock : public AConfParser {
 	private: 
 		typedef std::map<unsigned short, errorPageData> errorPageMap;
+		typedef std::map<std::string, unsigned short> 	statusMap;
 
 		bool									m_Autoindex;
 		unsigned short							m_Port;
 		unsigned short							m_Status;
+		unsigned int							m_KeepAliveTime;
 		std::string								m_Root;
-		strVec									m_Server_name;
 		errorPageMap							m_Error_page;
 		std::string								m_Access_log;
-		strVec									m_Index;
+		std::string								m_IP;
+		Trie									m_Index;
+		std::set<std::string>					m_Server_name;
 		std::map<std::string, LocationBlock>	m_Location_block;
+		static statusMap						m_ServerStatusMap;
 
 	private:
 		ServerBlock(const ServerBlock& other);
 		ServerBlock& operator=(const ServerBlock& other);
 
-		void				initHTTPStatusMap();
+		void				initServerStatusMap();
 
 		bool				context();
 		bool				blockContent();
@@ -50,11 +56,11 @@ namespace   CONF {
 	
 	public:
 		ServerBlock();
+		ServerBlock(const bool& autoIndex, const unsigned int& keepAliveTime, const std::string& root, const std::string& accessLog, const errorPageMap& errorPage, const Trie& index);
 		virtual ~ServerBlock();
 
 		void	initialize();
 
 		const std::string&	getServerName() const;
-
 	};
 }
