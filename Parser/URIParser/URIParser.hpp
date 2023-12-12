@@ -2,6 +2,7 @@
 
 #include "../../utils/utilFunctions.hpp"
 #include "../PathParser/PathParser.hpp"
+#include "../ABNF_utils/ABNFFunctions.hpp"
 #include <string>
 #include <vector>
 #include <map>
@@ -25,7 +26,10 @@ namespace URI {
 
 namespace URIParser {
 	template <typename T>
-	bool	setServer(const std::string& inputURI, std::size_t& pos, std::string& argument, unsigned short& port);
+	bool	hostnameParser(const std::string& inputURI, std::size_t& pos, std::string& argument, unsigned short& port);
+
+	template <typename T>
+	bool	IPv4Parser(const std::string& inputURI, std::size_t& pos, std::string& argument, unsigned short& port);
 
 	template <typename T>
 	bool	errorPageParser(const std::string& inputURI, std::size_t& pos, std::string& argument);

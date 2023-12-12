@@ -1,5 +1,6 @@
 #include "URIParser.hpp"
 #include "SchemeChecker/SchemeChecker.hpp"
+#include <cctype>
 #include <string>
 
 // TODO: delete and change exception class with template
@@ -156,15 +157,24 @@ void	splitPort(const std::string& inputURI, std::size_t& pos, unsigned short& po
 	std::string	portStr;
 
 	if (pos >= inputURI.size() || !std::isdigit(static_cast<int>(inputURI.at(pos)))) {
-		throw T(portStr, "is invalid host name");
+		while (pos < inputURI.size()
+				&& (inputURI[pos] != E_ABNF::SP
+					|| inputURI[pos] != E_ABNF::SEMICOLON
+					|| inputURI[pos] != E_ABNF::LF)) {
+			portStr += inputURI[pos];
+		}
+		throw T(portStr, "is invalid port");
 	}
 	portStr += inputURI.at(pos);
 	pos++;
-	while (pos < inputURI.size() && std::isdigit(static_cast<int>(inputURI.at(pos)))) {
+	while (pos < inputURI.size() && std::isalnum(static_cast<int>(inputURI.at(pos)))) {
 		portStr += inputURI.at(pos);
 		pos++;
 	}
-	port = static_cast<unsigned short>(std::atoi(portStr.c_str()));
+	char*		endPos;
+	const long	portNum = strtol(portStr.c_str(), &endPos, 10);
+	(*endPos != '\0' || portStr.size() > 5 || portNum < 0 || portNum > 65535) ? throw T(portStr, "is invalid port") : 0;
+	port = static_cast<unsigned short>(portNum);
 }
 
 template <typename T>
@@ -230,10 +240,18 @@ bool	scheme(const std::string& inputURI, std::size_t& pos, std::string& scheme) 
 /**
  *			URI Parsing API
 */
-// setServer는 기본 포트면 false, 지정된 포트가 있으면 true
+// hostnameParser는 기본 포트면 false, 지정된 포트가 있으면 true
 template <typename T>
-bool	URIParser::setServer(const std::string& inputURI, std::size_t& pos, std::string& argument, unsigned short& port) {
+bool	URIParser::hostnameParser(const std::string& inputURI, std::size_t& pos, std::string& argument, unsigned short& port) {
 	setHost<T>(inputURI, pos, argument);
+	return (setPort<T>(inputURI, pos, port));
+}
+
+template <typename T>
+bool	URIParser::IPv4Parser(const std::string& inputURI, std::size_t& pos, std::string& argument, unsigned short& port) {
+	const std::size_t	startPos = pos;
+
+	(IPv4address(inputURI, pos, argument)) ? 0 : pos = startPos;
 	return (setPort<T>(inputURI, pos, port));
 }
 
@@ -252,5 +270,6 @@ bool	URIParser::errorPageParser(const std::string& inputURI, std::size_t& pos, s
 }
 
 
-template bool	URIParser::setServer<ConfParserException>(const std::string&, std::size_t&, std::string&, unsigned short&);
+template bool	URIParser::hostnameParser<ConfParserException>(const std::string&, std::size_t&, std::string&, unsigned short&);
+template bool	URIParser::IPv4Parser<ConfParserException>(const std::string&, std::size_t&, std::string&, unsigned short&);
 template bool	URIParser::errorPageParser<ConfParserException>(const std::string&, std::size_t&, std::string&);
