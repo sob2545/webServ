@@ -14,7 +14,10 @@ Trie& Trie::operator=(const Trie& other) {
 }
 
 Trie::~Trie() {
-	delete root;
+	if (root) {
+		delete root;
+		root = NULL;
+	}
 }
 
 void	Trie::insert(const std::string& key) {

@@ -2,12 +2,17 @@
 
 TrieNode::TrieNode() : isEndOfWord(false) {}
 
-TrieNode::TrieNode(const TrieNode& other) : children(other.children), isEndOfWord(other.isEndOfWord) {}
+TrieNode::TrieNode(const TrieNode& other) {
+	*this = other;
+}
 
 TrieNode& TrieNode::operator=(const TrieNode& other) {
 	if (this != &other) {
 		for (TrieIterator it = children.begin(); it != children.end(); ++it) {
-			delete it->second;
+			if (it->second) {
+				delete it->second;
+				it->second = NULL;
+			}
 		}
 		children.clear();
 
@@ -21,6 +26,9 @@ TrieNode& TrieNode::operator=(const TrieNode& other) {
 
 TrieNode::~TrieNode() {
 	for (TrieIterator it = children.begin(); it != children.end(); ++it) {
-		delete it->second;
+		if (it->second) {
+			delete it->second;
+			it->second = NULL;
+		}
 	}
 }
