@@ -1,6 +1,6 @@
 CXX			=	c++
 # CXXFLAGS	=	-Wall -Wextra -Werror -std=c++98
-CXXFLAGS	=	-std=c++98
+CXXFLAGS	=	-std=c++98 -fsanitize=address
 RM			=	rm -rf
 
 SRCS		:= ../../../utils/utilFunctions.cpp \
@@ -19,6 +19,7 @@ SRCS		:= ../../../utils/utilFunctions.cpp \
 				../Data/ConfMainBlock.cpp \
 				../Data/ConfEventBlock.cpp \
 				../Data/ConfHTTPBlock.cpp \
+				../Data/ConfServerBlock.cpp \
 				../EnvParser/EnvParser.cpp \
 				../EnvParser/Exception/EnvParserException.cpp \
 				../../MIMEParser/MIMEParser.cpp \
@@ -27,10 +28,11 @@ SRCS		:= ../../../utils/utilFunctions.cpp \
 				../../../Trie/Trie.cpp \
 				../../../Trie/TrieNode.cpp \
 				test.cpp
-				
-OBJS_DIR	:=	objs/
 
-OBJS		:=	$(addprefix $(OBJS_DIR), $(SRCS:.cpp=.o))
+OBJS_DIR	:= objs/
+
+OBJS		:= $(SRCS:%.cpp=$(OBJS_DIR)%.o)
+
 NAME		:= a.out
 
 
@@ -41,7 +43,7 @@ $(NAME) : $(OBJS)
 
 $(OBJS_DIR)%.o : %.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $< -c -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	$(RM) $(OBJS_DIR)
