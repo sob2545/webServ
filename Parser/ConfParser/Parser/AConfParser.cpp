@@ -1,4 +1,5 @@
 #include "AConfParser.hpp"
+#include "ConfParserUtils.hpp"
 #include "Exception/ConfParserException.hpp"
 #include <cstddef>
 #include <string>
@@ -21,17 +22,7 @@ bool	CONF::AConfParser::isMultipleDirective(const unsigned char& block_status, c
 			return (directive_status & CONF::E_MAIN_BLOCK_STATUS::ENV) ? true : false;
 		}
 		case CONF::E_BLOCK_STATUS::HTTP: {
-			switch (directive_status) {
-				case E_HTTP_BLOCK_STATUS::SERVER: {
-					return true;
-				}
-				case E_HTTP_BLOCK_STATUS::INCLUDE: {
-					return true;
-				}
-				default: {
-					return false;
-				}
-			}
+			return ((directive_status & E_HTTP_BLOCK_STATUS::SERVER || directive_status & E_HTTP_BLOCK_STATUS::INCLUDE) ? true : false);
 		}
 		case CONF::E_BLOCK_STATUS::SERVER: {
 			return (directive_status & CONF::E_SERVER_BLOCK_STATUS::LOCATION) ? true : false;
