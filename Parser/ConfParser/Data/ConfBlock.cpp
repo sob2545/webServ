@@ -2,6 +2,7 @@
 #include "../Parser/Exception/ConfParserException.hpp"
 #include "ConfMainBlock.hpp"
 #include "../EnvParser/EnvParser.hpp"
+#include "ConfServerBlock.hpp"
 #include "errorPageData/errorPageData.hpp"
 
 // TODO: delete
@@ -34,6 +35,10 @@ CONF::ConfBlock::ConfBlock(const std::string& file, char** env) {
 CONF::ConfBlock::~ConfBlock() {
 }
 
+void	CONF::ConfBlock::destroy() {
+	delete CONF::ConfBlock::instance;
+	CONF::ConfBlock::instance = NULL;
+}
 
 const CONF::MainBlock&	CONF::ConfBlock::getMainBlock() const {
 	return CONF::ConfBlock::m_MainBlock;
@@ -71,6 +76,31 @@ void	CONF::ConfBlock::print() {
 	for (auto it = this->m_MainBlock.getHTTPBlock().getError_page().begin(); it != this->m_MainBlock.getHTTPBlock().getError_page().end(); ++it) {
 		std::cout << it->first << ": " << (int)it->second.m_Type << " " << it->second.m_Path << std::endl;
 		std::cout << ((it->second.m_Type == E_ERRORPAGE::REPLACE) ? it->second.m_Replace : 0) << std::endl;
+	}
+
+	std::cout << BOLDGREEN << "\t========== Server Block ==============\n" << RESET;
+
+	const std::map<std::pair<std::string, unsigned short>, ServerBlock*>& tmpServerMap = this->m_MainBlock.getHTTPBlock().getServerMap();
+	std::cout << tmpServerMap.size() << std::endl;
+	for (auto it = tmpServerMap.begin(); it != tmpServerMap.end(); ++it) {
+		// if (it->second) {
+			std::cout << "\t\tAccess log: " << it->second->getAccess_log() << std::endl;
+			std::cout << "\t\tRoot: " << it->second->getRoot() << std::endl;
+			std::cout << "\t\tAutoindex: " << (it->second->getAutoindex() ? "on" : "off") << std::endl;
+			std::cout << "\t\tIndex: " << it->second->getIndex("domain1.com") << std::endl;
+			for (auto ser_it = it->second->getError_page().begin(); ser_it != it->second->getError_page().end(); ++ser_it) {
+				std::cout << ser_it->first << ": " << (int)ser_it->second.m_Type << " " << ser_it->second.m_Path << std::endl;
+			std::cout << ((ser_it->second.m_Type == E_ERRORPAGE::REPLACE) ? ser_it->second.m_Replace : 0) << std::endl;
+			}
+			std::cout << "\n";
+			std::cout << "\t\tIP: " << it->second->getIP() << std::endl;
+			std::cout << "\t\tPort: " << it->second->getPort() << std::endl;
+			std::cout << "\n";
+			std::cout << "\t\tServer Names: " << std::endl;
+			for (auto nam_it = it->second->getServerNames().begin(); nam_it != it->second->getServerNames().end(); ++nam_it) {
+				std::cout << "\t\t\t" << *nam_it << std::endl;
+			}
+		// }
 	}
 
  }

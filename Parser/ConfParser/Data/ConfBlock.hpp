@@ -39,6 +39,7 @@ namespace   CONF {
 	public:
 		// TODO: delete debug function
 		void	print();
+		void	destroy();
 
 		const MainBlock&	getMainBlock() const;
 	};
