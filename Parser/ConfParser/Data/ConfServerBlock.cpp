@@ -164,7 +164,6 @@ const std::string	CONF::ServerBlock::argument(const unsigned short& status) {
 			const std::size_t	startPos = Pos[E_INDEX::FILE];
 			URIParser::IPv4Parser<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument, this->m_Port);
 			Pos[E_INDEX::COLUMN] += (Pos[E_INDEX::FILE] - startPos);
-			(m_Status & E_SERVER_BLOCK_STATUS::LISTEN) ? throw ConfParserException(argument, "listen is duplicated!") : m_Status | E_SERVER_BLOCK_STATUS::LISTEN;
 		}
 		case CONF::E_SERVER_BLOCK_STATUS::LOCATION: {
 			const std::size_t	startPos = Pos[E_INDEX::FILE];
@@ -245,7 +244,45 @@ bool	CONF::ServerBlock::context() {
 }
 
 void	CONF::ServerBlock::initialize() {
-	CONF::AConfParser::m_BlockStack.push(CONF::E_BLOCK_STATUS::HTTP);
+	initServerStatusMap();
+	CONF::AConfParser::m_BlockStack.push(CONF::E_BLOCK_STATUS::SERVER);
 
 	contextLines();
+}
+
+
+const bool&	CONF::ServerBlock::getAutoindex() const {
+	return (this->m_Autoindex);
+}
+
+const std::string&	CONF::ServerBlock::getRoot() const {
+	return (this->m_Root);
+}
+
+const unsigned short&	CONF::ServerBlock::getPort() const {
+	return (this->m_Port);
+}
+
+const std::string&	CONF::ServerBlock::getIP() const {
+	return (this->m_IP);
+}
+
+const std::string	CONF::ServerBlock::getIndex(const std::string& uri) const {
+	return (this->m_Index.find(uri));
+}
+
+const std::string&	CONF::ServerBlock::getAccess_log() const {
+	return (this->m_Access_log);
+}
+
+const unsigned int&	CONF::ServerBlock::getKeepAliveTime() const {
+	return (this->m_KeepAliveTime);
+}
+
+const std::map<unsigned short, CONF::errorPageData>&	CONF::ServerBlock::getError_page() const {
+	return (this->m_Error_page);
+}
+
+const std::set<std::string>&	CONF::ServerBlock::getServerNames() const {
+	return (this->m_Server_name);
 }

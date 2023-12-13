@@ -38,8 +38,8 @@ namespace   CONF {
 		std::string								m_IP;
 		Trie									m_Index;
 		std::set<std::string>					m_Server_name;
-		std::map<std::string, LocationBlock>	m_Location_block;
-		static statusMap						m_ServerStatusMap;
+		// std::map<std::string, LocationBlock>	m_Location_block;
+		statusMap						m_ServerStatusMap;
 
 	private:
 		ServerBlock(const ServerBlock& other);
@@ -61,6 +61,16 @@ namespace   CONF {
 
 		void	initialize();
 
-		const std::string&	getServerName() const;
+		const bool&						getAutoindex() const;
+		const unsigned int&				getKeepAliveTime() const;
+		const unsigned short&			getPort() const;
+		const std::string&				getDefault_type() const;
+		const std::string&				getRoot() const;
+		const std::string&				getIP() const;
+		const std::string&				getAccess_log() const;
+		const std::string&				getInclude() const;
+		const std::string				getIndex(const std::string& uri) const;
+		const errorPageMap&				getError_page() const;
+		const std::set<std::string>&	getServerNames() const;
 	};
 }
