@@ -1,11 +1,13 @@
 #include "ConfHTTPBlock.hpp"
 #include <string>
 #include "../../MIMEParser/MIMEParser.hpp"
+#include "ConfServerBlock.hpp"
 #include "errorPageData/errorPageData.hpp"
 
 // TODO: delete
 #include <iostream>
 #include <sys/_types/_size_t.h>
+#include <utility>
 
 std::map<std::string, unsigned short>	CONF::HTTPBlock::m_HTTPStatusMap;
 
@@ -17,7 +19,17 @@ CONF::HTTPBlock::HTTPBlock()
   m_Default_type("text/plain")
 {}
 
-CONF::HTTPBlock::~HTTPBlock() {}
+CONF::HTTPBlock::~HTTPBlock() {
+	// TODO: Have to implement smart pointer
+	// it를 free 하지만, 이터레이터를 돌면서 이미 free된 주소에 접근하여 오류가 발생함!
+
+	// for (serverMap::iterator it = m_Server_block.begin(); it != m_Server_block.end(); ++it) {
+	// 	if (it->second) {
+	// 		delete it->second;
+	// 		it->second = NULL;
+	// 	}
+	// }
+}
 
 void	CONF::HTTPBlock::initHTTPStatusMap() {
 	m_HTTPStatusMap["root"] = E_HTTP_BLOCK_STATUS::ROOT;
@@ -198,10 +210,32 @@ bool	CONF::HTTPBlock::blockContent() {
 	Pos[E_INDEX::COLUMN]++;
 
 	// TODO: implement serverBlock
-	// ServerBlock	serverBlock;
-	// serverBlock.initialize();
+	ServerBlock*	server = new ServerBlock(this->m_Autoindex,
+											this->m_KeepAliveTime,
+											this->m_Root,
+											this->m_Access_log,
+											this->m_Error_page,
+											this->m_Index);
 
-	// m_Server_block.insert(std::make_pair(serverBlock.getServerName(), serverBlock));
+	server->initialize();
+
+	bool							serverReferenceChecker(false);
+	const std::set<std::string>&	nameSet = server->getServerNames();
+	for (std::set<std::string>::const_iterator it = nameSet.begin(); it != nameSet.end(); ++it) {
+		std::cout << BOLDRED << *it << std::endl;
+		const serverKey	toFind = std::make_pair(*it, server->getPort());
+
+		if (this->m_Server_block.find(toFind) != this->m_Server_block.end()) {
+			std::cerr << "duplicated\n";
+		} else {
+			serverReferenceChecker |= true;
+			this->m_Server_block.insert(std::make_pair(toFind, server));
+		}
+	}
+	// (!serverReferenceChecker) ? (delete server) : static_cast<void>(0);
+	if (!serverReferenceChecker) {
+		delete server;
+	}
 
 	if (fileContent[Pos[E_INDEX::FILE]] != E_CONF::RBRACE) {
 		throw ConfParserException("}", "Direct block has no brace!");
@@ -236,8 +270,9 @@ void	CONF::HTTPBlock::initialize() {
 	contextLines();
 }
 
-const CONF::ServerBlock&	CONF::HTTPBlock::operator[](const std::string& server_name) const {
-	for (std::map<std::string, )
+const CONF::ServerBlock&	CONF::HTTPBlock::operator[](const serverKey& key) const {
+	serverMap::const_iterator it = m_Server_block.find(key);
+	return (it != m_Server_block.end()) ? *(it->second) : throw ConfParserException(key.first, "cannot find server!");
 }
 
 const bool&	CONF::HTTPBlock::getAutoindex() const {
@@ -270,4 +305,8 @@ const std::map<unsigned short, CONF::errorPageData>&	CONF::HTTPBlock::getError_p
 
 const CONF::HTTPBlock::TypeMap&	CONF::HTTPBlock::getMime_types() const {
 	return (this->m_Mime_types);
+}
+
+const std::map<std::pair<std::string, unsigned short>, CONF::ServerBlock*>	CONF::HTTPBlock::getServerMap() const {
+	return (this->m_Server_block);
 }
