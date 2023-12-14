@@ -17,11 +17,10 @@ int main(int ac, char** av, char** env) {
 	try {
 		CONF::ConfBlock::initInstance(fileName, env);
 		CONF::ConfBlock::getInstance()->print();
-		CONF::ConfBlock::getInstance()->destroy();
 	} catch (ConfParserException& e) {
 		std::cerr << e.getMessage() << std::endl;
-		CONF::ConfBlock::getInstance()->destroy();
 	} catch (std::exception& e) {
 		std::cerr << e.what() << std::endl;
 	}
+	//CONF::ConfBlock::getInstance()->destroy();
 }
