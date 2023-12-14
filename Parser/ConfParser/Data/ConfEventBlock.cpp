@@ -34,8 +34,8 @@ const std::string	CONF::EventsBlock::argument(const unsigned short& status) {
 	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
+		handleHtabSpace(fileContent.at(Pos[E_INDEX::FILE]));
 		Pos[E_INDEX::FILE]++;
-		Pos[E_INDEX::COLUMN]++;
 	}
 	std::string			argument;
 

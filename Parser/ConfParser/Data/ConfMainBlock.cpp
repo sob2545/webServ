@@ -126,10 +126,9 @@ const std::string	CONF::MainBlock::argument(const unsigned short& status) {
 
 	std::string	argument;
 	while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
+		handleHtabSpace(fileContent.at(Pos[E_INDEX::FILE]));
 		Pos[E_INDEX::FILE]++;
-		Pos[E_INDEX::COLUMN]++;
 	}
-
 	switch (status) {
 		case CONF::E_MAIN_BLOCK_STATUS::ERROR_LOG: {
 			stringPathArgumentParser(argument);

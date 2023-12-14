@@ -16,6 +16,8 @@ namespace	E_CONF {
 		LBRACE = '{',
 		RBRACE = '}',
 	};
+
+	const int HTAB_SIZE = 4;
 }
 
 namespace CONF {
@@ -37,6 +39,8 @@ namespace CONF {
 		void		fileName(std::string& argument);
 		void		errorPageArgumentParser(std::string& argument);
 		void		errorPageChecker(const std::vector<std::string>& args, errorPageMap& errorMap);
+
+		void		handleHtabSpace(const char& c);
 
 		// void			indexArgumentParser(std::string& arugment);
 
