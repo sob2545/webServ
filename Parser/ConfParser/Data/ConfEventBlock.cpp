@@ -21,7 +21,7 @@ bool	CONF::EventsBlock::argumentChecker(const std::vector<std::string>& args, co
 		char*	endptr;
 		const long	argumentNumber = std::strtol(args[0].c_str(), &endptr, 10);
 		if (*endptr != '\0' || argumentNumber < 1) {
-			throw ConfParserException(args[0], "invalid number of Events arguments!");
+			throw ConfParserException(args[0], "invalid worker_connections argument!");
 		}
 		this->m_Worker_connections = static_cast<unsigned int>(argumentNumber);
 	}
@@ -40,7 +40,16 @@ const std::string	CONF::EventsBlock::argument(const unsigned short& status) {
 	std::string			argument;
 
 	if (status == E_EVENTS_BLOCK_STATUS::WORKER_CONNECTIONS) {
-		digitArgumentParser(argument);
+		// digitArgumentParser(argument);
+		// TODO : comment나 nl 또는 WSP가 아닐 때까지 파싱
+		while (Pos[E_INDEX::FILE] < fileSize
+			&& (std::isalnum(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))
+				|| fileContent[Pos[E_INDEX::FILE]] == '_'
+				|| fileContent[Pos[E_INDEX::FILE]] == '=')) {
+			(std::isalpha(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))) ? argument += std::tolower(fileContent[Pos[E_INDEX::FILE]]) : argument += fileContent[Pos[E_INDEX::FILE]];
+			Pos[E_INDEX::FILE]++;
+			Pos[E_INDEX::COLUMN]++;
+		}
 		std::cout << "worker_connections: " << argument << std::endl;
 	} else {
 		throw ConfParserException("", "is invalid Confgiure file!");
