@@ -189,7 +189,7 @@ bool	CONF::MainBlock::blockContent() {
 	Pos[E_INDEX::FILE]++;
 	Pos[E_INDEX::COLUMN]++;
 	m_BlockStack.pop();
-	return true;
+	return false;
 }
 
 bool	CONF::MainBlock::context() {
