@@ -200,6 +200,12 @@ bool	CONF::AConfParser::directives() {
 	return (argumentChecker(args, status));
 }
 
+void	CONF::AConfParser::handleHtabSpace(const char& c) {
+	std::size_t&		Pos = CONF::ConfFile::getInstance()->Pos()[E_INDEX::COLUMN];
+
+	(c == E_ABNF::HTAB) ? (Pos += E_CONF::HTAB_SIZE - ((Pos - 1) % E_CONF::HTAB_SIZE)) : Pos++;
+}
+
 bool	CONF::AConfParser::contextLines() {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
 	const std::size_t&		fileSize = CONF::ConfFile::getInstance()->getFileSize();
@@ -207,9 +213,10 @@ bool	CONF::AConfParser::contextLines() {
 
 	while (Pos[E_INDEX::FILE] < fileSize) {
 		while (Pos[E_INDEX::FILE] < fileSize && ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])) {
+			handleHtabSpace(fileContent.at(Pos[E_INDEX::FILE]));
 			Pos[E_INDEX::FILE]++;
-			Pos[E_INDEX::COLUMN]++;
 		}
+		// (isalpha(fileContent.at(Pos[E_INDEX::FILE]))
 		if (context() || ABNF::isC_nl(fileContent, Pos[E_INDEX::FILE])) {
 			Pos[E_INDEX::LINE]++;
 			Pos[E_INDEX::COLUMN] = 1;
