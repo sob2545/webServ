@@ -80,7 +80,7 @@ void	CONF::ConfBlock::print() {
 
 	std::cout << BOLDGREEN << "\t========== Server Block ==============\n" << RESET;
 
-	const std::map<std::pair<std::string, unsigned short>, ServerBlock*>& tmpServerMap = this->m_MainBlock.getHTTPBlock().getServerMap();
+	const std::map<std::pair<std::string, unsigned short>, ft::shared_ptr<CONF::ServerBlock> >& tmpServerMap = this->m_MainBlock.getHTTPBlock().getServerMap();
 	std::cout << tmpServerMap.size() << std::endl;
 	for (auto it = tmpServerMap.begin(); it != tmpServerMap.end(); ++it) {
 		// if (it->second) {
