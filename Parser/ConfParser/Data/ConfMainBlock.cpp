@@ -33,20 +33,18 @@ void	CONF::MainBlock::initMainStatusMap() {
 }
 
 bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args, const unsigned short& status) {
+
 	switch (status) {
 		case CONF::E_MAIN_BLOCK_STATUS::ENV: {
-			if (args.size() != 1) {
-				throw ConfParserException(args.at(0), "invalid number of Environment arguments!");
-			} else {
+			if (args.size() == 1) {
 				std::size_t	idx(0);
 				ENV::envLine<ConfParserException>(this->m_Env, args[0], idx);
+				return false;
 			}
-			return false;
+			throw ConfParserException(args.at(0), "invalid number of Environment arguments!");
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::WORKER_PROCESS: {
-			if (args.size() != 1) {
-				throw ConfParserException(args.at(0), "invalid number of Worker Processes arguments!");
-			} else {
+			if (args.size() == 1) {
 				if (args.at(0).empty()) {
 					throw ConfParserException(args.at(0), "invalid number of Worker Processes arguments!");
 				}
@@ -56,13 +54,12 @@ bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args, cons
 					throw ConfParserException(args[0], "invalid number of Worker Processes arguments!");
 				}
 				this->m_Worker_process = static_cast<unsigned int>(argumentNumber);
+				return false;
 			}
-			return false;
+			throw ConfParserException(args.at(0), "invalid number of Worker Processes arguments!"); 
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::DAEMON: {
-			if (args.size() != 1) {
-				throw ConfParserException(args.at(0), "invalid number of Daemon arguments!");
-			} else {
+			if (args.size() == 1) {
 				if (args.at(0) == "on") {
 					this->m_Daemon = true;
 				} else if (args.at(0) == "off") {
@@ -70,13 +67,12 @@ bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args, cons
 				} else {
 					throw ConfParserException(args.at(0), "invalid number of Daemon arguments!");
 				}
+				return false;
 			}
-			return false;
+			throw ConfParserException(args.at(0), "invalid number of Daemon arguments!");
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::TIMER_RESOLUTION: {
-			if (args.size() != 1) {
-				throw ConfParserException(args.at(0), "invalid number of Timer Resolution arguments!");
-			} else {
+			if (args.size() == 1) {
 				char*	endptr;
 				const unsigned long	argumentNumber = static_cast<unsigned long>(std::strtol(args[0].c_str(), &endptr, 10));
 				argumentNumber > 0 ? this->m_Timer_resolution = argumentNumber : throw ConfParserException(args.at(0), "invalid number of Timer Resolution arguments!");
@@ -90,8 +86,9 @@ bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args, cons
 				} else {
 					throw ConfParserException(args.at(0), "invalid number of Timer Resolution arguments!");
 				}
+				return false;
 			}
-			return false;
+			throw ConfParserException(args.at(0), "invalid number of Timer Resolution arguments!");
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::ERROR_LOG: {
 			if (args.size() == 1) {
@@ -101,14 +98,14 @@ bool	CONF::MainBlock::argumentChecker(const std::vector<std::string>& args, cons
 			throw ConfParserException(args.at(0), "invalid number of Error Log arguments!");
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::HTTP_BLOCK: {
-			if (args.size() > 1 || (args.size() == 1 && !args[0].empty())) {
+			if (args.size()) {
 				throw ConfParserException(args.at(0), "invalid number of HTTP arguments!");
 			}
 		this->m_BlockSwitch = false;
 			return true;
 		}
 		case CONF::E_MAIN_BLOCK_STATUS::EVENT_BLOCK: {
-			if (args.size() > 1 || (args.size() == 1 && !args[0].empty())) {
+			if (args.size()) {
 				throw ConfParserException(args.at(0), "invalid number of Event arguments!");
 			}
 			this->m_BlockSwitch = true;

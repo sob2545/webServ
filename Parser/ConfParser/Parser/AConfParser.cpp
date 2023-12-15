@@ -195,7 +195,10 @@ bool	CONF::AConfParser::directives() {
 			&& fileContent[Pos[E_INDEX::FILE]] != E_ABNF::SEMICOLON
 			&& fileContent[Pos[E_INDEX::FILE]] != E_ABNF::LF
 			&& fileContent[Pos[E_INDEX::FILE]] != E_CONF::LBRACE) {
-		args.push_back(argument(status));
+		const std::string arg = argument(status);
+		if (arg.size()) {
+			args.push_back(arg);
+		}
 	}
 	return (argumentChecker(args, status));
 }
