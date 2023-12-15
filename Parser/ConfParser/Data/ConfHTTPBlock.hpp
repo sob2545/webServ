@@ -4,6 +4,7 @@
 #include "../../../Trie/Trie.hpp"
 #include "../../MIMEParser/Exception/MIMEParserException.hpp"
 #include "ConfServerBlock.hpp"
+#include "../../../utils/SmartPointer.hpp"
 
 #include <vector>
 
@@ -27,8 +28,8 @@
 namespace   CONF {
 	class HTTPBlock : public AConfParser {
 	public:
-		typedef std::pair<std::string, unsigned short>				serverKey;
-		typedef std::map<serverKey, ServerBlock*> 					serverMap;
+		typedef std::pair<std::string, unsigned short>					serverKey;
+		typedef std::map<serverKey, ft::shared_ptr<CONF::ServerBlock> >	serverMap;
 
 	private:
 		typedef std::map<std::string, unsigned short>				statusMap;
@@ -83,6 +84,6 @@ namespace   CONF {
 		const TypeMap&			getMime_types() const;
 
 
-		const std::map<std::pair<std::string, unsigned short>, CONF::ServerBlock*>	getServerMap() const;
+		const std::map<std::pair<std::string, unsigned short>, ft::shared_ptr<CONF::ServerBlock>>	getServerMap() const;
 	};
 }
