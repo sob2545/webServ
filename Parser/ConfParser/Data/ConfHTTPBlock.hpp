@@ -68,7 +68,7 @@ namespace   CONF {
 	
 	public:
 		HTTPBlock();
-		const ServerBlock&	operator[](const serverKey& key) const;
+		const ft::shared_ptr<CONF::ServerBlock>&	operator[](const serverKey& key) const;
 		virtual ~HTTPBlock();
 
 		void					initialize();
@@ -82,8 +82,6 @@ namespace   CONF {
 		const std::string		getIndex(const std::string& uri) const;
 		const errorPageMap&		getError_page() const;
 		const TypeMap&			getMime_types() const;
-
-
-		const std::map<std::pair<std::string, unsigned short>, ft::shared_ptr<CONF::ServerBlock>>	getServerMap() const;
+		const std::map<std::pair<std::string, unsigned short>, ft::shared_ptr<CONF::ServerBlock> >	getServerMap() const;
 	};
 }
