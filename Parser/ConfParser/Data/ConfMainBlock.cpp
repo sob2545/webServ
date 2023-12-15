@@ -143,6 +143,7 @@ const std::string	CONF::MainBlock::argument(const unsigned short& status) {
 			return (argument);
 		}
 	}
+	// TODO : 똑같은 파싱 함수를 호출하여 파싱
 	while (Pos[E_INDEX::FILE] < fileSize
 			&& (std::isalnum(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))
 				|| fileContent[Pos[E_INDEX::FILE]] == '_'
@@ -194,7 +195,7 @@ bool	CONF::MainBlock::context() {
 	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	if (fileContent[Pos[E_INDEX::FILE]] == E_ABNF::SEMICOLON
-			|| fileContent[Pos[E_INDEX::FILE]] == E_ABNF::LF) {
+			|| ABNF::isLF(fileContent, Pos[E_INDEX::FILE])) {
 		return (false);
 	}
 	if (directives()) {

@@ -73,7 +73,7 @@ bool	CONF::AConfParser::stringPathArgumentParser(std::string& argument) {
 
 	const std::size_t	startPos = Pos[E_INDEX::FILE];
 	if (fileContent[Pos[E_INDEX::FILE]] == E_ABNF::SEMICOLON
-			|| fileContent[Pos[E_INDEX::FILE]] == E_ABNF::LF) {
+			|| ABNF::isLF(fileContent, Pos[E_INDEX::FILE])) {
 		Pos[E_INDEX::FILE]++;
 		Pos[E_INDEX::COLUMN]++;
 		return false;
@@ -170,9 +170,11 @@ unsigned short	CONF::AConfParser::directiveName() {
 	std::size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
 	std::string	name;
 
+	// TODO : name parsing => WSP, semicolon, LF, {}가 나올 때까지 파싱하는 함수화
 	while (Pos[E_INDEX::FILE] < fileSize
-				&& (std::isalpha(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))
-					|| fileContent[Pos[E_INDEX::FILE]] == '_')) {
+				&& (ABNF::isWSP(fileContent, Pos[E_INDEX::FILE])
+					|| fileContent[Pos[E_INDEX::FILE]] == E_ABNF::SEMICOLON
+					|| ABNF::isLF(fileContent, Pos[E_INDEX::FILE]))) {
 		(std::isalpha(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))) ? name += std::tolower(static_cast<int>(fileContent[Pos[E_INDEX::FILE]])) : name += fileContent[Pos[E_INDEX::FILE]];
 		Pos[E_INDEX::FILE]++;
 		Pos[E_INDEX::COLUMN]++;

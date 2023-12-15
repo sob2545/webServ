@@ -253,7 +253,7 @@ bool	CONF::HTTPBlock::context() {
 	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
 	if (fileContent[Pos[E_INDEX::FILE]] == E_ABNF::SEMICOLON
-			|| fileContent[Pos[E_INDEX::FILE]] == E_ABNF::LF) {
+			|| ABNF::isLF(fileContent, Pos[E_INDEX::FILE])) {
 		return (false);
 	}
 	if (directives()) {
