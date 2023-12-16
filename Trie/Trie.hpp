@@ -4,7 +4,7 @@
 
 class Trie {
 private:
-	TrieNode* root;
+	ft::shared_ptr<TrieNode>	root;
 public:
 	Trie();
 	Trie(const Trie& other);

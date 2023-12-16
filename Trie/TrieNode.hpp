@@ -2,12 +2,13 @@
 
 #include <map>
 #include <string>
+#include "../utils/SmartPointer.hpp"
 
 struct TrieNode {
-	typedef std::map<char, TrieNode*>::iterator TrieIterator;
-	typedef std::map<char, TrieNode*> TrieMap;
+	typedef std::map<char, ft::shared_ptr<TrieNode> >::iterator TrieIterator;
+	typedef std::map<char, ft::shared_ptr<TrieNode> > TrieMap;
 
-	std::map<char, TrieNode*> children;
+	std::map<char, ft::shared_ptr<TrieNode> > children;
 	bool isEndOfWord;
 
 	TrieNode();

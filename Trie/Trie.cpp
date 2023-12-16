@@ -1,31 +1,23 @@
 #include "Trie.hpp"
 #include <string>
 
-Trie::Trie() : root(new TrieNode()) {}
+Trie::Trie() : root(ft::shared_ptr<TrieNode>(new TrieNode())) {}
 
-Trie::Trie(const Trie& other) : root(new TrieNode(*other.root)) {}
+Trie::Trie(const Trie& other) : root(other.root) {}
 
 Trie& Trie::operator=(const Trie& other) {
-	if (this != &other) {
-		delete root;
-		root = new TrieNode(*other.root);
-	}
+	root = other.root;
 	return *this;
 }
 
-Trie::~Trie() {
-	if (root) {
-		delete root;
-		root = NULL;
-	}
-}
+Trie::~Trie() {}
 
 void	Trie::insert(const std::string& key) {
-	TrieNode* node = root;
+	ft::shared_ptr<TrieNode> node = root;
 
 	for (std::size_t i(0); i < key.length(); ++i) {
 		if (node->children.find(key[i]) == node->children.end()) {
-			node->children[key[i]] = new TrieNode();
+			node->children.insert(std::make_pair(key[i], ft::shared_ptr<TrieNode>(new TrieNode())));
 		}
 		node = node->children[key[i]];
 	}
@@ -33,7 +25,7 @@ void	Trie::insert(const std::string& key) {
 }
 
 bool	Trie::search(const std::string& key) {
-	TrieNode* node = root;
+	ft::shared_ptr<TrieNode> node = root;
 
 	for (std::size_t i(0); i < key.length(); ++i) {
 		if (node->children.find(key[i]) == node->children.end()) {
@@ -45,7 +37,7 @@ bool	Trie::search(const std::string& key) {
 }
 
 const std::string	Trie::find(const std::string& key) const {
-	TrieNode* node = root;
+	ft::shared_ptr<TrieNode> node = root;
 	std::string	result;
 
 	for (std::size_t i(0); i < key.length(); ++i) {
