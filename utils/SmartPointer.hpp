@@ -22,6 +22,7 @@ template <class T>
 struct default_delete {
 	void	operator()(T* _ptr) const {
 		::delete _ptr;
+		_ptr = NULL;
 	}
 };
 
@@ -29,6 +30,7 @@ template <class T>
 struct default_delete<T[]> {
 	void	operator()(T* _ptr) const {
 		::delete [] _ptr;
+		_ptr = NULL;
 	}
 };
 
@@ -146,6 +148,7 @@ public:
 		return *m_StrongCount;
 	}
 
+private:
 	friend class weak_ptr<T>;
 };
 
