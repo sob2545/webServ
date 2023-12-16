@@ -173,15 +173,7 @@ const std::string	CONF::ServerBlock::argument(const unsigned short& status) {
 			Pos[E_INDEX::COLUMN] += (Pos[E_INDEX::FILE] - startPos);
 		}
 	}
-	// 기본적인 파싱 : only alnum 
-	while (Pos[E_INDEX::FILE] < fileSize
-			&& (std::isalnum(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))
-				|| fileContent[Pos[E_INDEX::FILE]] == BNF::E_RESERVED::SLASH
-				|| fileContent[Pos[E_INDEX::FILE]] == BNF::E_RESERVED::PLUS)) {
-		(std::isalpha(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))) ? argument += std::tolower(fileContent[Pos[E_INDEX::FILE]]) : argument += fileContent[Pos[E_INDEX::FILE]];
-		Pos[E_INDEX::FILE]++;
-		Pos[E_INDEX::COLUMN]++;
-	}
+	argumentParser(argument);
 	return (argument);
 }
 

@@ -143,15 +143,7 @@ const std::string	CONF::MainBlock::argument(const unsigned short& status) {
 			return (argument);
 		}
 	}
-	// TODO : 똑같은 파싱 함수를 호출하여 파싱
-	while (Pos[E_INDEX::FILE] < fileSize
-			&& (std::isalnum(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))
-				|| fileContent[Pos[E_INDEX::FILE]] == '_'
-				|| fileContent[Pos[E_INDEX::FILE]] == '=')) {
-		(std::isalpha(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))) ? argument += std::tolower(fileContent[Pos[E_INDEX::FILE]]) : argument += fileContent[Pos[E_INDEX::FILE]];
-		Pos[E_INDEX::FILE]++;
-		Pos[E_INDEX::COLUMN]++;
-	}
+	argumentParser(argument);
 	return (argument);
 }
 

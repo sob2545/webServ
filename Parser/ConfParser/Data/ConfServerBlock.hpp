@@ -39,7 +39,7 @@ namespace   CONF {
 		Trie									m_Index;
 		std::set<std::string>					m_Server_name;
 		// std::map<std::string, LocationBlock>	m_Location_block;
-		statusMap						m_ServerStatusMap;
+		statusMap								m_ServerStatusMap;
 
 	private:
 		ServerBlock(const ServerBlock& other);

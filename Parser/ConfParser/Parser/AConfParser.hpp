@@ -39,6 +39,7 @@ namespace CONF {
 		void		fileName(std::string& argument);
 		void		errorPageArgumentParser(std::string& argument);
 		void		errorPageChecker(const std::vector<std::string>& args, errorPageMap& errorMap);
+		void		argumentParser(std::string& argument);
 
 		void		handleHtabSpace(const char& c);
 
