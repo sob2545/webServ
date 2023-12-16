@@ -50,7 +50,6 @@ const std::string	CONF::EventsBlock::argument(const unsigned short& status) {
 			Pos[E_INDEX::FILE]++;
 			Pos[E_INDEX::COLUMN]++;
 		}
-		std::cout << "worker_connections: " << argument << std::endl;
 	} else {
 		throw ConfParserException("", "is invalid Confgiure file!");
 	}
