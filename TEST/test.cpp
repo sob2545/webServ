@@ -1,14 +1,14 @@
-#include "../Data/ConfBlock.hpp"
+#include "../Parser/ConfParser/Data/ConfBlock.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>
 
-// void	a() {
-// 	system("leaks a.out");
-// }
+void	a() {
+	system("leaks a.out");
+}
 
 int main(int ac, char** av, char** env) {
-	// atexit(a);
+	atexit(a);
 	(void)ac;
 	(void)av;
 	system("clear");
