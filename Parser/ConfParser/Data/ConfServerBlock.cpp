@@ -4,6 +4,8 @@
 #include <iostream>
 #include <sys/_types/_size_t.h>
 
+std::map<std::string, unsigned short>	CONF::ServerBlock::m_ServerStatusMap;
+
 CONF::ServerBlock::ServerBlock(
 	const bool&			autoIndex,
 	const unsigned int&	keepAliveTime,
@@ -118,9 +120,9 @@ bool	CONF::ServerBlock::argumentChecker(const std::vector<std::string>& args, co
 			if (args.size() != 1) {
 				throw ConfParserException(args.at(0), "invalid number of Location arguments!");
 			} else {
-				// argument를 저장하고 있다가 Location Block 생성 시 넘겨줘야 될 듯?
+				(args[0].empty()) ? throw ConfParserException(args[0], "invalid number of Access Log arguments!") : this->m_LocationName = args[0];
 			}
-			return false;
+			return true;
 		}
 	}
 	throw ConfParserException("", "Invalid configure file!");
@@ -203,11 +205,14 @@ bool	CONF::ServerBlock::blockContent() {
 	Pos[E_INDEX::FILE]++;
 	Pos[E_INDEX::COLUMN]++;
 
-	// TODO: implement locationBlock
-	// locationBlock	locationBlock;
-	// locationBlock.initialize();
+	LocationBlock	locationBlock(this->m_Autoindex,
+									this->m_Root,
+									this->m_Access_log,
+									this->m_Error_page,
+									this->m_Index);
+	locationBlock.initialize();
 
-	// m_LocationBlock.insert(std::make_pair(locationBlock.getServerName(), locationBlock));
+	m_LocationBlock.insert(std::make_pair(m_LocationName, locationBlock));
 
 	if (fileContent[Pos[E_INDEX::FILE]] != E_CONF::RBRACE) {
 		throw ConfParserException("}", "Direct block has no brace!");

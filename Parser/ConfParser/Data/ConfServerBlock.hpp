@@ -1,11 +1,8 @@
 #pragma once
 
-#include "../../../utils/utilFunctions.hpp"
-#include "../../../Trie/Trie.hpp"
 #include "ConfLocationBlock.hpp"
 #include <set>
 #include <string>
-#include <vector>
 
 /**
  * @brief	Server Block Status
@@ -37,15 +34,16 @@ namespace   CONF {
 		std::string								m_Access_log;
 		std::string								m_IP;
 		Trie									m_Index;
+		std::string								m_LocationName;
 		std::set<std::string>					m_Server_name;
-		// std::map<std::string, LocationBlock>	m_Location_block;
-		statusMap								m_ServerStatusMap;
+		std::map<std::string, LocationBlock>	m_LocationBlock;
+		static statusMap						m_ServerStatusMap;
 
 	private:
 		ServerBlock(const ServerBlock& other);
 		ServerBlock& operator=(const ServerBlock& other);
 
-		void				initServerStatusMap();
+		static void			initServerStatusMap();
 
 		bool				context();
 		bool				blockContent();
