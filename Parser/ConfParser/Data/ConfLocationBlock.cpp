@@ -207,6 +207,14 @@ void	CONF::LocationBlock::initialize() {
 
 
 
+const CONF::LocationBlock&	CONF::LocationBlock::operator[](const std::string& locationName) const {
+	const locationMap::const_iterator	it = this->m_LocationBlock.find(locationName);
+
+	if (it == this->m_LocationBlock.end()) {
+		throw ConfParserException(locationName, "Location block is not found!");
+	}
+	return (it->second);
+}
 
 const bool&	CONF::LocationBlock::getAutoindex() const {
 	return (this->m_Autoindex);
@@ -230,4 +238,8 @@ const std::string&	CONF::LocationBlock::getCgi() const {
 
 const std::map<unsigned short, CONF::errorPageData>&	CONF::LocationBlock::getError_page() const {
 	return (this->m_Error_page);
+}
+
+const CONF::LocationBlock::locationMap&	CONF::LocationBlock::getLocationBlock() const {
+	return (this->m_LocationBlock);
 }

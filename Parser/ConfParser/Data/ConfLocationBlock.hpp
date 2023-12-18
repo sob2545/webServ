@@ -65,6 +65,7 @@ namespace   CONF {
 		const bool&						getAutoindex() const;
 		const errorPageMap&				getError_page() const;
 		const std::string&				getAccess_log() const;
+		const locationMap&				getLocationBlock() const;
 
 	};
 }

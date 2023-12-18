@@ -24,20 +24,21 @@ namespace   CONF {
 	private: 
 		typedef std::map<unsigned short, errorPageData> errorPageMap;
 		typedef std::map<std::string, unsigned short> 	statusMap;
+		typedef std::map<std::string, LocationBlock> 	locationBlockMap;
 
-		bool									m_Autoindex;
-		unsigned short							m_Port;
-		unsigned short							m_Status;
-		unsigned int							m_KeepAliveTime;
-		std::string								m_Root;
-		errorPageMap							m_Error_page;
-		std::string								m_Access_log;
-		std::string								m_IP;
-		Trie									m_Index;
-		std::string								m_LocationName;
-		std::set<std::string>					m_Server_name;
-		std::map<std::string, LocationBlock>	m_LocationBlock;
-		static statusMap						m_ServerStatusMap;
+		bool						m_Autoindex;
+		unsigned short				m_Port;
+		unsigned short				m_Status;
+		unsigned int				m_KeepAliveTime;
+		std::string					m_Root;
+		errorPageMap				m_Error_page;
+		std::string					m_Access_log;
+		std::string					m_IP;
+		Trie						m_Index;
+		std::string					m_LocationName;
+		std::set<std::string>		m_Server_name;
+		locationBlockMap			m_LocationBlock;
+		static statusMap			m_ServerStatusMap;
 
 	private:
 		ServerBlock(const ServerBlock& other);
@@ -70,5 +71,6 @@ namespace   CONF {
 		const std::string				getIndex(const std::string& uri) const;
 		const errorPageMap&				getError_page() const;
 		const std::set<std::string>&	getServerNames() const;
+		const locationBlockMap&			getLocationMap() const;
 	};
 }

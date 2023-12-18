@@ -283,3 +283,7 @@ const std::map<unsigned short, CONF::errorPageData>&	CONF::ServerBlock::getError
 const std::set<std::string>&	CONF::ServerBlock::getServerNames() const {
 	return (this->m_Server_name);
 }
+
+const CONF::ServerBlock::locationBlockMap&	CONF::ServerBlock::getLocationMap() const {
+	return (this->m_LocationBlock);
+}
