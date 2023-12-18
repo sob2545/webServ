@@ -101,6 +101,33 @@ void	CONF::ConfBlock::print() {
 				std::cout << "\t\t\t" << *nam_it << std::endl;
 			}
 		// }
+
+		std::cout << "\t\t=================Location Block=================\n";
+		const std::map<std::string, LocationBlock>& tmpLocationMap = it->second->getLocationMap();
+		for (auto it = tmpLocationMap.begin(); it != tmpLocationMap.end(); ++it) {
+			std::cout << "\t\t\tLocation Name: " << it->first << std::endl;
+			std::cout << "\t\t\t\tAccess log: " << it->second.getAccess_log() << std::endl;
+			std::cout << "\t\t\t\tRoot: " << it->second.getRoot() << std::endl;
+			std::cout << "\t\t\t\tAutoindex: " << (it->second.getAutoindex() ? "on" : "off") << std::endl;
+			std::cout << "\t\t\t\tIndex: " << it->second.getIndex("domain1.com") << std::endl;
+			for (auto ser_it = it->second.getError_page().begin(); ser_it != it->second.getError_page().end(); ++ser_it) {
+				std::cout << ser_it->first << ": " << (int)ser_it->second.m_Type << " " << ser_it->second.m_Path << std::endl;
+			std::cout << ((ser_it->second.m_Type == E_ERRORPAGE::REPLACE) ? ser_it->second.m_Replace : 0) << std::endl;
+			}
+			std::cout << "\n";
+
+			for (auto loc_it = it->second.getLocationBlock().begin(); loc_it != it->second.getLocationBlock().end(); ++loc_it) {
+				std::cout << "\t\t\t\t\tLocation Name: " << loc_it->first << std::endl;
+				std::cout << "\t\t\t\t\t\tAccess log: " << loc_it->second.getAccess_log() << std::endl;
+				std::cout << "\t\t\t\t\t\tRoot: " << loc_it->second.getRoot() << std::endl;
+				std::cout << "\t\t\t\t\t\tAutoindex: " << (loc_it->second.getAutoindex() ? "on" : "off") << std::endl;
+				std::cout << "\t\t\t\t\t\tIndex: " << loc_it->second.getIndex("domain1.com") << std::endl;
+				for (auto err_it = loc_it->second.getError_page().begin(); err_it != loc_it->second.getError_page().end(); ++err_it) {
+					std::cout << err_it->first << ": " << (int)err_it->second.m_Type << " " << err_it->second.m_Path << std::endl;
+				std::cout << ((err_it->second.m_Type == E_ERRORPAGE::REPLACE) ? err_it->second.m_Replace : 0) << std::endl;
+
+			}
+		}
 	}
 
  }
