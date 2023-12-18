@@ -1,5 +1,5 @@
 #include "ConfParserException.hpp"
-#include "../../File/ConfFile.hpp"
+#include "../../ConfFile/ConfFile.hpp"
 #include <sstream>
 #include <string>
 

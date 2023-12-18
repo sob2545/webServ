@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../FileDescriptor/Socket/ServerSocket.hpp"
-#include "../../Parser/ConfParser/Data/ConfServerBlock.hpp"
+#include "../../Parser/ConfParser/ConfData/ConfServerBlock.hpp"
 
 class Server {
 private:

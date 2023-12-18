@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../../Trie/Trie.hpp"
-#include "../Parser/AConfParser.hpp"
+#include "../AConfParser/AConfParser.hpp"
 #include <string>
 
 	/**

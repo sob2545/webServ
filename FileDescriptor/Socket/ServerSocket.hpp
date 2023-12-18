@@ -8,7 +8,7 @@ class ServerSocket : public FileDescriptor {
 private:
 
 public:
-	ServerSocket(const unsigned short& port, );
+	ServerSocket();
 	ServerSocket(const ServerSocket& other);
 	ServerSocket&	operator=(const ServerSocket& other);
 	virtual ~ServerSocket();

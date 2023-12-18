@@ -3,9 +3,9 @@
 #include "../../ABNF_utils/ABNFFunctions.hpp"
 #include "../../PathParser/PathParser.hpp"
 #include "../../URIParser/URIParser.hpp"
-#include "../Data/errorPageData/errorPageData.hpp"
+#include "../ConfData/errorPageData/errorPageData.hpp"
 
-#include "../File/ConfFile.hpp"
+#include "../ConfFile/ConfFile.hpp"
 #include "Exception/ConfParserException.hpp"
 #include "ConfParserUtils.hpp"
 #include <stack>

@@ -3,7 +3,7 @@
 #include <string>
 
 #include <iostream>
-#include "../ConfParser/Parser/Exception/ConfParserException.hpp"
+#include "../ConfParser/AConfParser/Exception/ConfParserException.hpp"
 
 template <typename T>
 void	compareOneCharacter(const std::string& inputURI, std::size_t& pos, const unsigned char& toCmp) {

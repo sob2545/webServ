@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Parser/AConfParser.hpp"
+#include "../AConfParser/AConfParser.hpp"
 
 namespace   CONF {
 	class EventsBlock : public AConfParser {

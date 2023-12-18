@@ -1,4 +1,4 @@
-#include "Parser/ConfParser/Data/ConfBlock.hpp"
+#include "Parser/ConfParser/ConfData/ConfBlock.hpp"
 #include "Server/MasterProcess.hpp"
 #include <iostream>
 #include <unistd.h>

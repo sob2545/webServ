@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Parser/AConfParser.hpp"
+#include "../AConfParser/AConfParser.hpp"
 #include "../../../Trie/Trie.hpp"
 #include "../../MIMEParser/Exception/MIMEParserException.hpp"
 #include "ConfServerBlock.hpp"

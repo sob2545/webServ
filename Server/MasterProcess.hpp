@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Parser/ConfParser/Data/ConfBlock.hpp"
+#include "../Parser/ConfParser/ConfData/ConfBlock.hpp"
 #include "../Utils/Singleton.hpp"
 #include "Server/Server.hpp"
 

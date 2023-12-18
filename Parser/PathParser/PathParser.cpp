@@ -1,6 +1,6 @@
 #include "PathParser.hpp"
 #include "../ABNF_utils/ABNFFunctions.hpp"
-#include "../ConfParser/Parser/Exception/ConfParserException.hpp"
+#include "../ConfParser/AConfParser/Exception/ConfParserException.hpp"
 #include <string>
 
 // TODO: delete

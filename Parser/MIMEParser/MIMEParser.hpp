@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ConfParser/Parser/Exception/ConfParserException.hpp"
+#include "../ConfParser/AConfParser/Exception/ConfParserException.hpp"
 #include "../../FileDescriptor/File/ReadFile.hpp"
 #include "../ABNF_utils/ABNFFunctions.hpp"
 #include "./Exception/MIMEParserException.hpp"

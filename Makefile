@@ -7,21 +7,21 @@ RM			=	rm -rf
 SRCS		:= Utils/utilFunctions.cpp \
 				Parser/ABNF_utils/ABNFFunctions.cpp \
 				Parser/BNF_utils/BNFFunctions.cpp \
-				Parser/ConfParser/Data/ConfBlock.cpp \
+				Parser/ConfParser/ConfData/ConfBlock.cpp \
 				Parser/URIParser/URIParser.cpp \
 				Parser/PathParser/PathParser.cpp \
 				Utils/utilFunctions.cpp \
 				Parser/URIParser/SchemeChecker/SchemeChecker.cpp \
-				Parser/ConfParser/Parser/Exception/ConfParserException.cpp \
-				Parser/ConfParser/Parser/AConfParser.cpp \
+				Parser/ConfParser/AConfParser/Exception/ConfParserException.cpp \
+				Parser/ConfParser/AConfParser/AConfParser.cpp \
 				FileDescriptor/FileDescriptor.cpp \
 				FileDescriptor/File/ReadFile.cpp \
-				Parser/ConfParser/File/ConfFile.cpp \
-				Parser/ConfParser/Data/ConfMainBlock.cpp \
-				Parser/ConfParser/Data/ConfEventBlock.cpp \
-				Parser/ConfParser/Data/ConfHTTPBlock.cpp \
-				Parser/ConfParser/Data/ConfServerBlock.cpp \
-				Parser/ConfParser/Data/ConfLocationBlock.cpp \
+				Parser/ConfParser/ConfFile/ConfFile.cpp \
+				Parser/ConfParser/ConfData/ConfMainBlock.cpp \
+				Parser/ConfParser/ConfData/ConfEventBlock.cpp \
+				Parser/ConfParser/ConfData/ConfHTTPBlock.cpp \
+				Parser/ConfParser/ConfData/ConfServerBlock.cpp \
+				Parser/ConfParser/ConfData/ConfLocationBlock.cpp \
 				Parser/ConfParser/EnvParser/EnvParser.cpp \
 				Parser/ConfParser/EnvParser/Exception/EnvParserException.cpp \
 				Parser/MIMEParser/MIMEParser.cpp \
