@@ -144,6 +144,12 @@ const std::string	CONF::ServerBlock::argument(const unsigned short& status) {
 		case CONF::E_SERVER_BLOCK_STATUS::INDEX:
 		case CONF::E_SERVER_BLOCK_STATUS::ACCESS_LOG:
 			return (stringPathArgumentParser(argument) ? argument : throw ConfParserException(argument, "invalid root argument format!"));
+		case CONF::E_SERVER_BLOCK_STATUS::LOCATION: {
+			if (fileContent[Pos[E_INDEX::FILE]] == E_CONF::LBRACE) {
+				return (argument);
+			}
+			return (stringPathArgumentParser(argument) ? argument : throw ConfParserException(argument, "invalid root argument format!"));
+		}
 		case CONF::E_SERVER_BLOCK_STATUS::ERROR_PAGE: {
 			errorPageArgumentParser(argument);
 			return (argument);
@@ -165,13 +171,6 @@ const std::string	CONF::ServerBlock::argument(const unsigned short& status) {
 		case CONF::E_SERVER_BLOCK_STATUS::LISTEN: {
 			const std::size_t	startPos = Pos[E_INDEX::FILE];
 			URIParser::IPv4Parser<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument, this->m_Port);
-			Pos[E_INDEX::COLUMN] += (Pos[E_INDEX::FILE] - startPos);
-		}
-		case CONF::E_SERVER_BLOCK_STATUS::LOCATION: {
-			const std::size_t	startPos = Pos[E_INDEX::FILE];
-			(PathParser::File_AbsolutePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)
-					|| PathParser::File_RelativePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument))
-				? 0 : throw ConfParserException(argument, "is invalid location directive argument");
 			Pos[E_INDEX::COLUMN] += (Pos[E_INDEX::FILE] - startPos);
 		}
 	}
