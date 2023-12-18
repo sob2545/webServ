@@ -4,13 +4,13 @@ CXX			=	c++
 CXXFLAGS	=	-std=c++98
 RM			=	rm -rf
 
-SRCS		:= ../utils/utilFunctions.cpp \
+SRCS		:= ../Utils/utilFunctions.cpp \
 				../Parser/ABNF_utils/ABNFFunctions.cpp \
 				../Parser/BNF_utils/BNFFunctions.cpp \
 				../Parser/ConfParser/Data/ConfBlock.cpp \
 				../Parser/URIParser/URIParser.cpp \
 				../Parser/PathParser/PathParser.cpp \
-				../utils/utilFunctions.cpp \
+				../Utils/utilFunctions.cpp \
 				../Parser/URIParser/SchemeChecker/SchemeChecker.cpp \
 				../Parser/ConfParser/Parser/Exception/ConfParserException.cpp \
 				../Parser/ConfParser/Parser/AConfParser.cpp \
@@ -48,7 +48,7 @@ $(OBJS_DIR)%.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	$(RM) $(OBJS_DIR) FileDescriptor Parser/ Trie utils/
+	$(RM) $(OBJS_DIR) FileDescriptor Parser/ Trie Utils/
 
 fclean: clean
 	$(RM) $(NAME)
