@@ -1,20 +1,17 @@
 #include "URIParser.hpp"
 #include "SchemeChecker/SchemeChecker.hpp"
-#include <cctype>
 #include <string>
 
-// TODO: delete and change exception class with template
 #include <iostream>
 #include "../ConfParser/Parser/Exception/ConfParserException.hpp"
 
-// TODO: compareOneCharcter throw 정의 해야됨
 template <typename T>
 void	compareOneCharacter(const std::string& inputURI, std::size_t& pos, const unsigned char& toCmp) {
 	const std::size_t&		URILength = inputURI.length();
 	const std::string	src(&inputURI[pos]);
 
 	if (pos >= URILength || inputURI[pos] != toCmp) {
-		throw ConfParserException(inputURI.substr(pos, 1), "is not uri format");
+		throw T(inputURI.substr(pos, 1), "is not uri format");
 	}
 	pos++;
 }
@@ -77,7 +74,7 @@ const std::string	domainlabel(const std::string& inputURI, std::size_t& pos) {
 	std::string	label;
 
 	if (pos >= inputURI.size() || !std::isalnum(static_cast<int>(inputURI.at(pos))))
-		throw ConfParserException(label, "is invalid host name");
+		throw T(label, "is invalid host name");
 	while (pos < inputURI.size() && (std::isalnum(static_cast<int>(inputURI.at(pos))) || inputURI.at(pos) == BNF::E_MARK::HYPHEN)) {
 		label += inputURI.at(pos);
 		pos++;
@@ -90,9 +87,9 @@ void	toplabel(const std::string& host) {
 	const std::size_t	dotPos = host.rfind(BNF::E_MARK::PERIOD);
 
 	if (dotPos != std::string::npos && !std::isalpha(static_cast<int>(host.at(dotPos + 1)))) {
-		throw ConfParserException(host, "is invalid host name");
+		throw T(host, "is invalid host name");
 	} else if (dotPos == std::string::npos && !std::isalpha(static_cast<int>(host.at(0)))) {
-		throw ConfParserException(host, "is invalid host name");
+		throw T(host, "is invalid host name");
 	}
 }
 

@@ -189,7 +189,6 @@ bool	CONF::HTTPBlock::blockContent() {
 	Pos[E_INDEX::FILE]++;
 	Pos[E_INDEX::COLUMN]++;
 
-	// TODO: implement serverBlock
 	ft::shared_ptr<CONF::ServerBlock>	server(new ServerBlock(this->m_Autoindex,
 												this->m_KeepAliveTime,
 												this->m_Root,

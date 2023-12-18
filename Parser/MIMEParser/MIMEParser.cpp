@@ -4,8 +4,6 @@
 #include <cstddef>
 #include <string>
 
-// TODO: throw MIME template으로 변경하여 사용할 것
-
 /*
 	rulelist      = 1title *WSP 1typelist
 

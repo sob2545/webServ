@@ -94,7 +94,6 @@ bool	CONF::AConfParser::digitArgumentParser(std::string& argument) {
 	return true;
 }
 
-// TODO: delete
 void	CONF::AConfParser::errorPageArgumentParser(std::string& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
 	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
@@ -102,7 +101,6 @@ void	CONF::AConfParser::errorPageArgumentParser(std::string& argument) {
 	const std::size_t		startFilePos = Pos[E_INDEX::FILE];
 
 	argument.clear();
-	// TODO: full URI Parser에서 맨 처음 alpha가 아니면 false 되도록 구현
 	(URIParser::errorPageParser<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)
 		|| PathParser::File_AbsolutePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)
 		|| PathParser::File_RelativePath<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument)) ? 

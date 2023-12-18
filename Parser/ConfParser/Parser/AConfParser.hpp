@@ -23,15 +23,12 @@ namespace	E_CONF {
 namespace CONF {
 	class AConfParser {
 	protected:
-		typedef std::vector<std::string>				strVec;
 		typedef std::map<unsigned short, errorPageData>	errorPageMap;
 
 		static std::stack<unsigned char>	m_BlockStack;
 
 		// common util functions
 		bool		isMultipleDirective(const unsigned char& block_status, const unsigned short& directive_status);
-		// void			absPathArgumentParser(strVec& argument);
-
 		bool		stringPathArgumentParser(std::string& argument);
 		bool		absPathArgumentParser(std::string& argument);
 		bool		digitArgumentParser(std::string& argument);
@@ -43,12 +40,11 @@ namespace CONF {
 
 		void		handleHtabSpace(const char& c);
 
-		// void			indexArgumentParser(std::string& arugment);
 
 		// common parsing functions
 		bool						contextLines();
 		bool						directives();
-		virtual unsigned short	directiveName();
+		virtual unsigned short		directiveName();
 
 		// virtual functions
 		virtual bool				context() = 0;

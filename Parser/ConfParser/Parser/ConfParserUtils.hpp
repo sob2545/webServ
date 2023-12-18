@@ -119,10 +119,8 @@ namespace   CONF {
 	 *  0b				   100 = autoindex
 	 *  0b				  1000 = error_page
 	 *  0b			    1 0000 = access_log
-	 *  0b             10 0000 = internal
 	 *  0b            100 0000 = cgi
 	 *	0b 1000 0000 0000 0000 = location
-
 	*/
 	namespace	E_LOCATION_BLOCK_STATUS {
 		enum E_LOCATION_BLOCK_STATUS {
@@ -130,9 +128,8 @@ namespace   CONF {
 			INDEX					= 0b00000010,
 			AUTOINDEX				= 0b00000100,
 			ERROR_PAGE				= 0b00001000,
-			ACCESS_PAGE				= 0b00010000,
-			INTERNAL				= 0b00100000,
-			CGI						= 0b01000000,
+			ACCESS_LOG				= 0b00010000,
+			CGI						= 0b00100000,
 			LOCATION				= 0b1000000000000000
 		};
 	
