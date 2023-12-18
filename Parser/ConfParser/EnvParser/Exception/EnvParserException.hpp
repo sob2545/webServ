@@ -2,7 +2,7 @@
 
 #include <exception>
 #include <string>
-#include "../../../../utils/Color.hpp"
+#include "../../../../Utils/Color.hpp"
 
 class EnvParserException : public std::exception {
 private:

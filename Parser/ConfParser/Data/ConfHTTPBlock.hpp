@@ -4,7 +4,7 @@
 #include "../../../Trie/Trie.hpp"
 #include "../../MIMEParser/Exception/MIMEParserException.hpp"
 #include "ConfServerBlock.hpp"
-#include "../../../utils/SmartPointer.hpp"
+#include "../../../Utils/SmartPointer.hpp"
 
 #include <vector>
 

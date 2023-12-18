@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../utils/utilFunctions.hpp"
+#include "../../Utils/utilFunctions.hpp"
 #include "../PathParser/PathParser.hpp"
 #include "../ABNF_utils/ABNFFunctions.hpp"
 #include <string>

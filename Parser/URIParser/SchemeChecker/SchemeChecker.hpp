@@ -1,5 +1,5 @@
 #pragma once
-#include "../../../utils/Singleton.hpp"
+#include "../../../Utils/Singleton.hpp"
 #include <vector>
 #include <string>
 #include <algorithm>
