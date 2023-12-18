@@ -22,6 +22,19 @@ CONF::LocationBlock::LocationBlock(
   m_Index(index)
 {}
 
+CONF::LocationBlock::LocationBlock(const LocationBlock& other)
+: AConfParser(),
+  m_Autoindex(other.m_Autoindex),
+  m_Status(other.m_Status),
+  m_Root(other.m_Root),
+  m_Error_page(other.m_Error_page),
+  m_Access_log(other.m_Access_log),
+  m_Index(other.m_Index),
+  m_LocationName(other.m_LocationName),
+  m_Cgi(other.m_Cgi),
+  m_LocationBlock(other.m_LocationBlock)
+{}
+
 CONF::LocationBlock::~LocationBlock() {}
 
 void	CONF::LocationBlock::initLocationStatusMap() {

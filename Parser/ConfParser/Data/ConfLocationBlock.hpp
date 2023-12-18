@@ -38,7 +38,6 @@ namespace   CONF {
 		static statusMap				m_LocationStatusMap;
 	
 	private:
-		LocationBlock(const LocationBlock& other);
 		LocationBlock& operator=(const LocationBlock& other);
 
 		static void			initLocationStatusMap();
@@ -52,6 +51,7 @@ namespace   CONF {
 	
 	public:
 		LocationBlock();
+		LocationBlock(const LocationBlock& other);
 		LocationBlock(const bool& autoIndex, const std::string& root, const std::string& accessLog, const errorPageMap& errorPage, const Trie& index);
 		virtual ~LocationBlock();
 
