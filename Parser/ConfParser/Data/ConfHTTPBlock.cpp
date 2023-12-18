@@ -238,7 +238,7 @@ bool	CONF::HTTPBlock::context() {
 
 void	CONF::HTTPBlock::initialize() {
 	CONF::AConfParser::m_BlockStack.push(CONF::E_BLOCK_STATUS::HTTP);
-	initHTTPStatusMap();
+	this->m_HTTPStatusMap.empty() ? initHTTPStatusMap() : static_cast<void>(0);
 
 	contextLines();
 }

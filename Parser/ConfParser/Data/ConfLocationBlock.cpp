@@ -199,7 +199,7 @@ bool	CONF::LocationBlock::context() {
 }
 
 void	CONF::LocationBlock::initialize() {
-	initLocationStatusMap();
+	this->m_LocationStatusMap.empty() ? initLocationStatusMap() : static_cast<void>(0);
 	CONF::AConfParser::m_BlockStack.push(CONF::E_BLOCK_STATUS::SERVER);
 
 	contextLines();

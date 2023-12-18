@@ -241,7 +241,7 @@ bool	CONF::ServerBlock::context() {
 }
 
 void	CONF::ServerBlock::initialize() {
-	initServerStatusMap();
+	this->m_ServerStatusMap.empty() ? initServerStatusMap() : static_cast<void>(0);
 	CONF::AConfParser::m_BlockStack.push(CONF::E_BLOCK_STATUS::SERVER);
 
 	contextLines();

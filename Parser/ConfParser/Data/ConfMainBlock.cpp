@@ -199,7 +199,7 @@ bool	CONF::MainBlock::context() {
 
 void	CONF::MainBlock::initialize() {
 	CONF::AConfParser::m_BlockStack.push(CONF::E_BLOCK_STATUS::MAIN);
-	initMainStatusMap();
+	this->m_MainStatusMap.empty() ? initMainStatusMap() : static_cast<void>(0);
 
 	if (!contextLines()) {
 		throw ConfParserException("", "is invalid Confgiure file!");
