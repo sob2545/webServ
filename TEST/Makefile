@@ -21,6 +21,7 @@ SRCS		:= ../utils/utilFunctions.cpp \
 				../Parser/ConfParser/Data/ConfEventBlock.cpp \
 				../Parser/ConfParser/Data/ConfHTTPBlock.cpp \
 				../Parser/ConfParser/Data/ConfServerBlock.cpp \
+				../Parser/ConfParser/Data/ConfLocationBlock.cpp \
 				../Parser/ConfParser/EnvParser/EnvParser.cpp \
 				../Parser/ConfParser/EnvParser/Exception/EnvParserException.cpp \
 				../Parser/MIMEParser/MIMEParser.cpp \
