@@ -9,9 +9,10 @@ public: typedef std::map<std::vector<std::string>, ft::shared_ptr<Server> > serv
 private:
 	// static serverMap	m_Servers;
 
-
 	MasterProcess(const MasterProcess& other);
 	MasterProcess& operator=(const MasterProcess& other);
+
+private:
 
 public:
 	MasterProcess(const std::string& fileName, char** env);

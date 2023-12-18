@@ -11,6 +11,10 @@ private:
 	Server(const Server& other);
 	Server& operator=(const Server& other);
 
+private:
+	unsigned short	convertIPv4Address(const std::string& IP);
+
+
 public:
 	Server(const ft::shared_ptr<CONF::ServerBlock>& block);
 	~Server();
