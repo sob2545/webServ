@@ -40,18 +40,9 @@ const std::string	CONF::EventsBlock::argument(const unsigned short& status) {
 	std::string			argument;
 
 	if (status == E_EVENTS_BLOCK_STATUS::WORKER_CONNECTIONS) {
-		// digitArgumentParser(argument);
-		// TODO : comment나 nl 또는 WSP가 아닐 때까지 파싱
-		while (Pos[E_INDEX::FILE] < fileSize
-			&& (std::isalnum(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))
-				|| fileContent[Pos[E_INDEX::FILE]] == '_'
-				|| fileContent[Pos[E_INDEX::FILE]] == '=')) {
-			(std::isalpha(static_cast<int>(fileContent[Pos[E_INDEX::FILE]]))) ? argument += std::tolower(fileContent[Pos[E_INDEX::FILE]]) : argument += fileContent[Pos[E_INDEX::FILE]];
-			Pos[E_INDEX::FILE]++;
-			Pos[E_INDEX::COLUMN]++;
-		}
+		argumentParser(argument);
 	} else {
-		throw ConfParserException("", "is invalid Confgiure file!");
+		throw ConfParserException(argument, "is invalid Confgiure file!");
 	}
 	return (argument);
 }
