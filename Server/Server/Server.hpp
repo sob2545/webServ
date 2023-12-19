@@ -2,11 +2,14 @@
 
 #include "../../FileDescriptor/Socket/ServerSocket.hpp"
 #include "../../Parser/ConfParser/ConfData/ConfServerBlock.hpp"
+#include <type_traits>
 
 class Server {
+public:
+	typedef std::vector<CONF::ServerBlock> ConfServerVector;
 private:
-	ft::shared_ptr<CONF::ServerBlock>	m_ServerBlock;
-	ServerSocket						m_Socket;
+	ServerSocket		m_Socket;
+	ConfServerVector	m_ServerBlock;
 
 	Server(const Server& other);
 	Server& operator=(const Server& other);
@@ -15,7 +18,12 @@ private:
 
 
 public:
-	Server(const ft::shared_ptr<CONF::ServerBlock>& block);
+	Server(const CONF::ServerBlock& block);
 	~Server();
+
+	const CONF::ServerBlock&	operator[](const std::string& hostname);
+
+	void	insertServerBlock(const CONF::ServerBlock& serverBlock);
+	bool	findServerBlock(const std::string& IP, const unsigned short& port);
 
 };
