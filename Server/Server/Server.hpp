@@ -12,7 +12,6 @@ private:
 	Server& operator=(const Server& other);
 
 private:
-	unsigned short	convertIPv4Address(const std::string& IP);
 
 
 public:
