@@ -29,7 +29,7 @@ struct default_delete {
 template <class T>
 struct default_delete<T[]> {
 	void	operator()(T* _ptr) const {
-		::delete [] _ptr;
+		::delete[] _ptr;
 		_ptr = NULL;
 	}
 };
@@ -70,6 +70,77 @@ public:
 	}
 
 	void	reset(pointer ptr = 0) {
+		m_Deleter(m_Ptr);
+		m_Ptr = ptr;
+	}
+};
+
+template <class T, class D>
+class unique_ptr<T[], D> {
+public:
+	typedef T*	pointer;
+
+private:
+	pointer		m_Ptr;
+	D			m_Deleter;
+
+	unique_ptr(const unique_ptr&);
+	unique_ptr&	operator=(const unique_ptr&);
+
+public:
+	explicit unique_ptr(pointer p = 0, const D& d = D()) : m_Ptr(p), m_Deleter(d) {}
+	
+	~unique_ptr() {
+		m_Deleter(m_Ptr);
+	}
+
+	pointer&	operator*() const {
+		return *m_Ptr;
+	}
+
+	pointer	operator->() const {
+		return m_Ptr;
+	}
+
+	pointer	get() const {
+		return m_Ptr;
+	}
+
+	void	reset(pointer ptr = 0) {
+		m_Deleter(m_Ptr);
+		m_Ptr = ptr;
+	}
+};
+
+
+template <class T>
+class unique_ptr<T[], default_delete<T[]> > {
+public:
+	typedef T* pointer;
+
+private:
+	pointer m_Ptr;
+	default_delete<T[]> m_Deleter;
+
+	unique_ptr(const unique_ptr&);
+	unique_ptr& operator=(const unique_ptr&);
+
+public:
+	explicit unique_ptr(pointer p = 0) : m_Ptr(p) {}
+
+	~unique_ptr() {
+		m_Deleter(m_Ptr);
+	}
+
+	T& operator[](std::size_t i) const {
+		return m_Ptr[i];
+	}
+
+	pointer get() const {
+		return m_Ptr;
+	}
+
+	void reset(pointer ptr = 0) {
 		m_Deleter(m_Ptr);
 		m_Ptr = ptr;
 	}
