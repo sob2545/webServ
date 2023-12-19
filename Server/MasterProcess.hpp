@@ -5,18 +5,22 @@
 #include "Server/Server.hpp"
 
 class MasterProcess : public Singleton<MasterProcess> {
-public: typedef std::map<std::vector<std::string>, ft::shared_ptr<Server> > serverMap;
+public:
+	typedef std::vector<ft::shared_ptr<Server> >	mainServerVector;
+
 private:
-	// static serverMap	m_Servers;
+	static mainServerVector	m_Servers;
 
 	MasterProcess(const MasterProcess& other);
 	MasterProcess& operator=(const MasterProcess& other);
 
 private:
+	static ft::shared_ptr<Server>	findServer(const std::string& IP, const unsigned short& port);
 
 public:
 	MasterProcess(const std::string& fileName, char** env);
 	~MasterProcess();
+
 
 	static void	start();
 };

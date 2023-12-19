@@ -1,11 +1,15 @@
 #include "MasterProcess.hpp"
 
 #include "../Parser/ConfParser/ConfData/ConfBlock.hpp"
+#include <cstddef>
+#include <iterator>
+
+typedef std::vector<CONF::ServerBlock> confServerBlockVector;
+
+MasterProcess::mainServerVector	MasterProcess::m_Servers;
 
 // TODO: delete
 #include <iostream>
-
-typedef std::map<std::pair<std::string, unsigned short>, ft::shared_ptr<CONF::ServerBlock> > confServerBlockMaps;
 
 MasterProcess::MasterProcess(const std::string& fileName, char** env) {
 	try {
@@ -22,15 +26,25 @@ MasterProcess::~MasterProcess() {
 	CONF::ConfBlock::getInstance()->destroy();
 }
 
+ft::shared_ptr<Server>	MasterProcess::findServer(const std::string& IP, const unsigned short& port) {
+	for (std::size_t i(0); i < m_Servers.size(); ++i) {
+		if (m_Servers[i]->findServerBlock(IP, port)) {
+			return m_Servers[i];
+		}
+	}
+	return (ft::shared_ptr<Server>());
+}
+
 void	MasterProcess::start() {
 	CONF::ConfBlock::getInstance()->print();
 
-	const confServerBlockMaps&	mainServerBlocks = CONF::ConfBlock::getInstance()->getMainBlock().getHTTPBlock().getServerMap();
+	const confServerBlockVector&	mainServerBlocks = CONF::ConfBlock::getInstance()->getMainBlock().getHTTPBlock().getServerVector();
 	unsigned short		curPort = 0;
 
-	for (confServerBlockMaps::const_iterator it = mainServerBlocks.begin(); it != mainServerBlocks.end(); ++it) {
-		// if (!curPort && curPort != it->second->getPort()) {
-		// 	continue;
-		// }
+	// TODO: 호스트네임이 각각의 port 블럭에서 중복되는 것이 있는지 확인,
+	//	실제 nginx에서도 만약 포트는 다른데 호스트가 동일한 경우 작동되는지 확인 필요!
+	for (std::size_t i(0); i < mainServerBlocks.size(); ++i) {
+		const ft::shared_ptr<Server> tmp = findServer(mainServerBlocks[i].getIP(), mainServerBlocks[i].getPort());
+		(tmp.get()) ? tmp->insertServerBlock(mainServerBlocks[i]) : MasterProcess::m_Servers.push_back(ft::shared_ptr<Server>(::new Server(mainServerBlocks[i])));
 	}
 }
