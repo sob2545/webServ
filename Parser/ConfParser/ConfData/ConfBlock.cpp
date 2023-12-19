@@ -80,30 +80,29 @@ void	CONF::ConfBlock::print() {
 
 	std::cout << BOLDGREEN << "\t========== Server Block ==============\n" << RESET;
 
-	const std::map<std::pair<std::string, unsigned short>, ft::shared_ptr<CONF::ServerBlock> >& tmpServerMap = this->m_MainBlock.getHTTPBlock().getServerMap();
-	std::cout << tmpServerMap.size() << std::endl;
+	const std::vector<ft::shared_ptr<CONF::ServerBlock> >& tmpServerMap = this->m_MainBlock.getHTTPBlock().getServerVector();
 	for (auto it = tmpServerMap.begin(); it != tmpServerMap.end(); ++it) {
 		// if (it->second) {
-			std::cout << "\t\tAccess log: " << it->second->getAccess_log() << std::endl;
-			std::cout << "\t\tRoot: " << it->second->getRoot() << std::endl;
-			std::cout << "\t\tAutoindex: " << (it->second->getAutoindex() ? "on" : "off") << std::endl;
-			std::cout << "\t\tIndex: " << it->second->getIndex("domain1.com") << std::endl;
-			for (auto ser_it = it->second->getError_page().begin(); ser_it != it->second->getError_page().end(); ++ser_it) {
-				std::cout << ser_it->first << ": " << (int)ser_it->second.m_Type << " " << ser_it->second.m_Path << std::endl;
-			std::cout << ((ser_it->second.m_Type == E_ERRORPAGE::REPLACE) ? ser_it->second.m_Replace : 0) << std::endl;
+			std::cout << "\t\tAccess log: " << it->get()->getAccess_log() << std::endl;
+			std::cout << "\t\tRoot: " << it->get()->getRoot() << std::endl;
+			std::cout << "\t\tAutoindex: " << (it->get()->getAutoindex() ? "on" : "off") << std::endl;
+			std::cout << "\t\tIndex: " << it->get()->getIndex("domain1.com") << std::endl;
+			for (auto ser_it = it->get()->getError_page().begin(); ser_it != it->get()->getError_page().end(); ++ser_it) {
+				std::cout << "\t\t\t" << ser_it->first << ": " << (int)ser_it->second.m_Type << " " << ser_it->second.m_Path << std::endl;
+			std::cout << "\t\t\t" << ((ser_it->second.m_Type == E_ERRORPAGE::REPLACE) ? ser_it->second.m_Replace : 0) << std::endl;
 			}
 			std::cout << "\n";
-			std::cout << "\t\tIP: " << it->second->getIP() << std::endl;
-			std::cout << "\t\tPort: " << it->second->getPort() << std::endl;
+			std::cout << "\t\tIP: " << it->get()->getIP() << std::endl;
+			std::cout << "\t\tPort: " << it->get()->getPort() << std::endl;
 			std::cout << "\n";
-			std::cout << "\t\tServer Names: " << std::endl;
-			for (auto nam_it = it->second->getServerNames().begin(); nam_it != it->second->getServerNames().end(); ++nam_it) {
+			std::cout << BOLDWHITE << "\t\tServer Names: " << RESET << std::endl;
+			for (auto nam_it = it->get()->getServerNames().begin(); nam_it != it->get()->getServerNames().end(); ++nam_it) {
 				std::cout << "\t\t\t" << *nam_it << std::endl;
 			}
 		// }
 
-		std::cout << "\t\t=================Location Block=================\n";
-		const std::map<std::string, LocationBlock>& tmpLocationMap = it->second->getLocationMap();
+		std::cout << BOLDBLUE << "\t\t=================Location Block=================\n" << RESET;
+		const std::map<std::string, LocationBlock>& tmpLocationMap = it->get()->getLocationMap();
 		for (auto it = tmpLocationMap.begin(); it != tmpLocationMap.end(); ++it) {
 			std::cout << "\t\t\tLocation Name: " << it->first << std::endl;
 			std::cout << "\t\t\t\tAccess log: " << it->second.getAccess_log() << std::endl;
@@ -111,8 +110,8 @@ void	CONF::ConfBlock::print() {
 			std::cout << "\t\t\t\tAutoindex: " << (it->second.getAutoindex() ? "on" : "off") << std::endl;
 			std::cout << "\t\t\t\tIndex: " << it->second.getIndex("domain1.com") << std::endl;
 			for (auto ser_it = it->second.getError_page().begin(); ser_it != it->second.getError_page().end(); ++ser_it) {
-				std::cout << ser_it->first << ": " << (int)ser_it->second.m_Type << " " << ser_it->second.m_Path << std::endl;
-			std::cout << ((ser_it->second.m_Type == E_ERRORPAGE::REPLACE) ? ser_it->second.m_Replace : 0) << std::endl;
+				std::cout << "\t\t\t" << ser_it->first << ": " << (int)ser_it->second.m_Type << " " << ser_it->second.m_Path << std::endl;
+			std::cout << "\t\t\t" << ((ser_it->second.m_Type == E_ERRORPAGE::REPLACE) ? ser_it->second.m_Replace : 0) << std::endl;
 			}
 			std::cout << "\n";
 
@@ -123,8 +122,8 @@ void	CONF::ConfBlock::print() {
 				std::cout << "\t\t\t\t\t\tAutoindex: " << (loc_it->second.getAutoindex() ? "on" : "off") << std::endl;
 				std::cout << "\t\t\t\t\t\tIndex: " << loc_it->second.getIndex("domain1.com") << std::endl;
 				for (auto err_it = loc_it->second.getError_page().begin(); err_it != loc_it->second.getError_page().end(); ++err_it) {
-					std::cout << err_it->first << ": " << (int)err_it->second.m_Type << " " << err_it->second.m_Path << std::endl;
-					std::cout << ((err_it->second.m_Type == E_ERRORPAGE::REPLACE) ? err_it->second.m_Replace : 0) << std::endl;
+					std::cout << "\t\t\t\t\t" << err_it->first << ": " << (int)err_it->second.m_Type << " " << err_it->second.m_Path << std::endl;
+					std::cout << "\t\t\t\t\t" << ((err_it->second.m_Type == E_ERRORPAGE::REPLACE) ? err_it->second.m_Replace : 0) << std::endl;
 				}
 
 			}

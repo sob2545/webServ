@@ -28,8 +28,8 @@
 namespace   CONF {
 	class HTTPBlock : public AConfParser {
 	public:
-		typedef std::pair<std::string, unsigned short>					serverKey;
-		typedef std::map<serverKey, ft::shared_ptr<CONF::ServerBlock> >	serverMap;
+		typedef std::pair<std::string, unsigned short>				serverKey;
+		typedef std::vector<ft::shared_ptr<CONF::ServerBlock> >		serverVector;
 
 	private:
 		typedef std::map<std::string, unsigned short>				statusMap;
@@ -46,7 +46,7 @@ namespace   CONF {
 		Trie									m_Index;
 		errorPageMap							m_Error_page;
 		TypeMap									m_Mime_types;
-		serverMap								m_Server_block;
+		serverVector							m_ServerBlock;
 		static statusMap						m_HTTPStatusMap;
 
 	private:
@@ -78,6 +78,6 @@ namespace   CONF {
 		const std::string		getIndex(const std::string& uri) const;
 		const errorPageMap&		getError_page() const;
 		const TypeMap&			getMime_types() const;
-		const std::map<std::pair<std::string, unsigned short>, ft::shared_ptr<CONF::ServerBlock> >	getServerMap() const;
+		const serverVector&		getServerVector() const;
 	};
 }

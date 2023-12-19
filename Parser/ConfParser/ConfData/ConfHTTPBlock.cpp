@@ -197,18 +197,8 @@ bool	CONF::HTTPBlock::blockContent() {
 												this->m_Index));
 
 	server->initialize();
-	const std::set<std::string>&	nameSet = server->getServerNames();
 
-	for (std::set<std::string>::const_iterator it = nameSet.begin(); it != nameSet.end(); ++it) {
-		std::cout << BOLDRED << *it << std::endl;
-		const serverKey	toFind = std::make_pair(*it, server->getPort());
-
-		if (this->m_Server_block.find(toFind) != this->m_Server_block.end()) {
-			std::cerr << "duplicated\n";
-		} else {
-			this->m_Server_block.insert(std::make_pair(toFind, server));
-		}
-	}
+	m_ServerBlock.push_back(server);
 
 	if (fileContent[Pos[E_INDEX::FILE]] != E_CONF::RBRACE) {
 		throw ConfParserException("}", "Direct block has no brace!");
@@ -244,8 +234,12 @@ void	CONF::HTTPBlock::initialize() {
 }
 
 const ft::shared_ptr<CONF::ServerBlock>&	CONF::HTTPBlock::operator[](const serverKey& key) const {
-	serverMap::const_iterator it = m_Server_block.find(key);
-	return (it != m_Server_block.end()) ? it->second : throw ConfParserException(key.first, "cannot find server!");
+	for (serverVector::const_iterator it = m_ServerBlock.begin(); it != m_ServerBlock.end(); ++it) {
+		if (it->get()->getServerNames().find(key.first) != it->get()->getServerNames().end() && it->get()->getPort() == key.second) {
+			return (*it);
+		}
+	}
+	throw ConfParserException(key.first, "cannot find server!");
 }
 
 const bool&	CONF::HTTPBlock::getAutoindex() const {
@@ -280,6 +274,6 @@ const CONF::HTTPBlock::TypeMap&	CONF::HTTPBlock::getMime_types() const {
 	return (this->m_Mime_types);
 }
 
-const std::map<std::pair<std::string, unsigned short>, ft::shared_ptr<CONF::ServerBlock> >	CONF::HTTPBlock::getServerMap() const {
-	return (this->m_Server_block);
+const CONF::HTTPBlock::serverVector&	CONF::HTTPBlock::getServerVector() const {
+	return (this->m_ServerBlock);
 }
