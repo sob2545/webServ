@@ -189,14 +189,16 @@ bool	CONF::HTTPBlock::blockContent() {
 	Pos[E_INDEX::FILE]++;
 	Pos[E_INDEX::COLUMN]++;
 
-	ft::shared_ptr<CONF::ServerBlock>	server(new ServerBlock(this->m_Autoindex,
+	CONF::ServerBlock	server(this->m_Autoindex,
 												this->m_KeepAliveTime,
 												this->m_Root,
 												this->m_Access_log,
 												this->m_Error_page,
-												this->m_Index));
+												this->m_Index);
 
-	server->initialize();
+	server.initialize();
+
+	const std::set<std::string>&	nameSet = server.getServerNames();
 
 	m_ServerBlock.push_back(server);
 
@@ -233,9 +235,9 @@ void	CONF::HTTPBlock::initialize() {
 	contextLines();
 }
 
-const ft::shared_ptr<CONF::ServerBlock>&	CONF::HTTPBlock::operator[](const serverKey& key) const {
+const CONF::ServerBlock&	CONF::HTTPBlock::operator[](const serverKey& key) const {
 	for (serverVector::const_iterator it = m_ServerBlock.begin(); it != m_ServerBlock.end(); ++it) {
-		if (it->get()->getServerNames().find(key.first) != it->get()->getServerNames().end() && it->get()->getPort() == key.second) {
+		if (it->getServerNames().find(key.first) != it->getServerNames().end() && it->getPort() == key.second) {
 			return (*it);
 		}
 	}

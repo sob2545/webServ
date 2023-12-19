@@ -4,7 +4,6 @@
 #include "../../../Trie/Trie.hpp"
 #include "../../MIMEParser/Exception/MIMEParserException.hpp"
 #include "ConfServerBlock.hpp"
-#include "../../../Utils/SmartPointer.hpp"
 
 #include <vector>
 
@@ -29,7 +28,7 @@ namespace   CONF {
 	class HTTPBlock : public AConfParser {
 	public:
 		typedef std::pair<std::string, unsigned short>				serverKey;
-		typedef std::vector<ft::shared_ptr<CONF::ServerBlock> >		serverVector;
+		typedef std::vector<CONF::ServerBlock>		serverVector;
 
 	private:
 		typedef std::map<std::string, unsigned short>				statusMap;
@@ -64,7 +63,7 @@ namespace   CONF {
 	
 	public:
 		HTTPBlock();
-		const ft::shared_ptr<CONF::ServerBlock>&	operator[](const serverKey& key) const;
+		const CONF::ServerBlock&	operator[](const serverKey& key) const;
 		virtual ~HTTPBlock();
 
 		void					initialize();
