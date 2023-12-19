@@ -17,6 +17,6 @@ private:
 	unsigned short	convertIPv4Address(const std::string& IP);
 
 public:
-	ServerSocket(const unsigned short& port, const std::string& IP_Address);
+	ServerSocket(const std::string& IP_Address, const unsigned short& port);
 	virtual ~ServerSocket();
 };

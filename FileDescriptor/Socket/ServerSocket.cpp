@@ -1,7 +1,9 @@
 #include "ServerSocket.hpp"
 #include "Exception/SocketException.hpp"
 
-ServerSocket::ServerSocket(const unsigned short& port, const std::string& IP_Address) : FileDescriptor(0) {
+ServerSocket::ServerSocket(const std::string& IP_Address, const unsigned short& port)
+ : FileDescriptor(0)
+{
 	struct sockaddr_in	addr;
 
 	addr.sin_family = AF_INET;
