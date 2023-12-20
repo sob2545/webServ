@@ -26,6 +26,22 @@ CONF::ServerBlock::ServerBlock(
   m_Index(index)
 {}
 
+CONF::ServerBlock::ServerBlock(const ServerBlock& other)
+ : AConfParser(),
+   m_Autoindex(other.m_Autoindex),
+   m_Port(other.m_Port),
+   m_Status(other.m_Status),
+   m_KeepAliveTime(other.m_KeepAliveTime),
+   m_Root(other.m_Root),
+   m_Error_page(other.m_Error_page),
+   m_Access_log(other.m_Access_log),
+   m_IP(other.m_IP),
+   m_Index(other.m_Index),
+   m_LocationName(other.m_LocationName),
+   m_Server_name(other.m_Server_name),
+   m_LocationBlock(other.m_LocationBlock)
+{}
+
 CONF::ServerBlock::~ServerBlock() {}
 
 void	CONF::ServerBlock::initServerStatusMap() {
@@ -102,8 +118,11 @@ bool	CONF::ServerBlock::argumentChecker(const std::vector<std::string>& args, co
 			return false;
 		}
 		case CONF::E_SERVER_BLOCK_STATUS::LISTEN: {
-			if (args.size() != 1) {
+			if (args.size() > 1) {
 				throw ConfParserException(args.at(0), "invalid number of Listen arguments!");
+			} else if (args.empty()) {
+				const unsigned short 	listenCheckBit = 1 << 15;
+				m_Status & listenCheckBit ? m_IP.clear() : throw ConfParserException("", "listen argument is empty!");
 			} else {
 				this->m_IP = args[0];
 			}
@@ -162,16 +181,17 @@ const std::string	CONF::ServerBlock::argument(const unsigned short& status) {
 		}
 		case CONF::E_SERVER_BLOCK_STATUS::SERVER_NAME: {
 			const std::size_t	startPos = Pos[E_INDEX::FILE];
-			if (URIParser::hostnameParser<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument, this->m_Port)) {
-				(m_Status & E_SERVER_BLOCK_STATUS::LISTEN) ? throw ConfParserException(argument, "listen is duplicated!") : m_Status | E_SERVER_BLOCK_STATUS::LISTEN;
-			}
+			URIParser::hostnameParser<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument, this->m_Port);
 			Pos[E_INDEX::COLUMN] += (Pos[E_INDEX::FILE] - startPos);
 			return (argument);
 		}
 		case CONF::E_SERVER_BLOCK_STATUS::LISTEN: {
-			const std::size_t	startPos = Pos[E_INDEX::FILE];
-			URIParser::IPv4Parser<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument, this->m_Port);
+			const std::size_t		startPos = Pos[E_INDEX::FILE];
+			const unsigned short 	listenCheckBit = 1 << 15;
+
+			URIParser::IPv4Parser<ConfParserException>(fileContent, Pos[E_INDEX::FILE], argument, this->m_Port) ? this->m_Status |= listenCheckBit : 0;
 			Pos[E_INDEX::COLUMN] += (Pos[E_INDEX::FILE] - startPos);
+			return (argument);
 		}
 	}
 	argumentParser(argument);
