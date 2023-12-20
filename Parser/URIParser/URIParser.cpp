@@ -110,25 +110,32 @@ bool	hostname(const std::string& inputURI, std::size_t& pos, std::string& host) 
  *			Address setter
 */
 bool	splitAddressNumber(const std::string& inputURI, std::size_t& pos, std::string& host) {
+	std::string		addressPart;
 	if (pos >= inputURI.size() || !std::isdigit(static_cast<int>(inputURI.at(pos)))) {
 		return false;
 	}
-	host += inputURI.at(pos);
-	pos++;
 	while (pos < inputURI.size() && std::isdigit(static_cast<int>(inputURI.at(pos)))) {
-		host += inputURI.at(pos);
+		addressPart += inputURI.at(pos);
 		pos++;
 	}
 	char*	endptr;
-	const unsigned long addressPart = std::strtoul(host.c_str(), &endptr, 10);
-	return ((addressPart <= 255) ? true : throw );
+	const unsigned long addressPartNumber = std::strtoul(addressPart.c_str(), &endptr, 10);
+	host += addressPart;
+	return ((addressPartNumber > 255 || *endptr != '\0') ? false : true);
 }
 
 bool	IPv4address(const std::string& inputURI, std::size_t& pos, std::string& host) {
+	const std::size_t	startPos = pos;
+
 	for (int i = 0; i < 3;) {
-		if (!splitAddressNumber(inputURI, pos, host))
+		if (!splitAddressNumber(inputURI, pos, host)) {
+			pos = startPos;
+			host.clear();
 			return false;
+		}
 		if (pos >= inputURI.size() || inputURI.at(pos) != '.') {
+			pos = startPos;
+			host.clear();
 			return false;
 		} else if (pos < inputURI.size() && inputURI.at(pos) == '.') {
 			host += '.';
@@ -141,6 +148,33 @@ bool	IPv4address(const std::string& inputURI, std::size_t& pos, std::string& hos
 	return true;
 }
 
+
+template <typename T>
+bool	IPv4address(const std::string& inputURI, std::size_t& pos, std::string& host) {
+	const std::size_t	startPos = pos;
+
+	for (int i = 0; i < 3;) {
+		if (!splitAddressNumber(inputURI, pos, host)) {
+			pos = startPos;
+			host.clear();
+			return false;
+		}
+		if (pos >= inputURI.size() || inputURI.at(pos) != '.') {
+			pos = startPos;
+			host.clear();
+			return false;
+		} else if (pos < inputURI.size() && inputURI.at(pos) == '.') {
+			host += '.';
+			i++;
+			pos++;
+		}
+	}
+	if (!splitAddressNumber(inputURI, pos, host)) {
+		throw T(host, "is invalid IPv4 address");
+	}
+	return true;
+}
+
 template <typename T>
 bool	setHost(const std::string& inputURI, std::size_t& pos, std::string& host) {
 	return (IPv4address(inputURI, pos, host) || hostname<T>(inputURI, pos, host));
@@ -150,28 +184,28 @@ bool	setHost(const std::string& inputURI, std::size_t& pos, std::string& host) {
  *			Port setter
 */
 template <typename T>
-void	splitPort(const std::string& inputURI, std::size_t& pos, unsigned short& port) {
+bool	splitPort(const std::string& inputURI, std::size_t& pos, unsigned short& port) {
 	std::string	portStr;
 
-	if (pos >= inputURI.size() || !std::isdigit(static_cast<int>(inputURI.at(pos)))) {
-		while (pos < inputURI.size()
-				&& (inputURI[pos] != E_ABNF::SP
-					|| inputURI[pos] != E_ABNF::SEMICOLON
-					|| inputURI[pos] != E_ABNF::LF)) {
-			portStr += inputURI[pos];
-		}
-		throw T(portStr, "is invalid port");
-	}
-	portStr += inputURI.at(pos);
-	pos++;
-	while (pos < inputURI.size() && std::isalnum(static_cast<int>(inputURI.at(pos)))) {
+	while (pos < inputURI.size()
+			&& !ABNF::isWSP(inputURI, pos)
+			&& !ABNF::isLF(inputURI, pos)
+			&& inputURI[pos] != E_ABNF::SEMICOLON
+			&& inputURI[pos] != '{'
+			&& inputURI[pos] != '}') {
 		portStr += inputURI.at(pos);
 		pos++;
 	}
 	char*		endPos;
 	const long	portNum = strtol(portStr.c_str(), &endPos, 10);
 	(*endPos != '\0' || portStr.size() > 5 || portNum < 0 || portNum > 65535) ? throw T(portStr, "is invalid port") : 0;
-	port = static_cast<unsigned short>(portNum);
+	if (static_cast<unsigned short>(portNum) == 0) {
+		port = 80;
+		return false;
+	} else {
+		port = static_cast<unsigned short>(portNum);
+		return true;
+	}
 }
 
 template <typename T>
@@ -182,8 +216,7 @@ bool	setPort(const std::string& inputURI, std::size_t& pos, unsigned short& port
 		return true;
 	}
 	else {
-		port = 80;
-		return false;
+		return (splitPort<T>(inputURI, pos, port));
 	}
 }
 
@@ -240,15 +273,12 @@ bool	scheme(const std::string& inputURI, std::size_t& pos, std::string& scheme) 
 // hostnameParser는 기본 포트면 false, 지정된 포트가 있으면 true
 template <typename T>
 bool	URIParser::hostnameParser(const std::string& inputURI, std::size_t& pos, std::string& argument, unsigned short& port) {
-	setHost<T>(inputURI, pos, argument);
-	return (setPort<T>(inputURI, pos, port));
+	return (setHost<T>(inputURI, pos, argument));
 }
 
 template <typename T>
 bool	URIParser::IPv4Parser(const std::string& inputURI, std::size_t& pos, std::string& argument, unsigned short& port) {
-	const std::size_t	startPos = pos;
-
-	(IPv4address(inputURI, pos, argument)) ? 0 : pos = startPos;
+	IPv4address<T>(inputURI, pos, argument);
 	return (setPort<T>(inputURI, pos, port));
 }
 
