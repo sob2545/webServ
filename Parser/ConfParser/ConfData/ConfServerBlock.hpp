@@ -16,6 +16,7 @@
  *	0b     		   10 0000 = keepalive_timeout
  *	0b     		  100 0000 = listen
  *	0b  	     1000 0000 = server_name
+ *	0b  100 0000 0000 0000 = listen checker bit
  *	0b 1000 0000 0000 0000 = location
  */
 
