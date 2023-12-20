@@ -30,6 +30,9 @@ SRCS		:= Utils/utilFunctions.cpp \
 				Trie/Trie.cpp \
 				Trie/TrieNode.cpp \
 				Server/MasterProcess.cpp \
+				Server/Server/Server.cpp \
+				FileDescriptor/Socket/ServerSocket.cpp \
+				FileDescriptor/Socket/Exception/SocketException.cpp \
 				webServ.cpp
 
 OBJS_DIR	:= objs/
