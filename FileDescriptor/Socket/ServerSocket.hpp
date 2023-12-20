@@ -1,5 +1,6 @@
 #pragma once
 
+#include <_types/_uint32_t.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sstream>
@@ -14,7 +15,7 @@ private:
 	ServerSocket&	operator=(const ServerSocket& other);
 
 private:
-	unsigned short	convertIPv4Address(const std::string& IP);
+	uint32_t	convertIPv4Address(const std::string& IP);
 
 public:
 	ServerSocket(const std::string& IP_Address, const unsigned short& port);
