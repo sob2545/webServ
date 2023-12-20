@@ -26,9 +26,9 @@ MasterProcess::~MasterProcess() {
 	CONF::ConfBlock::getInstance()->destroy();
 }
 
-ft::shared_ptr<Server>	MasterProcess::findServer(const std::string& IP, const unsigned short& port) {
+ft::shared_ptr<Server>	MasterProcess::findExistServer(const std::string& IP, const unsigned short& port) {
 	for (std::size_t i(0); i < m_Servers.size(); ++i) {
-		if (m_Servers[i]->findServerBlock(IP, port)) {
+		if (m_Servers[i]->findSameConfServerBlock(IP, port)) {
 			return m_Servers[i];
 		}
 	}
@@ -44,7 +44,7 @@ void	MasterProcess::start() {
 	// TODO: 호스트네임이 각각의 port 블럭에서 중복되는 것이 있는지 확인,
 	//	실제 nginx에서도 만약 포트는 다른데 호스트가 동일한 경우 작동되는지 확인 필요!
 	for (std::size_t i(0); i < mainServerBlocks.size(); ++i) {
-		const ft::shared_ptr<Server> tmp = findServer(mainServerBlocks[i].getIP(), mainServerBlocks[i].getPort());
+		const ft::shared_ptr<Server>	tmp = findExistServer(mainServerBlocks[i].getIP(), mainServerBlocks[i].getPort());
 		(tmp.get()) ? tmp->insertServerBlock(mainServerBlocks[i]) : MasterProcess::m_Servers.push_back(ft::shared_ptr<Server>(::new Server(mainServerBlocks[i])));
 	}
 }

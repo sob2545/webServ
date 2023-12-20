@@ -15,7 +15,7 @@ private:
 	MasterProcess& operator=(const MasterProcess& other);
 
 private:
-	static ft::shared_ptr<Server>	findServer(const std::string& IP, const unsigned short& port);
+	static ft::shared_ptr<Server>	findExistServer(const std::string& IP, const unsigned short& port);
 
 public:
 	MasterProcess(const std::string& fileName, char** env);
