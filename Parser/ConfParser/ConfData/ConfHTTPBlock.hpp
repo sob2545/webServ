@@ -28,7 +28,7 @@ namespace   CONF {
 	class HTTPBlock : public AConfParser {
 	public:
 		typedef std::pair<std::string, unsigned short>				serverKey;
-		typedef std::vector<CONF::ServerBlock>		serverVector;
+		typedef std::vector<CONF::ServerBlock>						serverVector;
 
 	private:
 		typedef std::map<std::string, unsigned short>				statusMap;

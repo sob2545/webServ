@@ -80,29 +80,29 @@ void	CONF::ConfBlock::print() {
 
 	std::cout << BOLDGREEN << "\t========== Server Block ==============\n" << RESET;
 
-	const std::vector<ft::shared_ptr<CONF::ServerBlock> >& tmpServerMap = this->m_MainBlock.getHTTPBlock().getServerVector();
+	const std::vector<CONF::ServerBlock>& tmpServerMap = this->m_MainBlock.getHTTPBlock().getServerVector();
 	for (auto it = tmpServerMap.begin(); it != tmpServerMap.end(); ++it) {
 		// if (it->second) {
-			std::cout << "\t\tAccess log: " << it->get()->getAccess_log() << std::endl;
-			std::cout << "\t\tRoot: " << it->get()->getRoot() << std::endl;
-			std::cout << "\t\tAutoindex: " << (it->get()->getAutoindex() ? "on" : "off") << std::endl;
-			std::cout << "\t\tIndex: " << it->get()->getIndex("domain1.com") << std::endl;
-			for (auto ser_it = it->get()->getError_page().begin(); ser_it != it->get()->getError_page().end(); ++ser_it) {
+			std::cout << "\t\tAccess log: " << it->getAccess_log() << std::endl;
+			std::cout << "\t\tRoot: " << it->getRoot() << std::endl;
+			std::cout << "\t\tAutoindex: " << (it->getAutoindex() ? "on" : "off") << std::endl;
+			std::cout << "\t\tIndex: " << it->getIndex("domain1.com") << std::endl;
+			for (auto ser_it = it->getError_page().begin(); ser_it != it->getError_page().end(); ++ser_it) {
 				std::cout << "\t\t\t" << ser_it->first << ": " << (int)ser_it->second.m_Type << " " << ser_it->second.m_Path << std::endl;
 			std::cout << "\t\t\t" << ((ser_it->second.m_Type == E_ERRORPAGE::REPLACE) ? ser_it->second.m_Replace : 0) << std::endl;
 			}
 			std::cout << "\n";
-			std::cout << "\t\tIP: " << it->get()->getIP() << std::endl;
-			std::cout << "\t\tPort: " << it->get()->getPort() << std::endl;
+			std::cout << "\t\tIP: " << it->getIP() << std::endl;
+			std::cout << "\t\tPort: " << it->getPort() << std::endl;
 			std::cout << "\n";
 			std::cout << BOLDWHITE << "\t\tServer Names: " << RESET << std::endl;
-			for (auto nam_it = it->get()->getServerNames().begin(); nam_it != it->get()->getServerNames().end(); ++nam_it) {
+			for (auto nam_it = it->getServerNames().begin(); nam_it != it->getServerNames().end(); ++nam_it) {
 				std::cout << "\t\t\t" << *nam_it << std::endl;
 			}
 		// }
 
 		std::cout << BOLDBLUE << "\t\t=================Location Block=================\n" << RESET;
-		const std::map<std::string, LocationBlock>& tmpLocationMap = it->get()->getLocationMap();
+		const std::map<std::string, LocationBlock>& tmpLocationMap = it->getLocationMap();
 		for (auto it = tmpLocationMap.begin(); it != tmpLocationMap.end(); ++it) {
 			std::cout << "\t\t\tLocation Name: " << it->first << std::endl;
 			std::cout << "\t\t\t\tAccess log: " << it->second.getAccess_log() << std::endl;
