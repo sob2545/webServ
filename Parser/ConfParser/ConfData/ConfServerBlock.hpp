@@ -41,7 +41,6 @@ namespace   CONF {
 		static statusMap			m_ServerStatusMap;
 
 	private:
-		ServerBlock(const ServerBlock& other);
 		ServerBlock& operator=(const ServerBlock& other);
 
 		static void			initServerStatusMap();
@@ -55,6 +54,7 @@ namespace   CONF {
 	
 	public:
 		ServerBlock();
+		ServerBlock(const ServerBlock& other);
 		ServerBlock(const bool& autoIndex, const unsigned int& keepAliveTime, const std::string& root, const std::string& accessLog, const errorPageMap& errorPage, const Trie& index);
 		virtual ~ServerBlock();
 
