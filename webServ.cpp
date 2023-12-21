@@ -15,7 +15,12 @@ int main(int ac, char** av, char** env) {
 		std::cerr << "Error: wrong argument" << std::endl;
 		return (1);
 	}
-	MasterProcess::instance(std::string(av[1]), env);
+	try {
+		MasterProcess::instance(std::string(av[1]), env);
+	} catch (ConfParserException& e) {
+		std::cerr << e.getMessage() << std::endl;
+		return (0);
+	}
 	
 	// server initiate
 	// MasterProcess::instance("", NULL).start();

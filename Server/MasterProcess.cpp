@@ -15,7 +15,7 @@ MasterProcess::MasterProcess(const std::string& fileName, char** env) {
 	try {
 		CONF::ConfBlock::initInstance(fileName, env);
 	} catch (ConfParserException& e) {
-		std::cerr << e.getMessage() << std::endl;
+		throw (e);
 	} catch (std::exception& e) {
 		std::cerr << e.what() << std::endl;
 	}
@@ -41,10 +41,21 @@ void	MasterProcess::start() {
 	const confServerBlockVector&	mainServerBlocks = CONF::ConfBlock::getInstance()->getMainBlock().getHTTPBlock().getServerVector();
 	unsigned short		curPort = 0;
 
-	// TODO: 호스트네임이 각각의 port 블럭에서 중복되는 것이 있는지 확인,
-	//	실제 nginx에서도 만약 포트는 다른데 호스트가 동일한 경우 작동되는지 확인 필요!
 	for (std::size_t i(0); i < mainServerBlocks.size(); ++i) {
 		const ft::shared_ptr<Server>	tmp = findExistServer(mainServerBlocks[i].getIP(), mainServerBlocks[i].getPort());
-		(tmp.get()) ? tmp->insertServerBlock(mainServerBlocks[i]) : MasterProcess::m_Servers.push_back(ft::shared_ptr<Server>(::new Server(mainServerBlocks[i])));
+
+		try {
+			(tmp.get()) ? tmp->insertServerBlock(mainServerBlocks[i]) : MasterProcess::m_Servers.push_back(ft::shared_ptr<Server>(::new Server(mainServerBlocks[i])));
+		} catch (SOCK::SocketException& e) {
+			// TODO: error log 또는 terminal에 출력
+			std::cerr << e.getMessage() << std::endl;
+		} catch (std::exception& e) {
+			std::cerr << e.what() << std::endl;
+		}
+	}
+
+	if (m_Servers.empty()) {
+		// TODO: 서버 블록이 하나도 없을 때 예외처리
+		throw (std::runtime_error("Error: no server block"));
 	}
 }
