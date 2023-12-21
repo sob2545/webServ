@@ -16,7 +16,12 @@ namespace E_ABNF {
 
 namespace ABNF {
     bool	isLF(const std::string& file, const std::size_t& pos);
-    bool	isWSP(const std::string& file, std::size_t& pos);
+    bool	isWSP(const std::string& file, const std::size_t& pos);
     bool	isComment(const std::string& file, std::size_t& pos);
     bool	isC_nl(const std::string& file, std::size_t& pos);
+	bool	isCRLF(const std::string& file, const std::size_t& pos);
+	bool	isTCHAR(const std::string& file, const std::size_t& pos);
+
+	template <typename T>
+	void	compareOneCharacter(const std::string& inputURI, std::size_t& pos, const unsigned char& toCmp);
 }
