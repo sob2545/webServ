@@ -4,13 +4,11 @@ CXX			=	c++
 CXXFLAGS	=	-std=c++98
 RM			=	rm -rf
 
-SRCS		:= Utils/utilFunctions.cpp \
-				Parser/ABNF_utils/ABNFFunctions.cpp \
+SRCS		:= Parser/ABNF_utils/ABNFFunctions.cpp \
 				Parser/BNF_utils/BNFFunctions.cpp \
 				Parser/ConfParser/ConfData/ConfBlock.cpp \
 				Parser/URIParser/URIParser.cpp \
 				Parser/PathParser/PathParser.cpp \
-				Utils/utilFunctions.cpp \
 				Parser/URIParser/SchemeChecker/SchemeChecker.cpp \
 				Parser/ConfParser/AConfParser/Exception/ConfParserException.cpp \
 				Parser/ConfParser/AConfParser/AConfParser.cpp \
