@@ -15,7 +15,7 @@ private:
 	ServerSocket&	operator=(const ServerSocket& other);
 
 private:
-	uint32_t	convertIPv4Address(const std::string& IP);
+	uint32_t	IPv4toUL(const std::string& IP);
 
 public:
 	ServerSocket(const std::string& IP_Address, const unsigned short& port);
