@@ -2,7 +2,6 @@
 
 #include "../Parser/ConfParser/ConfData/ConfBlock.hpp"
 #include <cstddef>
-#include <iterator>
 
 typedef std::vector<CONF::ServerBlock> confServerBlockVector;
 

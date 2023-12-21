@@ -2,7 +2,6 @@
 
 #include "../../FileDescriptor/Socket/ServerSocket.hpp"
 #include "../../Parser/ConfParser/ConfData/ConfServerBlock.hpp"
-#include <type_traits>
 
 class Server {
 public:
