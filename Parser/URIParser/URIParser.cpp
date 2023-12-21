@@ -5,16 +5,6 @@
 #include <iostream>
 #include "../ConfParser/AConfParser/Exception/ConfParserException.hpp"
 
-template <typename T>
-void	compareOneCharacter(const std::string& inputURI, std::size_t& pos, const unsigned char& toCmp) {
-	const std::size_t&		URILength = inputURI.length();
-	const std::string	src(&inputURI[pos]);
-
-	if (pos >= URILength || inputURI[pos] != toCmp) {
-		throw T(inputURI.substr(pos, 1), "is not uri format");
-	}
-	pos++;
-}
 
 /**
  *			Query setter
@@ -225,8 +215,8 @@ bool	setPort(const std::string& inputURI, std::size_t& pos, unsigned short& port
 // hierPart에서 port를 설정하지 않음
 template <typename T>
 void	hierPart(const std::string& inputURI, std::size_t& pos, std::string& argument) {
-	compareOneCharacter<T>(inputURI, pos, BNF::E_RESERVED::SLASH);
-	compareOneCharacter<T>(inputURI, pos, BNF::E_RESERVED::SLASH);
+	ABNF::compareOneCharacter<T>(inputURI, pos, BNF::E_RESERVED::SLASH);
+	ABNF::compareOneCharacter<T>(inputURI, pos, BNF::E_RESERVED::SLASH);
 
 	argument += "//";
 	setHost<T>(inputURI, pos, argument);
@@ -290,7 +280,7 @@ bool	URIParser::errorPageParser(const std::string& inputURI, std::size_t& pos, s
 		argument.clear();
 		return false;
 	}
-	compareOneCharacter<T>(inputURI, pos, BNF::E_RESERVED::COLON);
+	ABNF::compareOneCharacter<T>(inputURI, pos, BNF::E_RESERVED::COLON);
 	argument += ":";
 	hierPart<T>(inputURI, pos, argument);
 	return true;
