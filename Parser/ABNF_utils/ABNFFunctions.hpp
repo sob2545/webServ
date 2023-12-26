@@ -14,6 +14,25 @@ namespace E_ABNF {
 	};
 }
 
+namespace E_HTTP {
+	enum E_TCHAR {
+		EXCLAMATION = '!',
+		HASH = '#',
+		DOLLAR = '$',
+		PERCENT = '%',
+		AMPERSAND = '&',
+		SINGLE_QUOTE = '\'',
+		ASTERISK = '*',
+		PLUS = '+',
+		MINUS = '-',
+		DOT = '.',
+		CARET = '^',
+		BACK_QUOTE = '`',
+		VERTICAL_BAR = '|',
+		TILDE = '~'
+	};
+}
+
 namespace ABNF {
     bool	isLF(const std::string& file, const std::size_t& pos);
     bool	isWSP(const std::string& file, const std::size_t& pos);

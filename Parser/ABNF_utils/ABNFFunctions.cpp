@@ -3,11 +3,23 @@
 
 bool	ABNF::isTCHAR(const std::string& file, const std::size_t& pos) {
 	switch (file[pos]) {
-		// TODO: add delimeters
-		case ():
+		case (E_HTTP::EXCLAMATION):
+		case (E_HTTP::HASH):
+		case (E_HTTP::DOLLAR):
+		case (E_HTTP::PERCENT):
+		case (E_HTTP::AMPERSAND):
+		case (E_HTTP::SINGLE_QUOTE):
+		case (E_HTTP::ASTERISK):
+		case (E_HTTP::PLUS):
+		case (E_HTTP::MINUS):
+		case (E_HTTP::DOT):
+		case (E_HTTP::CARET):
+		case (E_HTTP::BACK_QUOTE):
+		case (E_HTTP::VERTICAL_BAR):
+		case (E_HTTP::TILDE):
 			return true;
 	}
-	return (std::isalnum(static_cast<int>(file[pos])))
+	return (std::isalnum(static_cast<int>(file[pos])));
 }
 
 
