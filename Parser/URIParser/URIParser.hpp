@@ -6,24 +6,9 @@
 #include <vector>
 #include <map>
 
-namespace URI {
-	
-
-	typedef	std::map<std::string, std::vector<std::string> > QueryMap;
-	// typedef	std::vector<std::string>	PathVec;
-
-	// TODO: absPath data should be string or string vector?
-	struct data {
-		unsigned short	port;
-		std::string     host;
-		std::string		fragment;
-		std::string		absPath;
-		QueryMap		query;
-	};
-}
-
-
 namespace URIParser {
+	typedef	std::map<std::string, std::vector<std::string> >	QueryMap;
+
 	template <typename T>
 	bool	hostnameParser(const std::string& inputURI, std::size_t& pos, std::string& argument, unsigned short& port);
 
@@ -32,5 +17,8 @@ namespace URIParser {
 
 	template <typename T>
 	bool	errorPageParser(const std::string& inputURI, std::size_t& pos, std::string& argument);
+
+	template <typename T>
+	bool	RequestOriginFormParser(const std::string& inputURI, std::size_t& pos, std::string& path, URIParser::QueryMap& queryVal);
 }
 

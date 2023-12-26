@@ -2,14 +2,15 @@
 #include "SchemeChecker/SchemeChecker.hpp"
 #include <string>
 
-#include <iostream>
 #include "../ConfParser/AConfParser/Exception/ConfParserException.hpp"
+#include "../HTTPMessageParser/HTTPException/HTTPRequestParsingException.hpp"
+
 
 
 /**
  *			Query setter
 */
-void	query(const std::string& inputURI, std::size_t& pos, URI::QueryMap& query) {
+void	Query(const std::string& inputURI, std::size_t& pos, URIParser::QueryMap& query) {
 	if (pos < inputURI.size() && inputURI.at(pos) == BNF::E_RESERVED::QUESTION_MARK) {
 		pos++;
 	}
@@ -215,8 +216,8 @@ bool	setPort(const std::string& inputURI, std::size_t& pos, unsigned short& port
 // hierPart에서 port를 설정하지 않음
 template <typename T>
 void	hierPart(const std::string& inputURI, std::size_t& pos, std::string& argument) {
-	ABNF::compareOneCharacter<T>(inputURI, pos, BNF::E_RESERVED::SLASH);
-	ABNF::compareOneCharacter<T>(inputURI, pos, BNF::E_RESERVED::SLASH);
+	ABNF::compareOneCharacter(inputURI, pos, BNF::E_RESERVED::SLASH) ? 0 : throw T(inputURI, "is invalid URI format!");
+	ABNF::compareOneCharacter(inputURI, pos, BNF::E_RESERVED::SLASH) ? 0 : throw T(inputURI, "is invalid URI format!");
 
 	argument += "//";
 	setHost<T>(inputURI, pos, argument);
@@ -280,13 +281,21 @@ bool	URIParser::errorPageParser(const std::string& inputURI, std::size_t& pos, s
 		argument.clear();
 		return false;
 	}
-	ABNF::compareOneCharacter<T>(inputURI, pos, BNF::E_RESERVED::COLON);
+	ABNF::compareOneCharacter(inputURI, pos, BNF::E_RESERVED::COLON) ? 0 : throw T(inputURI, "is invalid URI format!");
 	argument += ":";
 	hierPart<T>(inputURI, pos, argument);
 	return true;
+}
+
+template <typename T>
+bool	URIParser::RequestOriginFormParser(const std::string& inputURI, std::size_t& pos, std::string& path, URIParser::QueryMap& queryVal) {
+	PathParser::File_AbsolutePath<T>(inputURI, pos, path);
+	Query(inputURI, pos, queryVal);
 }
 
 
 template bool	URIParser::hostnameParser<ConfParserException>(const std::string&, std::size_t&, std::string&, unsigned short&);
 template bool	URIParser::IPv4Parser<ConfParserException>(const std::string&, std::size_t&, std::string&, unsigned short&);
 template bool	URIParser::errorPageParser<ConfParserException>(const std::string&, std::size_t&, std::string&);
+
+template bool	URIParser::RequestOriginFormParser<HTTPRequestParsingException>(const std::string&, std::size_t&, std::string&, URIParser::QueryMap&);
