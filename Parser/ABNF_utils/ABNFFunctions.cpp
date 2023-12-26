@@ -62,13 +62,13 @@ bool	ABNF::isCRLF(const std::string& file, const std::size_t& pos) {
 	return ((pos < file.length()) && file[pos] == E_ABNF::CR && file[pos + 1] == E_ABNF::LF);
 }
 
-template <typename T>
-void	ABNF::compareOneCharacter(const std::string& inputURI, std::size_t& pos, const unsigned char& toCmp) {
+bool	ABNF::compareOneCharacter(const std::string& inputURI, std::size_t& pos, const unsigned char& toCmp) {
 	const std::size_t&		URILength = inputURI.length();
 	const std::string		src(&inputURI[pos]);
 
 	if (pos >= URILength || inputURI[pos] != toCmp) {
-		throw T(inputURI.substr(pos, 1), "is not uri format");
+		return false;
 	}
 	pos++;
+	return true;
 }

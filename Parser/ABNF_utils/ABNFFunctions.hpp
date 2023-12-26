@@ -40,7 +40,5 @@ namespace ABNF {
     bool	isC_nl(const std::string& file, std::size_t& pos);
 	bool	isCRLF(const std::string& file, const std::size_t& pos);
 	bool	isTCHAR(const std::string& file, const std::size_t& pos);
-
-	template <typename T>
-	void	compareOneCharacter(const std::string& inputURI, std::size_t& pos, const unsigned char& toCmp);
+	bool	compareOneCharacter(const std::string& inputURI, std::size_t& pos, const unsigned char& toCmp);
 }
