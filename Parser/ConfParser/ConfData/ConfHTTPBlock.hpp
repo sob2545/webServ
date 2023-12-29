@@ -32,7 +32,7 @@ namespace   CONF {
 
 	private:
 		typedef std::map<std::string, unsigned short>				statusMap;
-		typedef std::map<std::string, std::vector<std::string> >	TypeMap ;
+		typedef std::map<std::string, std::vector<std::string> >	TypeMap;
 		typedef std::map<unsigned short, errorPageData>				errorPageMap;
 
 		bool									m_Autoindex;
