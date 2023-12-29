@@ -291,6 +291,13 @@ template <typename T>
 bool	URIParser::RequestOriginFormParser(const std::string& inputURI, std::size_t& pos, std::string& path, URIParser::QueryMap& queryVal) {
 	PathParser::File_AbsolutePath<T>(inputURI, pos, path);
 	Query(inputURI, pos, queryVal);
+	return (true);
+}
+
+template <typename T>
+void	URIParser::HTTPMessageParser(const std::string& inputURI, std::size_t& pos, std::string& path, unsigned short& port) {
+	setHost<T>(inputURI, pos, path);
+	setPort<T>(inputURI, pos, port);
 }
 
 
@@ -298,4 +305,5 @@ template bool	URIParser::hostnameParser<ConfParserException>(const std::string&,
 template bool	URIParser::IPv4Parser<ConfParserException>(const std::string&, std::size_t&, std::string&, unsigned short&);
 template bool	URIParser::errorPageParser<ConfParserException>(const std::string&, std::size_t&, std::string&);
 
+template void	URIParser::HTTPMessageParser<HTTPRequestParsingException>(const std::string&, std::size_t&, std::string&, unsigned short&);
 template bool	URIParser::RequestOriginFormParser<HTTPRequestParsingException>(const std::string&, std::size_t&, std::string&, URIParser::QueryMap&);

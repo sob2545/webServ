@@ -19,6 +19,9 @@ namespace URIParser {
 	bool	errorPageParser(const std::string& inputURI, std::size_t& pos, std::string& argument);
 
 	template <typename T>
+	void	HTTPMessageParser(const std::string& inputURI, std::size_t& pos, std::string& path, unsigned short& port);
+
+	template <typename T>
 	bool	RequestOriginFormParser(const std::string& inputURI, std::size_t& pos, std::string& path, URIParser::QueryMap& queryVal);
 }
 
