@@ -37,27 +37,34 @@ namespace HTTP {
 		static bool		isDuplicatable(const unsigned short& status);
 	
 	private:
-		static void				skipWSP(const std::string& message, std::size_t& pos);
-		static void				token(const std::string& message, std::size_t& pos, std::string& argument);
+		// HTTP Util Parser
+		static void					skipWSP(const std::string& message, std::size_t& pos);
+		static void					token(const std::string& message, std::size_t& pos, std::string& argument);
 
-		static const std::string	fieldContent(const std::string& message, std::size_t& pos);
+		// HTTP Header Parser
+		static bool					argumentChecker(HTTP::ResponseRecipe& recipe, const std::vector<std::string>& args, const unsigned short& status);
+		static const std::string	fieldContent(const std::string& message, std::size_t& pos, const unsigned short& status);
 		static unsigned short		fieldName(const std::string& message, std::size_t& pos);
-		static void					fieldValue(const std::string& message, std::size_t& pos, std::vector<std::string>& args);
+		static void					fieldValue(const std::string& message, std::size_t& pos, std::vector<std::string>& args, const unsigned short& status);
 		static void					fieldLine(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos, bool& checkBit);
+
+		// HTTP Method, Version parsre
 		static void					HTTPVersion(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
 		static void					method(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
 
+		// HTTP Request Target Parser
 		// add Absolute-form / Authority-form
 		static bool					OriginForm(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
 		static void					requestTarget(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
 		static void					requestLine(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
 
+		// HTTP Body Parser
 		static void					messageBody(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
 
 	public:
 		RequestMessageParser();
 		~RequestMessageParser();
 
-		static HTTP::ResponseRecipe	Parser(const std::string& HTTPMessage);		
+		static HTTP::ResponseRecipe	Parser(const std::string& HTTPMessage);
 	};
 }

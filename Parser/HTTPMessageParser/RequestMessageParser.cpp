@@ -1,4 +1,11 @@
 #include "RequestMessageParser.hpp"
+#include "HTTPException/BadRequestException.hpp"
+#include "HTTPException/HTTPRequestParsingException.hpp"
+#include "ResponseRecipe.hpp"
+#include "../../Server/MasterProcess.hpp"
+#include <cstddef>
+#include <string>
+#include <utility>
 
 HTTP::RequestMessageParser::MethodMap	HTTP::RequestMessageParser::m_MethodMap;
 HTTP::RequestMessageParser::HeaderMap	HTTP::RequestMessageParser::m_HeaderMap;
@@ -11,28 +18,30 @@ HTTP::RequestMessageParser::RequestMessageParser() {
 HTTP::RequestMessageParser::~RequestMessageParser() {}
 
 void	HTTP::RequestMessageParser::initMethodMap() {
-	m_MethodMap["GET"] = 0b00000001;
-	m_MethodMap["POST"] = 0b00000010;
-	m_MethodMap["DELETE"] = 0b00000100;
-	m_MethodMap["PUT"] = 0b00001000;
-	m_MethodMap["PATCH"] = 0b00010000;
-	m_MethodMap["OPTIONS"] = 0b00100000;
+	m_MethodMap["GET"] = E_HTTP::E_METHOD::GET;
+	m_MethodMap["POST"] = E_HTTP::E_METHOD::POST;
+	m_MethodMap["DELETE"] = E_HTTP::E_METHOD::DELETE;
+	m_MethodMap["PUT"] = E_HTTP::E_METHOD::PUT;
+	m_MethodMap["PATCH"] = E_HTTP::E_METHOD::PATCH;
+	m_MethodMap["OPTIONS"] = E_HTTP::E_METHOD::OPTIONS;
 }
 
 void	HTTP::RequestMessageParser::initHeaderMap() {
-	m_HeaderMap["Connection"] = 0b00000001;
-	m_HeaderMap["Date"] = 0b00000010;
-	m_HeaderMap["Transfer-Encoding"] = 0b00000100;
-	m_HeaderMap["Host"] = 0b00001000;
-	m_HeaderMap["Content-Lengths"] = 0b00010000;
-	m_HeaderMap["Content-Type"] = 0b00100000;
-	m_HeaderMap["Cookie"] = 0b01000000; 
+	m_HeaderMap["Connection"] = E_HTTP::E_HEADER::CONNECTION;
+	m_HeaderMap["Date"] = E_HTTP::E_HEADER::DATE;
+	m_HeaderMap["Transfer-Encoding"] = E_HTTP::E_HEADER::TRANSFER_ENCODING;
+	m_HeaderMap["Host"] = E_HTTP::E_HEADER::HOST;
+	m_HeaderMap["Content-Lengths"] = E_HTTP::E_HEADER::CONTENT_LENGTHS;
+	m_HeaderMap["Content-Type"] = E_HTTP::E_HEADER::CONTENT_TYPE;
+	m_HeaderMap["Cookie"] = E_HTTP::E_HEADER::COOKIE;
 }
 
 bool	HTTP::RequestMessageParser::isDuplicatable(const unsigned short& status) {
 	switch (status) {
-		case (DATE):
-		case (TRANSFER_ENCODING):
+		case (E_HTTP::E_HEADER::CONNECTION):
+		case (E_HTTP::E_HEADER::DATE):
+		case (E_HTTP::E_HEADER::TRANSFER_ENCODING):
+		case (E_HTTP::E_HEADER::COOKIE):
 			return true;
 	}
 	return false;
@@ -58,32 +67,122 @@ void	HTTP::RequestMessageParser::token(const std::string& message, std::size_t& 
 	}
 }
 
+bool	HTTP::RequestMessageParser::argumentChecker(HTTP::ResponseRecipe& recipe, const std::vector<std::string>& args, const unsigned short& status) {
+	(args.empty()) ? throw BadRequestException() : 0;
 
-// TODO: Accept, Transfer-Encoding과 같은 헤더는 ','가 구분자이다.
-// Cookie는 ';'가 구분자이다.
-// 1. 구분자를 파싱(string으로 만드는 단계)에서 구분 후 argumentChecker에서는 유효성 검사만 할지 (status code를 넘겨서 확인)
-// 2. 파싱에서는 문법에 상관없이 일단 OWS(White Space)로 구분만 한 다음 argumentChecker에서 구분 후 처리할지
-//
-// 1번의 경우 `arg1, arg2 arg3, ` 이런 요류를 잡기 힘듬 (추가적인 변수로 유효성에 대한 내용 저장 필요)
-// 2번의 경우 순회하는 과정이 많아짐
+	switch (status) {
+		case (E_HTTP::E_HEADER::CONNECTION): {
+			for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it) {
+				std::map<unsigned short, void*>::iterator connectionStatus = recipe.m_HeaderMap.find((status));
+
+				if (*it == "close") {
+					if (connectionStatus != recipe.m_HeaderMap.end() && connectionStatus->second) {
+						continue;
+					} else if (connectionStatus != recipe.m_HeaderMap.end() && !connectionStatus->second) {
+						*reinterpret_cast<bool*>(connectionStatus->second) = true;
+					} else {
+						recipe.m_HeaderMap.insert(std::make_pair(status, static_cast<void*>(::new bool(true))));
+					}
+				} else if (*it == "keep-alive") {
+					if (connectionStatus != recipe.m_HeaderMap.end()) {
+						continue;
+					}
+					recipe.m_HeaderMap.insert(std::make_pair(status, static_cast<void*>(::new bool(false))));
+				} else {
+					throw BadRequestException();
+				}
+			}
+		}
+		case (E_HTTP::E_HEADER::DATE): {
+			// DateParser();
+		}
+		case (E_HTTP::E_HEADER::TRANSFER_ENCODING): {
+			for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it) {
+				std::map<unsigned short, void*>::iterator encodingStatus = recipe.m_HeaderMap.find((status));
+
+				if (encodingStatus != recipe.m_HeaderMap.end()) {
+					(!encodingStatus->second) ? (*reinterpret_cast<bool*>(encodingStatus->second) = true) : 0;
+				} else {
+					recipe.m_HeaderMap.insert(std::make_pair(status, (static_cast<void*>(::new bool((*it == "chunked") ? true : false)))));
+				}
+			}
+		}
+		case (E_HTTP::E_HEADER::HOST): {
+			recipe.m_HeaderMap.insert(std::make_pair(status, static_cast<void*>(::new std::string(args[0]))));
+		}
+		case (E_HTTP::E_HEADER::CONTENT_LENGTHS): {
+			(args.size() != 1) ? throw BadRequestException() : 0;
+			char*	endptr;
+			const long		length = strtol(args[0].c_str(), &endptr, 10);
+			(length <= 0) ? throw BadRequestException() : 0;
+			recipe.m_HeaderMap.insert(std::make_pair(status, static_cast<void*>(::new int(length))));
+		}
+		case (E_HTTP::E_HEADER::CONTENT_TYPE): {
+			(args.size() != 1) ? throw BadRequestException() : 0;
+			MasterProcess::getMIMETypes().find(args[0]) != MasterProcess::getMIMETypes().end() ?
+				recipe.m_HeaderMap.insert(std::make_pair(status, static_cast<void*>(::new std::string(args[0])))) : throw BadRequestException();
+		}
+		case (E_HTTP::E_HEADER::COOKIE): {
+			if (recipe.m_HeaderMap.find(status) == recipe.m_HeaderMap.end()) {
+				recipe.m_HeaderMap.insert(std::make_pair(status, static_cast<void*>(::new std::map<std::string, std::string>)));
+			}
+			std::map<std::string, std::string>*	cookieMap = static_cast<std::map<std::string, std::string>* >(recipe.m_HeaderMap.find(status)->second);
+			for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it) {
+				const std::size_t	pos = it->find("=");
+				pos == std::string::npos ? throw BadRequestException() : 0;
+				const std::string	key = it->substr(0, pos - 1);
+				const std::string	val = it->substr(pos + 1, it->length());
+				cookieMap->insert(std::make_pair(key, val));
+			}
+		}
+	}
+	// 정의된 헤더가 아니면 그냥 skip한다
+	return (false);
+}
+
 
 /**
  *		Field Line (Header Part)
- *		Header의 내용들을 정의해둬서 argument, argumentChekcer와 같이 운용
 */
-const std::string	HTTP::RequestMessageParser::fieldContent(const std::string& message, std::size_t& pos) {
-	const std::size_t&	msgSize = message.size();
+const std::string	HTTP::RequestMessageParser::fieldContent(const std::string& message, std::size_t& pos, const unsigned short& status) {
+	const std::size_t&	msgSize(message.size());
 	std::string		arg;
+	const char		delimiter = (status & E_HTTP::E_HEADER::TRANSFER_ENCODING || status & E_HTTP::E_HEADER::CONNECTION) ?
+								E_HTTP::E_DELIMETER::COMMA : ((status & E_HTTP::E_HEADER::COOKIE) ?
+																E_HTTP::E_DELIMETER::SEMICOLON : E_HTTP::E_DELIMETER::DEFAULT);
 
+	while (pos < msgSize && ABNF::isWSP(message, pos)) {
+		pos++;
+	}
 	while (pos < msgSize && std::isprint(static_cast<int>(message[pos]))) {
+		if (message[pos] == delimiter) {
+			pos += 2;
+			break ;
+		}
 		arg += std::tolower(static_cast<int>(message[pos]));
+		pos++;
 	}
 	return arg;
 }
 
-void	HTTP::RequestMessageParser::fieldValue(const std::string& message, std::size_t& pos, std::vector<std::string>& args) {
+void	HTTP::RequestMessageParser::fieldValue(const std::string& message, std::size_t& pos, std::vector<std::string>& args, const unsigned short& status) {
+	if (status & E_HTTP::E_HEADER::HOST) {
+		std::string		arg;
+		unsigned short	port;
+		try {
+			URIParser::HTTPMessageParser<HTTPRequestParsingException>(message, pos, arg, port);
+		} catch (HTTPRequestParsingException& e) {
+			throw BadRequestException();
+		}
+		static_cast<void>(port);
+		args.push_back(arg);
+		return ;
+	}
 	while (!ABNF::isCRLF(message, pos)) {
-		args.push_back(fieldContent(message, pos));
+		const std::string	arg = fieldContent(message, pos, status);
+		if (!arg.empty()) {
+			args.push_back(arg);
+		}
 	}
 }
 
@@ -106,12 +205,14 @@ void	HTTP::RequestMessageParser::fieldLine(HTTP::ResponseRecipe& recipe, const s
 	checkBit |= true;
 
 	const unsigned short	fieldStatus(fieldName(message, pos));
+	(!isDuplicatable(fieldStatus) && recipe.m_Status & fieldStatus) ? throw BadRequestException() : 0;
 	ABNF::compareOneCharacter(message, pos, BNF::E_RESERVED::COLON) ? 0 : throw BadRequestException();
 
 	std::vector<std::string>	args;
 	skipWSP(message, pos);
-	fieldValue(message, pos, args);
+	fieldValue(message, pos, args, fieldStatus);
 	skipWSP(message, pos);
+	argumentChecker(recipe, args, fieldStatus);
 }
 
 
@@ -190,7 +291,10 @@ void	HTTP::RequestMessageParser::requestLine(HTTP::ResponseRecipe& recipe, const
 
 
 void	HTTP::RequestMessageParser::messageBody(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos) {
-	// TODO: implement
+	const std::map<unsigned short, void*>::const_iterator	it = recipe.m_HeaderMap.find(E_HTTP::E_HEADER::CONTENT_LENGTHS);
+	if (it == recipe.m_HeaderMap.end()) {
+		return ;
+	}
 }
 
 /**
