@@ -6,10 +6,12 @@
 
 class MasterProcess : public Singleton<MasterProcess> {
 public:
-	typedef std::vector<ft::shared_ptr<Server> >	mainServerVector;
+	typedef std::vector<ft::shared_ptr<Server> >				mainServerVector;
+	typedef std::map<std::string, std::vector<std::string> >	TypeMap;
 
 private:
-	static mainServerVector	m_Servers;
+	static	mainServerVector	m_Servers;
+	static	TypeMap				m_MIMETypes;
 
 	MasterProcess(const MasterProcess& other);
 	MasterProcess& operator=(const MasterProcess& other);
@@ -21,6 +23,6 @@ public:
 	MasterProcess(const std::string& fileName, char** env);
 	~MasterProcess();
 
-
 	static void	start();
+	static const TypeMap&	getMIMETypes();
 };

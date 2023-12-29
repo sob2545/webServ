@@ -7,6 +7,8 @@ typedef std::vector<CONF::ServerBlock> confServerBlockVector;
 
 MasterProcess::mainServerVector	MasterProcess::m_Servers;
 
+MasterProcess::TypeMap	MasterProcess::m_MIMETypes;
+
 // TODO: delete
 #include <iostream>
 
@@ -15,9 +17,8 @@ MasterProcess::MasterProcess(const std::string& fileName, char** env) {
 		CONF::ConfBlock::initInstance(fileName, env);
 	} catch (ConfParserException& e) {
 		throw (e);
-	} catch (std::exception& e) {
-		std::cerr << e.what() << std::endl;
 	}
+	m_MIMETypes = CONF::ConfBlock::getInstance()->getMainBlock().getHTTPBlock().getMime_types();
 }
 
 MasterProcess::~MasterProcess() {
@@ -57,4 +58,8 @@ void	MasterProcess::start() {
 		// TODO: 서버 블록이 하나도 없을 때 예외처리
 		throw (std::runtime_error("Error: no server block"));
 	}
+}
+
+const MasterProcess::TypeMap&	MasterProcess::getMIMETypes() {
+	return m_MIMETypes;
 }
