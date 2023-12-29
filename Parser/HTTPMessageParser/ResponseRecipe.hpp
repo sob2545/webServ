@@ -1,8 +1,35 @@
 #pragma once
 
+#include "../../Utils/SmartPointer.hpp"
 #include <string>
 #include <map>
 
+namespace E_HTTP {
+	enum	E_HEADER {
+		CONNECTION			= 0b1,
+		DATE				= 0b10,
+		TRANSFER_ENCODING	= 0b100,
+		HOST				= 0b1000,
+		CONTENT_LENGTHS		= 0b10000,
+		CONTENT_TYPE		= 0b100000,
+		COOKIE				= 0b1000000,
+	};
+
+	enum	E_METHOD {
+		GET					= 0b1,
+		POST				= 0b10,
+		DELETE				= 0b100,
+		PUT					= 0b1000,
+		PATCH				= 0b10000,
+		OPTIONS				= 0b100000,
+	};
+
+	enum	E_DELIMETER {
+		COMMA				= ',',
+		SEMICOLON			= ';',
+		DEFAULT				= ' ',
+	};
+}
 
 namespace HTTP {
 /**
@@ -44,16 +71,6 @@ namespace HTTP {
  *	10000000 00000000	
 */
 
-	enum	E_HEADER {
-		CONNECTION			= 0b1,
-		DATE				= 0b10,
-		TRANSFER_ENCODING	= 0b100,
-		HOST				= 0b1000,
-		CONTENT_LENGTHS		= 0b10000,
-		CONTENT_TYPE		= 0b100000,
-		COOKIE				= 0b1000000,
-	};
-
 	struct	RequestData {
 		typedef std::map<std::string, std::vector<std::string> > QueryMap;
 
@@ -67,21 +84,18 @@ namespace HTTP {
 	struct	ResponseRecipe {
 		typedef	std::map<std::string, std::string> CookieMap;
 
-		bool			isChunk;
-		unsigned char	m_Method;
-		unsigned char	m_Status;
-		unsigned char	m_Version;
-		unsigned short	m_Headers;
-		unsigned int	m_ContentLength;
-
-		std::string		m_Host;
-		std::string		m_ContentType;
+		unsigned char					m_Method;
+		unsigned char					m_Status;
+		unsigned char					m_Version;
 
 		// bool			m_Form; // is it URI or Path : origin-form vs absolute-form / authoirty-form
-		std::string		m_RequestTarget;
+		std::string						m_RequestTarget;
 
-		std::vector<unsigned char>	m_BodyMessage();
-		CookieMap					m_Cookie;
-		RequestData					m_RequestData;
+		std::vector<unsigned char>		m_BodyMessage();
+		std::map<unsigned short, void*>	m_HeaderMap;
+		CookieMap						m_Cookie;
+		RequestData						m_RequestData;
+
+		~ResponseRecipe();
 	};
 }
