@@ -1,10 +1,6 @@
 #include "ServerSocket.hpp"
 #include "Exception/SocketException.hpp"
 
-//TODO: delete
-#include <_types/_uint32_t.h>
-#include <iostream>
-
 ServerSocket::ServerSocket(const std::string& IP_Address, const unsigned short& port)
  : FileDescriptor(0)
 {
@@ -19,7 +15,6 @@ ServerSocket::ServerSocket(const std::string& IP_Address, const unsigned short& 
 	}
 
 	if (bind(m_Fd, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) == -1) {
-		std::cerr << "bind() failed: " << strerror(errno) << std::endl;
 		throw SOCK::SocketException("bind() failed");
 	}
 
