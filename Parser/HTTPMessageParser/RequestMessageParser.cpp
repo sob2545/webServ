@@ -5,7 +5,6 @@
 #include "../../Server/MasterProcess.hpp"
 #include <cstddef>
 #include <string>
-#include <utility>
 
 HTTP::RequestMessageParser::MethodMap	HTTP::RequestMessageParser::m_MethodMap;
 HTTP::RequestMessageParser::HeaderMap	HTTP::RequestMessageParser::m_HeaderMap;
@@ -108,6 +107,7 @@ bool	HTTP::RequestMessageParser::argumentChecker(HTTP::ResponseRecipe& recipe, c
 			}
 		}
 		case (E_HTTP::E_HEADER::HOST): {
+			// argument길이가 최대 몇 자 넘어가면 exception
 			recipe.m_HeaderMap.insert(std::make_pair(status, static_cast<void*>(::new std::string(args[0]))));
 		}
 		case (E_HTTP::E_HEADER::CONTENT_LENGTHS): {
@@ -289,7 +289,19 @@ void	HTTP::RequestMessageParser::requestLine(HTTP::ResponseRecipe& recipe, const
 }
 
 
+/**
+ *		Body를 처리하는 함수
+ *		content-length만큼 body를 읽는다.
 
+ *		문제
+ *		1. content-length보다 body사이즈가 작을 때	=> 추가로 데이터가 들어올 때까지 대기
+ *		2. content-length보다 body사이즈가 클 때	=> 뒤에 데이터 버림
+ *		3. content-length가 없는데 body는 있는 경우 (POST 등) => 아직 모름
+ *		4. chunekd로 들어온 경우 => chunekd 전용 함수 만들어서 처리 (status로 비교가능)
+ 
+ *		클라이언트 request -> Parser() 호출
+ *		이전에 만들어놓은 recipe가 존재하는지 -> 존재하면 body만 파싱 (chunked 또는 content-length가 body보다 큰 경우)
+*/
 void	HTTP::RequestMessageParser::messageBody(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos) {
 	const std::map<unsigned short, void*>::const_iterator	it = recipe.m_HeaderMap.find(E_HTTP::E_HEADER::CONTENT_LENGTHS);
 	if (it == recipe.m_HeaderMap.end()) {
@@ -300,11 +312,11 @@ void	HTTP::RequestMessageParser::messageBody(HTTP::ResponseRecipe& recipe, const
 /**
  *		Main Parser
 */
-HTTP::ResponseRecipe	HTTP::RequestMessageParser::Parser(const std::string &message) {
-	HTTP::ResponseRecipe	recipe;
+HTTP::ResponseRecipe	HTTP::RequestMessageParser::Parser(HTTP::ResponseRecipe& recipe, const std::string &message) {
 	std::size_t				pos(0);
 	bool					checkBit(false);
 
+	// 만약 이전에 recipe를 만들었으면 (status로 비교)
 	try {
 		requestLine(recipe, message, pos);
 		while (pos < message.length() && ABNF::isCRLF(message, pos)) {

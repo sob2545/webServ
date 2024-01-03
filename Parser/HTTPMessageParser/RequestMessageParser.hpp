@@ -65,6 +65,6 @@ namespace HTTP {
 		RequestMessageParser();
 		~RequestMessageParser();
 
-		static HTTP::ResponseRecipe	Parser(const std::string& HTTPMessage);
+		static HTTP::ResponseRecipe	Parser(HTTP::ResponseRecipe& recipe, const std::string& HTTPMessage);
 	};
 }
