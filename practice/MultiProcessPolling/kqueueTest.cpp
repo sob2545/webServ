@@ -13,6 +13,7 @@
 #include <sstream>
 #include <semaphore.h>
 #include <pthread.h>
+#include <vector>
 
 
 
@@ -22,6 +23,8 @@ int	main() {
 		std::cerr << "sem failed\n";
 		exit(EXIT_FAILURE);
 	}
+
+	std::vector<int>	clientList;
 
 	int	fd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -115,7 +118,8 @@ int	main() {
 
 							if (sem_trywait(sem) == 0) {
 								clientFd = accept(fd, (struct sockaddr*)&clientAddr, (socklen_t*)&clientAddr);
-								printf("accept: %d\n", getpid());
+								printf("accept: client[%d] %d\n", clientFd, getpid());
+								clientList.push_back(clientFd);
 								sem_post(sem);
 							} else {
 								if (errno == EAGAIN) {
@@ -151,7 +155,8 @@ int	main() {
 
 							if (sem_trywait(sem) == 0) {
 								clientFd = accept(fd2, (struct sockaddr*)&clientAddr, (socklen_t*)&clientAddr);
-								printf("accept: %d\n", getpid());
+								printf("accept: client[%d] %d\n", clientFd, getpid());
+								clientList.push_back(clientFd);
 								sem_post(sem);
 							} else {
 								if (errno == EAGAIN) {
@@ -169,7 +174,7 @@ int	main() {
 							}
 
 							struct kevent newEvent;
-							EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+							EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 
 							if (kevent(kq, &newEvent, 1, NULL, 0, NULL) < 0) {
 								std::cerr << "kevent add fail" << std::endl;
@@ -177,8 +182,7 @@ int	main() {
 								continue;
 							}
 							
-						}
-						else {
+						} else {
 							int clientFd = events[i].ident;
 							char	data[4096];
 							bzero(&data, sizeof(data));
@@ -188,10 +192,42 @@ int	main() {
 							if (len == 0) {
 								std::cout << "client disconnect" << std::endl;
 								close(clientFd);
+							} else {
+								std::cout << "[" << getpid() << "]process [" << events[i].ident << "] data is: " << data << std::endl;
+
+								for (int k(0); k < clientList.size(); ++k) {
+									if (clientFd == clientList[k]) {
+										struct kevent	newEvent;
+										EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+										if (kevent(kq, &newEvent, 1, NULL, 0, NULL) < 0) {
+											std::cerr << "kevent add fail3\n";
+											close(clientFd);
+										}
+										continue ;
+									}
+									std::string*	writeData = ::new std::string(data);
+									struct kevent	newEvent;
+									EV_SET(&newEvent, clientList[k], EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, writeData);
+									if (kevent(kq, &newEvent, 1, NULL, 0, NULL) < 0) {
+										std::cerr << "kevent add fail3\n";
+										for (int clientFds(0); clientFds < clientList.size(); ++clientFds) {
+											close(clientFds);
+										}
+										::delete writeData;
+										break;
+									}
+								}
 							}
-							else {
-								std::cout << getpid() << " data is: " << data << std::endl;
-							}
+						}					
+					} else if (events[i].filter == EVFILT_WRITE) {
+						std::string*	writeData = static_cast<std::string*>(events[i].udata);
+						write(events[i].ident, writeData->c_str(), writeData->size());
+						::delete writeData;
+						struct kevent	newEvent;
+						EV_SET(&newEvent, events[i].ident, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+						if (kevent(kq, &newEvent, 1, NULL, 0, NULL) < 0) {
+							std::cerr << "kevent add fail4\n";
+							close(events[i].ident);
 						}
 					}
 				}
