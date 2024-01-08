@@ -87,36 +87,29 @@ int	main() {
 				close(fd);
 				return (0);
 			}
-			struct kevent	changes[2];
+			std::vector<struct kevent>	changes(2);
+
 			EV_SET(&changes[0], fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 			EV_SET(&changes[1], fd2, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 
-			if (kevent(kq, changes, 2, NULL, 0, NULL) < 0) {
-				std::cerr << "kevent fail" << std::endl;
-				close(fd);
-				close(fd2);
-				close(kq);
-				return (0);
-			}
 
 			while (1) {
-				// struct kevent	events[1024];
-				std::vector<struct kevent>	events(1);
-				// events.reserve(1024);
-				std::cout << getpid() << ": before: " << events.size() << " " << events.capacity() << std::endl;
-				int	nev = kevent(kq, NULL, 0, &events[0], 1024, NULL);
+				struct kevent	events[1024];
+				std::vector<struct kevent>	newEvents;
+				int	nev = kevent(kq, &changes[0], changes.size(), &events[0], 1024, NULL);
+				for (int nEvents(0); nEvents < nev; ++nEvents) {
+					newEvents.push_back(events[nEvents]);
+				}
+				changes.clear();
 				std::cout << nev << std::endl;
-				std::cout << getpid() << ": after: " << events.size() << " " << events.capacity() << std::endl;
-				events.shrink_to_fit();
-				std::cout << "shrink\n";
 				if (nev < 0) {
 					std::cerr << "kevent error" << std::endl;
 					return (0);
 				}
 
 				for (int i(0); i < nev; ++i) {
-					const int	eventFd = events[i].ident;
-					if (events[i].filter == EVFILT_READ) {
+					const int	eventFd = newEvents[i].ident;
+					if (newEvents[i].filter == EVFILT_READ) {
 
 						if (eventFd == fd) {
 							struct sockaddr_in	clientAddr;
@@ -124,7 +117,8 @@ int	main() {
 							int	clientFd;
 
 							if (sem_trywait(sem) == 0) {
-								clientFd = accept(fd, (struct sockaddr*)&clientAddr, (socklen_t*)&clientAddr);
+								std::cout << errno << std::endl;
+								clientFd = accept(fd, (struct sockaddr*)&clientAddr, (socklen_t*)&clientLen);
 								printf("accept: client[%d] %d\n", clientFd, getpid());
 								clientList.push_back(clientFd);
 								sem_post(sem);
@@ -149,11 +143,7 @@ int	main() {
 							struct kevent newEvent;
 							EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 
-							if (kevent(kq, &newEvent, 1, NULL, 0, NULL) < 0) {
-								std::cerr << "kevent add fail" << std::endl;
-								close(clientFd);
-								continue;
-							}
+							changes.push_back(newEvent);
 
 						} else if (eventFd == fd2) {
 							struct sockaddr_in	clientAddr;
@@ -161,7 +151,8 @@ int	main() {
 							int	clientFd;
 
 							if (sem_trywait(sem) == 0) {
-								clientFd = accept(fd2, (struct sockaddr*)&clientAddr, (socklen_t*)&clientAddr);
+								std::cout << errno << std::endl;
+								clientFd = accept(fd2, (struct sockaddr*)&clientAddr, (socklen_t*)&clientLen);
 								printf("accept: client[%d] %d\n", clientFd, getpid());
 								clientList.push_back(clientFd);
 								sem_post(sem);
@@ -183,14 +174,10 @@ int	main() {
 							struct kevent newEvent;
 							EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 
-							if (kevent(kq, &newEvent, 1, NULL, 0, NULL) < 0) {
-								std::cerr << "kevent add fail" << std::endl;
-								close(clientFd);
-								continue;
-							}
+							changes.push_back(newEvent);
 							
 						} else {
-							int clientFd = events[i].ident;
+							int clientFd = newEvents[i].ident;
 							char	data[4096];
 							bzero(&data, sizeof(data));
 							const int	len = read(clientFd, &data, sizeof(data));
@@ -200,7 +187,7 @@ int	main() {
 								std::cout << "client disconnect" << std::endl;
 								close(clientFd);
 							} else {
-								std::cout << "[" << getpid() << "]process [" << events[i].ident << "] data is: " << data << std::endl;
+								std::cout << "[" << getpid() << "]process [" << newEvents[i].ident << "] data is: " << data << std::endl;
 
 								for (int k(0); k < clientList.size(); ++k) {
 									if (clientFd == clientList[k]) {
@@ -215,27 +202,17 @@ int	main() {
 									std::string*	writeData = ::new std::string(data);
 									struct kevent	newEvent;
 									EV_SET(&newEvent, clientList[k], EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, writeData);
-									if (kevent(kq, &newEvent, 1, NULL, 0, NULL) < 0) {
-										std::cerr << "kevent add fail3\n";
-										for (int clientFds(0); clientFds < clientList.size(); ++clientFds) {
-											close(clientFds);
-										}
-										::delete writeData;
-										break;
-									}
+									changes.push_back(newEvent);
 								}
 							}
 						}					
-					} else if (events[i].filter == EVFILT_WRITE) {
-						std::string*	writeData = static_cast<std::string*>(events[i].udata);
-						write(events[i].ident, writeData->c_str(), writeData->size());
+					} else if (newEvents[i].filter == EVFILT_WRITE) {
+						std::string*	writeData = static_cast<std::string*>(newEvents[i].udata);
+						write(newEvents[i].ident, writeData->c_str(), writeData->size());
 						::delete writeData;
 						struct kevent	newEvent;
-						EV_SET(&newEvent, events[i].ident, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-						if (kevent(kq, &newEvent, 1, NULL, 0, NULL) < 0) {
-							std::cerr << "kevent add fail4\n";
-							close(events[i].ident);
-						}
+						EV_SET(&newEvent, newEvents[i].ident, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+						changes.push_back(newEvent);
 					}
 				}
 			}
