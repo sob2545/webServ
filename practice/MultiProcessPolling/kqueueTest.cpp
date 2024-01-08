@@ -38,13 +38,13 @@ int	main() {
 	struct sockaddr_in	addr;
 	bzero(&addr, sizeof(addr));
 	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = htonl(2130706433);
+	addr.sin_addr.s_addr = htonl(0);
 	addr.sin_port = htons(8080);
 
 	struct sockaddr_in	addr2;
 	bzero(&addr2, sizeof(addr2));
 	addr2.sin_family = AF_INET;
-	addr2.sin_addr.s_addr = htonl(2130706433);
+	addr2.sin_addr.s_addr = htonl(0);
 	addr2.sin_port = htons(8081);
 
 	// int	reuse = 1;
@@ -100,8 +100,15 @@ int	main() {
 			}
 
 			while (1) {
-				struct kevent	events[1024];
-				int	nev = kevent(kq, NULL, 0, events, 1024, NULL);
+				// struct kevent	events[1024];
+				std::vector<struct kevent>	events(1);
+				// events.reserve(1024);
+				std::cout << getpid() << ": before: " << events.size() << " " << events.capacity() << std::endl;
+				int	nev = kevent(kq, NULL, 0, &events[0], 1024, NULL);
+				std::cout << nev << std::endl;
+				std::cout << getpid() << ": after: " << events.size() << " " << events.capacity() << std::endl;
+				events.shrink_to_fit();
+				std::cout << "shrink\n";
 				if (nev < 0) {
 					std::cerr << "kevent error" << std::endl;
 					return (0);
