@@ -18,6 +18,7 @@ private:
 
 private:
 	static ft::shared_ptr<Server>	findExistServer(const std::string& IP, const unsigned short& port);
+	static void						workerProcessRun();
 
 public:
 	MasterProcess(const std::string& fileName, char** env);

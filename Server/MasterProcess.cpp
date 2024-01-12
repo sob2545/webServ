@@ -1,7 +1,8 @@
 #include "MasterProcess.hpp"
 
 #include "../Parser/ConfParser/ConfData/ConfBlock.hpp"
-#include <cstddef>
+#include "../Multiplexing/MultiplexHandler.hpp"
+#include <sys/_types/_pid_t.h>
 
 typedef std::vector<CONF::ServerBlock> confServerBlockVector;
 
@@ -35,8 +36,31 @@ ft::shared_ptr<Server>	MasterProcess::findExistServer(const std::string& IP, con
 	return (ft::shared_ptr<Server>());
 }
 
+void	MasterProcess::workerProcessRun() {
+	while (1) {
+		const 
+	}
+}
+
 void	MasterProcess::start() {
 	CONF::ConfBlock::getInstance()->print();
+
+	/*
+	 *	Daemon mode
+	*/
+#ifdef __RELEASE__
+
+	if (CONF::ConfBlock::getMainBlock::isDaemonOn()) {
+		pid_t	curPid = fork();
+		switch (curPid) {
+			case (0) : {
+				std::cout << BOLDGREEN << "webServ running in background mode" << RESET << std::endl;
+				exit(0);
+			}
+		}
+	}
+
+#endif
 
 	const confServerBlockVector&	mainServerBlocks = CONF::ConfBlock::getInstance()->getMainBlock().getHTTPBlock().getServerVector();
 	unsigned short		curPort = 0;
@@ -58,6 +82,36 @@ void	MasterProcess::start() {
 		// TODO: 서버 블록이 하나도 없을 때 예외처리
 		throw (std::runtime_error("Error: no server block"));
 	}
+
+#ifdef __RELEASE__
+
+	const int&	workerProcessNumber = CONF::ConfBlock::getInstance()->getMainBlock().getWorkerProcess();
+	for (int worker(0); worker < workerProcessNumber; ++worker) {
+		pid_t	workerFd = fork();
+
+		switch (workerFd) {
+			case (0): {
+
+#endif
+
+				/* kqueue | epoll init */
+				MultiplexHandler::instance();
+
+				/* add Server event */
+				for (mainServerVector::const_iterator it = MasterProcess::m_Servers.begin(); it != MasterProcess::m_Servers.end(); ++it) {
+					MultiplexHandler::addServerEvent(it->get()->getServerFd());
+				}
+
+				/* main server loop */
+				workerProcessRun();
+
+#ifdef __RELEASE__
+
+			}
+		}
+	}
+
+#endif
 }
 
 const MasterProcess::TypeMap&	MasterProcess::getMIMETypes() {
