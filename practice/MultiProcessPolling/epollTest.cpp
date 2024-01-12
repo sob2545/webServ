@@ -9,11 +9,12 @@
 #include <cstring>
 #include <string>
 #include <unistd.h>
+#include <utility>
 #include <wait.h>
 #include <sstream>
 #include <semaphore.h>
 #include <pthread.h>
-
+#include <map>
 
 
 int	main() {
@@ -22,6 +23,8 @@ int	main() {
 		std::cerr << "sem failed\n";
 		exit(EXIT_FAILURE);
 	}
+
+	std::map<int, std::string>	clientList;
 
 	int	fd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -36,13 +39,13 @@ int	main() {
 	bzero(&addr, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(2130706433);
-	addr.sin_port = htons(8080);
+	addr.sin_port = htons(8082);
 
 	struct sockaddr_in	addr2;
 	bzero(&addr2, sizeof(addr2));
 	addr2.sin_family = AF_INET;
 	addr2.sin_addr.s_addr = htonl(2130706433);
-	addr2.sin_port = htons(8081);
+	addr2.sin_port = htons(8083);
 
 	// int	reuse = 1;
 	// setsockopt(fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &reuse, sizeof(reuse));
@@ -119,93 +122,134 @@ int	main() {
 				}
 
 				for (int i(0); i < eventCount; ++i) {
-					if (epollEvents[i].data.fd == fd) {
-						struct sockaddr_in	clientAddr;
-						int	clientLen = sizeof(clientAddr);
-						int	clientFd;
 
-						if (sem_trywait(sem) == 0) {
-							clientFd = accept(fd, (struct sockaddr*)&clientAddr, (socklen_t*)&clientAddr);
-							printf("accept: %d\n", getpid());
-							sem_post(sem);
-						} else {
-							if (errno == EAGAIN) {
-								continue ;
+					if (epollEvents[i].events & EPOLLIN) {
+						if (epollEvents[i].data.fd == fd) {
+							struct sockaddr_in	clientAddr;
+							int	clientLen = sizeof(clientAddr);
+							int	clientFd;
+
+							if (sem_trywait(sem) == 0) {
+								clientFd = accept(fd, (struct sockaddr*)&clientAddr, (socklen_t*)&clientAddr);
+								printf("accept: %d\n", getpid());
+								clientList.insert(std::make_pair(clientFd, ""));
+								sem_post(sem);
+							} else {
+								if (errno == EAGAIN) {
+									continue ;
+								}
 							}
-						}
+								
+
+							if (clientFd < 0) {
+								std::stringstream	ss;
+								ss << getpid() << ": accept fail" << std::endl;
+								std::cerr << ss.str();
+								continue;
+							}
+
+							if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
+								std::cerr << getpid() << ": set nonblock fail" << std::endl;
+							}
+
+							struct epoll_event	clientEvent;
+							clientEvent.events = EPOLLIN | EPOLLET | EPOLLONESHOT;
+							clientEvent.data.fd = clientFd;
+
+							if (epoll_ctl(epollFd, EPOLL_CTL_ADD, clientFd, &clientEvent) < 0) {
+								std::cerr << "client epoll fail" << std::endl;
+								close(clientFd);
+								continue;
+							}
+						} else if (epollEvents[i].data.fd == fd2) {
+							struct sockaddr_in	clientAddr;
+							int	clientLen = sizeof(clientAddr);
+							int	clientFd;
+
+							if (sem_trywait(sem) == 0) {
+								clientFd = accept(fd2, (struct sockaddr*)&clientAddr, (socklen_t*)&clientAddr);
+								printf("accept: %d\n", getpid());
+								clientList.insert(std::make_pair(clientFd, ""));
+								sem_post(sem);
+							} else {
+								if (errno == EAGAIN) {
+									continue ;
+								}
+							}
+
+							if (clientFd < 0) {
+								printf("accept fail: %d\n", getpid());
+								continue;
+							}
+
+							if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
+								std::cerr << "set nonblock fail" << std::endl;
+							}
+
+
+							struct epoll_event	clientEvent;
+							clientEvent.events = EPOLLIN | EPOLLET | EPOLLONESHOT;
+							clientEvent.data.fd = clientFd;
+
+							if (epoll_ctl(epollFd, EPOLL_CTL_ADD, clientFd, &clientEvent) < 0) {
+								std::cerr << "client epoll fail" << std::endl;
+								close(clientFd);
+								continue;
+							}
+						} else {
+							int clientFd = epollEvents[i].data.fd;
+							char	data[4096];
+							bzero(&data, sizeof(data));
+							const int	len = read(clientFd, &data, sizeof(data));
+
 							
+							if (len == 0) {
+								std::cout << "client disconnect" << std::endl;
+								close(clientFd);
+								epoll_ctl(epollFd, EPOLL_CTL_DEL, clientFd, NULL);
+							}
+							else {
+								std::cout << "[" << getpid() << "]process [" << clientFd << "] data is: " << data << std::endl;
 
-						if (clientFd < 0) {
-							std::stringstream	ss;
-							ss << getpid() << ": accept fail" << std::endl;
-							std::cerr << ss.str();
-							continue;
-						}
+								for (std::map<int, std::string>::iterator it = clientList.begin(); it != clientList.end(); ++it) {
+									if (clientFd == it->first) {
 
-						if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
-							std::cerr << getpid() << ": set nonblock fail" << std::endl;
-						}
-
-						struct epoll_event	clientEvent;
-						clientEvent.events = EPOLLIN | EPOLLET;
-						clientEvent.data.fd = clientFd;
-
-						if (epoll_ctl(epollFd, EPOLL_CTL_ADD, clientFd, &clientEvent) < 0) {
-							std::cerr << "client epoll fail" << std::endl;
-							close(clientFd);
-							continue;
-						}
-					} else if (epollEvents[i].data.fd == fd2) {
-						struct sockaddr_in	clientAddr;
-						int	clientLen = sizeof(clientAddr);
-						int	clientFd;
-
-						if (sem_trywait(sem) == 0) {
-							clientFd = accept(fd2, (struct sockaddr*)&clientAddr, (socklen_t*)&clientAddr);
-							printf("accept: %d\n", getpid());
-							sem_post(sem);
-						} else {
-							if (errno == EAGAIN) {
-								continue ;
+										struct epoll_event	newEvent;
+										newEvent.events = EPOLLIN | EPOLLET | EPOLLONESHOT;
+										newEvent.data.fd = it->first;
+										if (epoll_ctl(epollFd, EPOLL_CTL_MOD, it->first, &newEvent) < 0) {
+											std::cerr << "new event handling fail" << std::endl;
+											close(clientFd);
+										}
+										continue ;
+									}
+									it->second = std::string(data);
+									struct epoll_event	newEvent;
+									newEvent.events = EPOLLOUT | EPOLLET | EPOLLONESHOT;
+									newEvent.data.fd = it->first;
+									if (epoll_ctl(epollFd, EPOLL_CTL_MOD, it->first, &newEvent) < 0) {
+										std::cerr << "epoll event add fail\n";
+										for (std::map<int, std::string>::iterator clientIt = clientList.begin(); clientIt != clientList.end(); ++clientIt) {
+											close(clientIt->first);
+										}
+										break;
+									}
+								}
 							}
 						}
 
-						if (clientFd < 0) {
-							printf("accept fail: %d\n", getpid());
-							continue;
-						}
-
-						if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
-							std::cerr << "set nonblock fail" << std::endl;
-						}
-
-
-						struct epoll_event	clientEvent;
-						clientEvent.events = EPOLLIN | EPOLLET;
-						clientEvent.data.fd = clientFd;
-
-						if (epoll_ctl(epollFd, EPOLL_CTL_ADD, clientFd, &clientEvent) < 0) {
-							std::cerr << "client epoll fail" << std::endl;
-							close(clientFd);
-							continue;
+					} else if (epollEvents[i].events & EPOLLOUT) {
+						write(epollEvents[i].data.fd, clientList[epollEvents[i].data.fd].c_str(), clientList[epollEvents[i].data.fd].size());
+						clientList[epollEvents[i].data.fd].clear();
+						struct epoll_event	newEvent;
+						newEvent.events = EPOLLIN | EPOLLET | EPOLLONESHOT;
+						newEvent.data.fd = epollEvents[i].data.fd;
+						if (epoll_ctl(epollFd, EPOLL_CTL_MOD, epollEvents[i].data.fd, &newEvent) < 0) {
+							std::cerr << "new event handling fail" << std::endl;
+							close(epollEvents[i].data.fd);
 						}
 					}
-					else {
-						int clientFd = epollEvents[i].data.fd;
-						char	data[4096];
-						bzero(&data, sizeof(data));
-						const int	len = read(clientFd, &data, sizeof(data));
 
-
-						if (len == 0) {
-							std::cout << "client disconnect" << std::endl;
-							close(clientFd);
-							epoll_ctl(epollFd, EPOLL_CTL_DEL, clientFd, NULL);
-						}
-						else {
-							std::cout << getpid() << " data is: " << data << std::endl;
-						}
-					}
 				}
 			}
 		}
