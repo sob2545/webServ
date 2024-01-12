@@ -48,3 +48,7 @@ bool	Server::findSameConfServerBlock(const std::string& IP, const unsigned short
 	}
 	return false;
 }
+
+const int&	Server::getServerFd() const {
+	return this->m_Socket.getFd();
+}
