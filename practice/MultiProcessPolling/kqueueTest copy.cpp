@@ -51,7 +51,7 @@ int	main() {
 	addr2.sin_port = htons(8081);
 
 	// int	reuse = 1;
-	// setsockopt(fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &reuse, sizeof(reuse));
+	// setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
 	// setsockopt(fd2, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &reuse, sizeof(reuse));
 
 	if (bind(fd, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr)) < 0) {
@@ -106,7 +106,7 @@ int	main() {
 					newEvents.push_back(events[nEvents]);
 				}
 				changes.clear();
-				std::cout << nev << std::endl;
+				// std::cout << "Number of Events: " << nev << std::endl;
 				if (nev < 0) {
 					std::cerr << "kevent error" << std::endl;
 					return (0);
@@ -114,93 +114,133 @@ int	main() {
 
 				for (int i(0); i < nev; ++i) {
 					const int	eventFd = newEvents[i].ident;
-					if (eventFd == fd) {
-						struct sockaddr_in	clientAddr;
-						socklen_t	clientLen = sizeof(clientAddr);
-						int	clientFd;
+					// if (eventFd == fd) {
+						
+					// 	continue;
+					// 	/*
+					// 	if (sem_trywait(sem) == 0) {
+					// 		printf("accept: client[%d] %d\n", clientFd, getpid());
+					// 		clientList.push_back(clientFd);
+					// 		sem_post(sem);
+					// 	} else {
+					// 		if (errno == EAGAIN) {
+					// 			continue ;
+					// 		}
+					// 	}
+					// 	*/
+						
+					// } else if (eventFd == fd2) {
+					// 	struct sockaddr_in	clientAddr;
+					// 	socklen_t	clientLen = sizeof(clientAddr);
+					// 	int	clientFd;
 
-						if (sem_trywait(sem) == 0) {
-							std::cout << errno << std::endl;
-							clientFd = accept(fd, (struct sockaddr*)&clientAddr, &clientLen);
-							if (clientFd == -1) {
-								std::cerr << "\033[1m\033[31m" << "Accept is -1\n" << "\033[0m";
-							}
-							printf("accept: client[%d] %d\n", clientFd, getpid());
-							clientList.push_back(clientFd);
-							sem_post(sem);
-						} else {
-							if (errno == EAGAIN) {
-								continue ;
-							}
-						}
-						if (clientFd < 0) {
-							printf("accept fail: %d\n", getpid());
-							continue ;
-						}
+					// 	if (sem_trywait(sem) == 0) {
+					// 		// std::cout << errno << std::endl;
+					// 		clientFd = accept(fd2, (struct sockaddr*)&clientAddr, &clientLen);
+					// 		if (clientFd == -1) {
+					// 			std::cerr << "\033[1m\033[31m" << "Accept is -1\n" << "\033[0m";
+					// 		}
+					// 		printf("accept: client[%d] %d\n", clientFd, getpid());
+					// 		clientList.push_back(clientFd);
+					// 		sem_post(sem);
+					// 	} else {
+					// 		if (errno == EAGAIN) {
+					// 			continue ;
+					// 		}
+					// 	}
 
-						if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
-							std::cerr << "nonblock set fail\n";
-						}
+					// 	if (clientFd < 0) {
+					// 		printf("accept fail: %d\n", getpid());
+					// 		continue ;
+					// 	}
 
-						struct kevent newEvent;
-						EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-						changes.push_back(newEvent);
-					} else if (eventFd == fd2) {
-						struct sockaddr_in	clientAddr;
-						socklen_t	clientLen = sizeof(clientAddr);
-						int	clientFd;
+					// 	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
+					// 		std::cerr << "nonblock set fail\n";
+					// 	}
 
-						if (sem_trywait(sem) == 0) {
-							std::cout << errno << std::endl;
-							clientFd = accept(fd2, (struct sockaddr*)&clientAddr, &clientLen);
-							if (clientFd == -1) {
-								std::cerr << "\033[1m\033[31m" << "Accept is -1\n" << "\033[0m";
-							}
-							printf("accept: client[%d] %d\n", clientFd, getpid());
-							clientList.push_back(clientFd);
-							sem_post(sem);
-						} else {
-							if (errno == EAGAIN) {
-								continue ;
-							}
-						}
-
-						if (clientFd < 0) {
-							printf("accept fail: %d\n", getpid());
-							continue ;
-						}
-
-						if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
-							std::cerr << "nonblock set fail\n";
-						}
-
-						struct kevent newEvent;
-						EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-						changes.push_back(newEvent);
-					}
+					// 	struct kevent newEvent;
+					// 	EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+					// 	changes.push_back(newEvent);
+					// }
 
 					if (newEvents[i].filter == EVFILT_READ) {
-						char	data[4096];
-						bzero(&data, sizeof(data));
-						const int	len = recv(eventFd, &data, sizeof(data), 0);
+
+						if (eventFd == fd) {
+							struct sockaddr_in	clientAddr;
+						socklen_t	clientLen = sizeof(clientAddr);
+						int	clientFd;
+
+						std::cout << "B Accept Error Number: " << errno << std::endl;
+						clientFd = accept(fd, (struct sockaddr*)&clientAddr, &clientLen);
+						if (clientFd < 0) {
+							printf("accept fail: %d\n", getpid());
+							continue ;
+						}
+						std::cout << "A Accept Error Number: " << errno << std::endl;
+
+						if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
+							std::cerr << "nonblock set fail\n";
+						}
+
+						struct kevent newEvent;
+						EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+						changes.push_back(newEvent);
+						}
+						else {
+							char	data[4096];
+							bzero(&data, sizeof(data));
+							std::cout << "Before Error Number: " << errno << std::endl;
+							// const int	len = recv(eventFd, &data, sizeof(data), 0);
+							const int	len = read(eventFd, &data, sizeof(data));
+							std::cout << "After Error Number: " << errno << std::endl;
 
 
-						if (len == 0) {
-							// send(eventFd, "", 0, 0);
-							close(eventFd);
-						} else {
-							// std::cout << "[" << getpid() << "]process [" << newEvents[i].ident << "] data is: " << data << std::endl;
+							if (len == 0) {
+								// send(eventFd, "", 0, 0);
+								std::cout << eventFd << ": Client Close\n";
+								close(eventFd);
+							} else {
+								// std::cout << "[" << getpid() << "]process [" << newEvents[i].ident << "] data is: " << data << std::endl;
 
-							struct kevent	newEvent;
-							EV_SET(&newEvent, eventFd, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-							changes.push_back(newEvent);
-						}					
+								struct kevent	newEvent;
+								EV_SET(&newEvent, eventFd, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+								changes.push_back(newEvent);
+							}					
+						}
 					} else if (newEvents[i].filter == EVFILT_WRITE) {
-						std::string	msg = "HTTP/1.1 200 OK\r\nDate: Mon, 09 Jan 2024 12:00:00 GMT\r\nServer: Apache/2.4.1 (Unix)\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: 12345\r\n\r\n<html>\r\n<head>\r\n    <title>Example Page</title>\r\n</head>\r\n<body>\r\n    <h1>Welcome to the Example Page</h1>\r\n    <p>This is a sample page to demonstrate a HTTP 200 OK response.</p>\r\n</body>\r\n</html>\r\n";
-						send(eventFd, msg.c_str(), msg.size(), 0);
+							std::string body;
+							body = "HTTP/1.1 404 Not Found\r\n";
+							body += "Connection: close\r\n";
+							body += "Content-Type: text/html\r\n";
+							body += "Content-length: 167\r\n\r\n";
+							
+							body += "<!DOCTYPE html>\r\n";
+							body += "<html>\r\n";
+							body += "<head>\r\n";
+							body += "    <title>Not Found</title>\r\n";
+							body += "</head>\r\n";
+							body += "<body>\r\n";
+							body += "    <h1>404 Not Found</h1>\r\n";
+							body += "	<hr>\r\n";
+							body += "	<p>Not found requested file</p>\r\n";
+							body += "</body>\r\n";
+							body += "</html>\r\n";
+						// const std::string str = "HTTP/1.1 200 OK\r\nDate: Fri, 10 Jan 2024 12:00:00 GMT\r\nContent-Type: text/html\r\nContent-Length: 0\r\n\r\n";
+						// const std::string str = "HTTP/1.1 302 Found\r\nLocation: https://example.com/new-location\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+							int res = send(newEvents[i].ident, body.c_str(), strlen(body.c_str()), 0);
+							if (res <= 0) {
+								std::cerr << "\033[1m\033[31" << "SEND ERROR\n";
+								close (newEvents[i].ident);
+								continue ;
+							}
+							// close(newEvents[i].ident);
+						// std::string*	writeData = static_cast<std::string*>(newEvents[i].udata);
+						// write(newEvents[i].ident, writeData->c_str(), writeData->size());
+						// ::delete writeData;
 						struct kevent	newEvent;
 						EV_SET(&newEvent, newEvents[i].ident, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 						changes.push_back(newEvent);
+						// close(newEvents[i].ident);
 					}
 				}
 			}

@@ -119,6 +119,9 @@ int	main() {
 							if (sem_trywait(sem) == 0) {
 								std::cout << errno << std::endl;
 								clientFd = accept(fd, (struct sockaddr*)&clientAddr, (socklen_t*)&clientLen);
+								if (clientFd == -1) {
+									std::cerr << "\033[1m\033[31m" << "Accept is -1\n" << "\033[0m";
+								}
 								printf("accept: client[%d] %d\n", clientFd, getpid());
 								clientList.push_back(clientFd);
 								sem_post(sem);
