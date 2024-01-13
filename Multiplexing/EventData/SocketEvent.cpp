@@ -9,21 +9,20 @@ SocketEvent::SocketEvent()
 }
 
 SocketEvent::SocketEvent(const s_event& other) {
-	#ifdef	__DARWIN__
+#if defined	(__DARWIN__)
 
 	this->m_Event.ident = other.ident;
 	this->m_Event.filter = other.filter;
 	this->m_Event.flags = other.flags;
 	this->m_Event.fflags = other.fflags;
 	this->m_Event.data = other.data;
-	// void* 넘겨줄 때 조심해야됨 (shared_ptr 등 사용)
+	// void* 넘겨줄 때 조심해야됨 (shared_ptr 등을 사용해도 소멸자가 호출되지 않음)
 	this->m_Event.udata = other.udata;
 
 	(this->m_Event.filter & EVFILT_READ) ? m_Status |= E_EV::READ : 0;
 	(this->m_Event.filter & EVFILT_WRITE) ? m_Status |= E_EV::WRITE : 0;
 
-#endif
-#ifdef __LINUX__
+#elif defined (__LINUX__)
 
 	this->m_Event.events = other.events;
 	this->m_Event.data.fd = other.data.fd;
@@ -47,7 +46,7 @@ const SocketEvent&	SocketEvent::operator=(const SocketEvent& other) {
 
 // uintptr_t ident, int16_t filter, uint16_t flags, uint32_t fflags, int64_t data, void *udata
 const SocketEvent&	SocketEvent::operator=(const s_event& other) {
-#ifdef	__DARWIN__
+#if defined	(__DARWIN__)
 
 	this->m_Event.ident = other.ident;
 	this->m_Event.filter = other.filter;
@@ -57,8 +56,7 @@ const SocketEvent&	SocketEvent::operator=(const s_event& other) {
 	// void* 넘겨줄 때 조심해야됨 (shared_ptr 등 사용)
 	this->m_Event.udata = other.udata;
 
-#endif
-#ifdef __LINUX__
+#elif defined (__LINUX__)
 
 	this->m_Event.events = other.events;
 	this->m_Event.data.fd = other.data.fd;
@@ -70,12 +68,11 @@ const SocketEvent&	SocketEvent::operator=(const s_event& other) {
 SocketEvent::~SocketEvent() {}
 
 const int	SocketEvent::getFd() const {
-#ifdef __DARWIN__
+#if defined	(__DARWIN__)
 
 	return (this->m_Event.ident);
 
-#endif
-#ifdef __LINUX__
+#elif defined (__LINUX__)
 
 	return (this->m_Event.data.fd);
 
@@ -84,4 +81,12 @@ const int	SocketEvent::getFd() const {
 
 const short&	SocketEvent::getStatus() const {
 	return this->m_Status;
+}
+
+bool	SocketEvent::isReadEvent() const {
+	return (this->m_Status & E_EV::READ);
+}
+
+bool	SocketEvent::isWriteEvent() const {
+	return (this->m_Status & E_EV::WRITE);
 }

@@ -3,12 +3,11 @@
 #define __DARWIN__
 // #define __LINUX__
 
-#ifdef	__DARWIN__
+#if defined (__DARWIN__)
 
 	#include <sys/event.h>
 
-#endif
-#ifdef	__LINUX__
+#elif defined (__LINUX__)
 
 	#include <sys/epoll.h>
 
@@ -24,12 +23,11 @@ namespace E_EV {
 
 class SocketEvent {
 public:
-#ifdef	__DARWIN__
+#if defined (__DARWIN__)
 
 	typedef struct kevent 					s_event;
 
-#endif
-#ifdef	__LINUX__
+#elif defined (__LINUX__)
 
 	typedef struct epoll_event				s_event;
 
@@ -50,5 +48,7 @@ public:
 public:
 	const int		getFd() const;
 	const short&	getStatus() const;
+	bool			isReadEvent() const;
+	bool			isWriteEvent() const;
 	
 };
