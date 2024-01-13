@@ -38,7 +38,11 @@ ft::shared_ptr<Server>	MasterProcess::findExistServer(const std::string& IP, con
 
 void	MasterProcess::workerProcessRun() {
 	while (1) {
-		const 
+		const std::vector<SocketEvent>	eventList = MultiplexHandler::eventHandler(NULL);
+		for (int eventNum(0); eventNum < eventList.size(); ++eventNum) {
+			const SocketEvent* const	curEvent = &eventList[eventNum];
+			
+		}
 	}
 }
 
