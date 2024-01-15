@@ -1,13 +1,25 @@
 #include "ClientSocket.hpp"
+#include "Exception/SocketException.hpp"
+#include <netinet/in.h>
+#include <sys/_types/_socklen_t.h>
 #include <sys/socket.h>
 
-ClientSocket::ClientSocket() : FileDescriptor(0) {}
+ClientSocket::ClientSocket(const int& serverFd)
+ : FileDescriptor(0)
+ {
+	struct sockaddr_in	addr;
+	socklen_t			len = sizeof(addr);
 
-ClientSocket::ClientSocket(const ClientSocket& other) : FileDescriptor(other.getFd()) {}
+	m_Fd = accept(serverFd, reinterpret_cast<struct sockaddr*>(&addr), &len);
+	if (m_Fd < 0) {
+		throw SOCK::SocketException("accept() failed");
+	}
 
-ClientSocket&	ClientSocket::operator=(const ClientSocket& other) {
-	this->m_Fd = other.m_Fd;
-	return (*this);
-}
+	setNonBlocking();
+ }
 
 ClientSocket::~ClientSocket() {}
+
+const int&	ClientSocket::getFd() const {
+	return this->m_Fd;
+}

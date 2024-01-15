@@ -6,10 +6,12 @@
 
 class ClientSocket : public FileDescriptor {
 private:
-
-public:
-	ClientSocket();
 	ClientSocket(const ClientSocket& other);
 	ClientSocket&	operator=(const ClientSocket& other);
+
+public:
+	ClientSocket(const int& serverFd);
 	virtual ~ClientSocket();
+
+	const int&	getFd() const;
 };
