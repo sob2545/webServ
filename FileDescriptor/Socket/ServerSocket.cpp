@@ -10,7 +10,8 @@ ServerSocket::ServerSocket(const std::string& IP_Address, const unsigned short& 
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = htonl(IPv4toUL(IP_Address));
 
-	if ((m_Fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+	m_Fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (m_Fd == -1) {
 		throw SOCK::SocketException("socket() failed");
 	}
 
