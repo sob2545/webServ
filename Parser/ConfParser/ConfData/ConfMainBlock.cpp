@@ -148,7 +148,7 @@ const std::string	CONF::MainBlock::argument(const unsigned short& status) {
 }
 
 unsigned short	CONF::MainBlock::directiveNameChecker(const std::string& name) {
-	const statusMap::iterator	it = m_MainStatusMap.find(name);
+	const StatusMap_t::iterator	it = m_MainStatusMap.find(name);
 
 	if (it == m_MainStatusMap.end()) {
 		throw ConfParserException(name, "main directive name is invalid!");
@@ -224,16 +224,16 @@ const std::string&	CONF::MainBlock::getErrorLog() const {
 	return this->m_Error_log;
 }
 
-const CONF::MainBlock::envMap&	CONF::MainBlock::getEnvMap() const {
+const CONF::MainBlock::EnvMap_t&	CONF::MainBlock::getEnvMap() const {
 	return this->m_Env;
 }
 
-CONF::MainBlock::envMap&	CONF::MainBlock::setEnvMap() {
+CONF::MainBlock::EnvMap_t&	CONF::MainBlock::setEnvMap() {
 	return this->m_Env;
 }
 
 const std::string&	CONF::MainBlock::getEnv(const std::string& key) const {
-	envMap::const_iterator	it = this->m_Env.find(key);
+	EnvMap_t::const_iterator	it = this->m_Env.find(key);
 	if (it == this->m_Env.end()) {
 		throw ConfParserException(key, "invalid Environment variable!");
 	}

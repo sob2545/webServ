@@ -1,5 +1,5 @@
 #include "Parser/ConfParser/ConfData/ConfBlock.hpp"
-#include "Server/MasterProcess.hpp"
+#include "MainLoop/MasterProcess.hpp"
 #include <iostream>
 #include <unistd.h>
 

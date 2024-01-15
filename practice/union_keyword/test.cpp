@@ -26,7 +26,7 @@ struct AbsoluteFormType {
 };
 
 struct ResponseRecipe {
-    typedef std::map<std::string, std::vector<std::string> > QueryMap;
+    typedef std::map<std::string, std::vector<std::string> > QueryMap_t;
 
     bool isChunk;
     unsigned char m_Method;
@@ -42,7 +42,7 @@ struct ResponseRecipe {
 
     std::vector<unsigned char> m_BodyMessage();
     std::map<std::string, std::string> m_Cookie;
-    QueryMap m_Query;
+    QueryMap_t m_Query;
 
 	union {
         OriginFormType m_OriginData;

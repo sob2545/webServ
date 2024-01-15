@@ -10,7 +10,7 @@
 /**
  *			Query setter
 */
-void	Query(const std::string& inputURI, std::size_t& pos, URIParser::QueryMap& query) {
+void	Query(const std::string& inputURI, std::size_t& pos, URIParser::QueryMap_t& query) {
 	if (pos < inputURI.size() && inputURI.at(pos) == BNF::E_RESERVED::QUESTION_MARK) {
 		pos++;
 	}
@@ -288,7 +288,7 @@ bool	URIParser::errorPageParser(const std::string& inputURI, std::size_t& pos, s
 }
 
 template <typename T>
-bool	URIParser::RequestOriginFormParser(const std::string& inputURI, std::size_t& pos, std::string& path, URIParser::QueryMap& queryVal) {
+bool	URIParser::RequestOriginFormParser(const std::string& inputURI, std::size_t& pos, std::string& path, URIParser::QueryMap_t& queryVal) {
 	PathParser::File_AbsolutePath<T>(inputURI, pos, path);
 	Query(inputURI, pos, queryVal);
 	return (true);
@@ -306,4 +306,4 @@ template bool	URIParser::IPv4Parser<ConfParserException>(const std::string&, std
 template bool	URIParser::errorPageParser<ConfParserException>(const std::string&, std::size_t&, std::string&);
 
 template void	URIParser::HTTPMessageParser<HTTPRequestParsingException>(const std::string&, std::size_t&, std::string&, unsigned short&);
-template bool	URIParser::RequestOriginFormParser<HTTPRequestParsingException>(const std::string&, std::size_t&, std::string&, URIParser::QueryMap&);
+template bool	URIParser::RequestOriginFormParser<HTTPRequestParsingException>(const std::string&, std::size_t&, std::string&, URIParser::QueryMap_t&);

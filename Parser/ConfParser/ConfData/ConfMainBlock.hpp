@@ -24,9 +24,9 @@
 namespace   CONF {
 	class MainBlock : public AConfParser {
 	private:
-		typedef std::map<std::string, std::string>		envMap;
-		typedef std::map<std::string, unsigned char>	statusMap;
-		typedef std::vector<std::string>				strVec;
+		typedef std::map<std::string, std::string>		EnvMap_t;
+		typedef std::map<std::string, unsigned char>	StatusMap_t;
+		typedef std::vector<std::string>				StrVec_t;
 
 		bool					m_BlockSwitch; // true Event, false HTTP
 		bool					m_Daemon;
@@ -34,10 +34,10 @@ namespace   CONF {
 		unsigned int			m_Worker_process;
 		unsigned long			m_Timer_resolution;
 		std::string				m_Error_log;
-		envMap					m_Env;
+		EnvMap_t				m_Env;
 		EventsBlock				m_Event_block;
 		static HTTPBlock		m_HTTP_block;
-		static statusMap		m_MainStatusMap;
+		static StatusMap_t		m_MainStatusMap;
 
 	private:
 		MainBlock(const MainBlock& other);
@@ -64,9 +64,9 @@ namespace   CONF {
 		const unsigned long& 	getTimeResolution() const;
 		const std::string&		getErrorLog() const;
 		const std::string&		getEnv(const std::string& key) const;
-		const envMap&			getEnvMap() const;
+		const EnvMap_t&			getEnvMap() const;
 		const unsigned int&		getWorkerConnections() const;
 		const CONF::HTTPBlock&	getHTTPBlock() const;
-		envMap&					setEnvMap();
+		EnvMap_t&				setEnvMap();
 	};
 }

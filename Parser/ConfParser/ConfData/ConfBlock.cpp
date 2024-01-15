@@ -102,8 +102,8 @@ void	CONF::ConfBlock::print() {
 		// }
 
 		std::cout << BOLDBLUE << "\t\t=================Location Block=================\n" << RESET;
-		const std::map<std::string, LocationBlock>& tmpLocationMap = it->getLocationMap();
-		for (auto it = tmpLocationMap.begin(); it != tmpLocationMap.end(); ++it) {
+		const std::map<std::string, LocationBlock>& tmpLocationMap_t = it->getLocationMap();
+		for (auto it = tmpLocationMap_t.begin(); it != tmpLocationMap_t.end(); ++it) {
 			std::cout << "\t\t\tLocation Name: " << it->first << std::endl;
 			std::cout << "\t\t\t\tAccess log: " << it->second.getAccess_log() << std::endl;
 			std::cout << "\t\t\t\tRoot: " << it->second.getRoot() << std::endl;

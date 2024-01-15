@@ -49,15 +49,15 @@ namespace Pchar {
 	};
 }
 
-typedef	std::map<std::string, std::vector<std::string> > QueryMap;
-typedef	std::vector<std::string>	PathVec;
+typedef	std::map<std::string, std::vector<std::string> > QueryMap_t;
+typedef	std::vector<std::string>	PathVec_t;
 
 struct URIvalue {
 	unsigned short	port;
 	std::string		scheme;
 	std::string		host;
 	std::string		fragment;
-	PathVec			absPath;
-	QueryMap		query;
+	PathVec_t			absPath;
+	QueryMap_t		query;
 };
 

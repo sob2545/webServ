@@ -1,13 +1,13 @@
 #include "RequestMessageParser.hpp"
 #include "HTTPException/BadRequestException.hpp"
 #include "HTTPException/HTTPRequestParsingException.hpp"
-#include "ResponseRecipe.hpp"
-#include "../../Server/MasterProcess.hpp"
+#include "../../MainLoop/Client/ClientData/ResponseRecipe.hpp"
+#include "../../MainLoop/MasterProcess.hpp"
 #include <cstddef>
 #include <string>
 
-HTTP::RequestMessageParser::MethodMap	HTTP::RequestMessageParser::m_MethodMap;
-HTTP::RequestMessageParser::HeaderMap	HTTP::RequestMessageParser::m_HeaderMap;
+HTTP::RequestMessageParser::MethodMap_t	HTTP::RequestMessageParser::m_MethodMap;
+HTTP::RequestMessageParser::HeaderMap_t	HTTP::RequestMessageParser::m_HeaderMap;
 
 HTTP::RequestMessageParser::RequestMessageParser() {
 	initMethodMap();
@@ -126,13 +126,13 @@ bool	HTTP::RequestMessageParser::argumentChecker(HTTP::ResponseRecipe& recipe, c
 			if (recipe.m_HeaderMap.find(status) == recipe.m_HeaderMap.end()) {
 				recipe.m_HeaderMap.insert(std::make_pair(status, static_cast<void*>(::new std::map<std::string, std::string>)));
 			}
-			std::map<std::string, std::string>*	cookieMap = static_cast<std::map<std::string, std::string>* >(recipe.m_HeaderMap.find(status)->second);
+			std::map<std::string, std::string>*	CookieMap_t = static_cast<std::map<std::string, std::string>* >(recipe.m_HeaderMap.find(status)->second);
 			for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it) {
 				const std::size_t	pos = it->find("=");
 				pos == std::string::npos ? throw BadRequestException() : 0;
 				const std::string	key = it->substr(0, pos - 1);
 				const std::string	val = it->substr(pos + 1, it->length());
-				cookieMap->insert(std::make_pair(key, val));
+				CookieMap_t->insert(std::make_pair(key, val));
 			}
 		}
 	}
@@ -190,7 +190,7 @@ unsigned short	HTTP::RequestMessageParser::fieldName(const std::string& message,
 	std::string		headerKey;
 
 	token(message, pos, headerKey);
-	HTTP::RequestMessageParser::HeaderMap::const_iterator	it = m_HeaderMap.find(headerKey);
+	HTTP::RequestMessageParser::HeaderMap_t::const_iterator	it = m_HeaderMap.find(headerKey);
 	if (it != m_HeaderMap.end()) {
 		return (0);
 	}
@@ -257,7 +257,7 @@ void	HTTP::RequestMessageParser::method(HTTP::ResponseRecipe& recipe, const std:
 	std::string	method;
 
 	token(message, pos, method);
-	HTTP::RequestMessageParser::MethodMap::const_iterator	it = m_MethodMap.find(method);
+	HTTP::RequestMessageParser::MethodMap_t::const_iterator	it = m_MethodMap.find(method);
 	(it != m_MethodMap.end()) ? recipe.m_Method |= it->second : throw NotImplementedException();
 }
 

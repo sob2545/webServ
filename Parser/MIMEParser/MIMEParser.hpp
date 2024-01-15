@@ -23,11 +23,11 @@ namespace E_MIME {
 }
 
 namespace MIME {
-	typedef std::map<std::string, std::vector<std::string> >	TypeMap;
+	typedef std::map<std::string, std::vector<std::string> >	MIMEMap_t;
 	
 	template <typename T>
 	const std::string	type(const std::string& fileName, std::size_t& Pos);
 
 	template <typename T>
-	void				Parser(const std::string& fileName, TypeMap& MIMEType);
+	void				Parser(const std::string& fileName, MIMEMap_t& MIMEType);
 }

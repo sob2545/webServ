@@ -168,7 +168,7 @@ unsigned short	CONF::HTTPBlock::directiveNameChecker(const std::string& name) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
 	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
-	const statusMap::iterator	it = m_HTTPStatusMap.find(name);
+	const StatusMap_t::iterator	it = m_HTTPStatusMap.find(name);
 
 	if (it == m_HTTPStatusMap.end()) {
 		throw ConfParserException(name, "HTTP directive name is invalid!");
@@ -235,8 +235,8 @@ void	CONF::HTTPBlock::initialize() {
 	contextLines();
 }
 
-const CONF::ServerBlock&	CONF::HTTPBlock::operator[](const serverKey& key) const {
-	for (serverVector::const_iterator it = m_ServerBlock.begin(); it != m_ServerBlock.end(); ++it) {
+const CONF::ServerBlock&	CONF::HTTPBlock::operator[](const ServerKey_t& key) const {
+	for (ServerVector_t::const_iterator it = m_ServerBlock.begin(); it != m_ServerBlock.end(); ++it) {
 		if (it->getServerNames().find(key.first) != it->getServerNames().end() && it->getPort() == key.second) {
 			return (*it);
 		}
@@ -272,10 +272,10 @@ const std::map<unsigned short, CONF::errorPageData>&	CONF::HTTPBlock::getError_p
 	return (this->m_Error_page);
 }
 
-const CONF::HTTPBlock::TypeMap&	CONF::HTTPBlock::getMime_types() const {
+const CONF::HTTPBlock::MIMEMap_t&	CONF::HTTPBlock::getMime_types() const {
 	return (this->m_Mime_types);
 }
 
-const CONF::HTTPBlock::serverVector&	CONF::HTTPBlock::getServerVector() const {
+const CONF::HTTPBlock::ServerVector_t&	CONF::HTTPBlock::getServerVector() const {
 	return (this->m_ServerBlock);
 }

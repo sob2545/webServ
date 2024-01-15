@@ -10,7 +10,7 @@ TrieNode& TrieNode::operator=(const TrieNode& other) {
 	if (this != &other) {
 		children.clear();
 
-		for (TrieMap::const_iterator it = other.children.begin(); it != other.children.end(); ++it) {
+		for (TrieMap_t::const_iterator it = other.children.begin(); it != other.children.end(); ++it) {
 			children.insert(std::make_pair(it->first, it->second));
         }
         isEndOfWord = other.isEndOfWord;

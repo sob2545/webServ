@@ -13,7 +13,7 @@
 */
 
 template <typename T>
-void	ENV::envLine(ENV::envMap& dest, const std::string& env, std::size_t& pos) {
+void	ENV::envLine(ENV::EnvMap_t& dest, const std::string& env, std::size_t& pos) {
 	std::string	key;
 
 	if (env.empty() || (!std::isalpha(static_cast<int>(env[pos])) && env[pos] != '_')) {
@@ -39,7 +39,7 @@ void	ENV::envLine(ENV::envMap& dest, const std::string& env, std::size_t& pos) {
 }
 
 template <typename T>
-void	ENV::EnvParser(envMap& dest, char** env) {
+void	ENV::EnvParser(EnvMap_t& dest, char** env) {
 	std::size_t	idx(0);
 	std::size_t	pos;
 
@@ -50,5 +50,5 @@ void	ENV::EnvParser(envMap& dest, char** env) {
 	}
 }
 
-template void	ENV::EnvParser<EnvParserException>(ENV::envMap&, char**);
-template void	ENV::envLine<ConfParserException>(ENV::envMap&, const std::string&, std::size_t&);
+template void	ENV::EnvParser<EnvParserException>(ENV::EnvMap_t&, char**);
+template void	ENV::envLine<ConfParserException>(ENV::EnvMap_t&, const std::string&, std::size_t&);

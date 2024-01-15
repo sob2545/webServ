@@ -42,7 +42,7 @@ void	CONF::AConfParser::fileName(std::string& argument) {
 }
 
 /*			absPath with string vector
-void	CONF::AConfParser::absPathArgumentParser(strVec& argument) {
+void	CONF::AConfParser::absPathArgumentParser(StrVec_t& argument) {
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
 	const std::size_t&	fileSize = CONF::ConfFile::getInstance()->getFileSize();
 	std::size_t*			Pos = CONF::ConfFile::getInstance()->Pos();
@@ -108,7 +108,7 @@ void	CONF::AConfParser::errorPageArgumentParser(std::string& argument) {
 }
 
 
-void	CONF::AConfParser::errorPageChecker(const std::vector<std::string>& args, errorPageMap& errorMap) {
+void	CONF::AConfParser::errorPageChecker(const std::vector<std::string>& args, ErrorPageMap_t& errorMap) {
 	const std::size_t	argumentSize = args.size();
 
 	(argumentSize < 2) ? throw ConfParserException("", "invalid number of error page arguments!") : 0;

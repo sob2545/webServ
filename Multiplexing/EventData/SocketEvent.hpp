@@ -25,24 +25,24 @@ class SocketEvent {
 public:
 #if defined (__DARWIN__)
 
-	typedef struct kevent 					s_event;
+	typedef struct kevent 					Event_t;
 
 #elif defined (__LINUX__)
 
-	typedef struct epoll_event				s_event;
+	typedef struct epoll_event				Event_t;
 
 #endif
 
 private:
 	short	m_Status;
-	s_event	m_Event;
+	Event_t	m_Event;
 
 public:
 	SocketEvent();
-	SocketEvent(const s_event& other);
+	SocketEvent(const Event_t& other);
 	SocketEvent(const SocketEvent& other);
 	const SocketEvent& operator=(const SocketEvent& other);
-	const SocketEvent& operator=(const s_event& other);
+	const SocketEvent& operator=(const Event_t& other);
 	~SocketEvent();
 
 public:

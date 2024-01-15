@@ -41,35 +41,35 @@ struct default_delete<T[]> {
 template <class T, class D = default_delete<T> >
 class unique_ptr {
 public:
-	typedef T*	pointer;
+	typedef T*	Pointer_t;
 
 private:
-	pointer		m_Ptr;
+	Pointer_t		m_Ptr;
 	D			m_Deleter;
 
 	unique_ptr(const unique_ptr&);
 	unique_ptr&	operator=(const unique_ptr&);
 
 public:
-	explicit unique_ptr(pointer p = 0, const D& d = D()) : m_Ptr(p), m_Deleter(d) {}
+	explicit unique_ptr(Pointer_t p = 0, const D& d = D()) : m_Ptr(p), m_Deleter(d) {}
 	
 	~unique_ptr() {
 		m_Deleter(m_Ptr);
 	}
 
-	pointer&	operator*() const {
+	Pointer_t&	operator*() const {
 		return *m_Ptr;
 	}
 
-	pointer	operator->() const {
+	Pointer_t	operator->() const {
 		return m_Ptr;
 	}
 
-	pointer	get() const {
+	Pointer_t	get() const {
 		return m_Ptr;
 	}
 
-	void	reset(pointer ptr = 0) {
+	void	reset(Pointer_t ptr = 0) {
 		m_Deleter(m_Ptr);
 		m_Ptr = ptr;
 	}
@@ -78,35 +78,35 @@ public:
 template <class T, class D>
 class unique_ptr<T[], D> {
 public:
-	typedef T*	pointer;
+	typedef T*	Pointer_t;
 
 private:
-	pointer		m_Ptr;
+	Pointer_t		m_Ptr;
 	D			m_Deleter;
 
 	unique_ptr(const unique_ptr&);
 	unique_ptr&	operator=(const unique_ptr&);
 
 public:
-	explicit unique_ptr(pointer p = 0, const D& d = D()) : m_Ptr(p), m_Deleter(d) {}
+	explicit unique_ptr(Pointer_t p = 0, const D& d = D()) : m_Ptr(p), m_Deleter(d) {}
 	
 	~unique_ptr() {
 		m_Deleter(m_Ptr);
 	}
 
-	pointer&	operator*() const {
+	Pointer_t&	operator*() const {
 		return *m_Ptr;
 	}
 
-	pointer	operator->() const {
+	Pointer_t	operator->() const {
 		return m_Ptr;
 	}
 
-	pointer	get() const {
+	Pointer_t	get() const {
 		return m_Ptr;
 	}
 
-	void	reset(pointer ptr = 0) {
+	void	reset(Pointer_t ptr = 0) {
 		m_Deleter(m_Ptr);
 		m_Ptr = ptr;
 	}
@@ -116,17 +116,17 @@ public:
 template <class T>
 class unique_ptr<T[], default_delete<T[]> > {
 public:
-	typedef T* pointer;
+	typedef T* Pointer_t;
 
 private:
-	pointer m_Ptr;
+	Pointer_t m_Ptr;
 	default_delete<T[]> m_Deleter;
 
 	unique_ptr(const unique_ptr&);
 	unique_ptr& operator=(const unique_ptr&);
 
 public:
-	explicit unique_ptr(pointer p = 0) : m_Ptr(p) {}
+	explicit unique_ptr(Pointer_t p = 0) : m_Ptr(p) {}
 
 	~unique_ptr() {
 		m_Deleter(m_Ptr);
@@ -136,11 +136,11 @@ public:
 		return m_Ptr[i];
 	}
 
-	pointer get() const {
+	Pointer_t get() const {
 		return m_Ptr;
 	}
 
-	void reset(pointer ptr = 0) {
+	void reset(Pointer_t ptr = 0) {
 		m_Deleter(m_Ptr);
 		m_Ptr = ptr;
 	}
@@ -155,10 +155,10 @@ class	weak_ptr;
 template <class T, class D = default_delete<T> >
 class	shared_ptr {
 public:
-	typedef T* pointer;
+	typedef T* Pointer_t;
 
 private:
-	pointer		m_Ptr;
+	Pointer_t		m_Ptr;
 	D			m_Deleter;
 	unsigned*	m_StrongCount;
 	unsigned*	m_WeakCount;
@@ -174,7 +174,7 @@ private:
 	}
 
 public:
-	explicit shared_ptr(pointer p = 0, const D& d = D()) : m_Ptr(p), m_Deleter(d), m_StrongCount(::new unsigned(1)), m_WeakCount(::new unsigned(0)) {}
+	explicit shared_ptr(Pointer_t p = 0, const D& d = D()) : m_Ptr(p), m_Deleter(d), m_StrongCount(::new unsigned(1)), m_WeakCount(::new unsigned(0)) {}
 
 	explicit shared_ptr(const weak_ptr<T>& other) : m_Ptr(other.m_Ptr), m_Deleter(D()), m_StrongCount(other.m_StrongCount), m_WeakCount(other.m_WeakCount) {
 		if (*m_StrongCount == 0) {
@@ -203,15 +203,15 @@ public:
 		dispose();
 	}
 
-	pointer&	operator*() const {
+	Pointer_t&	operator*() const {
 		return *m_Ptr;
 	}
 
-	pointer	operator->() const {
+	Pointer_t	operator->() const {
 		return m_Ptr;
 	}
 
-	pointer	get() const {
+	Pointer_t	get() const {
 		return m_Ptr;
 	}
 
@@ -230,10 +230,10 @@ private:
 template <class T>
 class	weak_ptr {
 public:
-	typedef T*	pointer;
+	typedef T*	Pointer_t;
 
 private:
-	pointer		m_Ptr;
+	Pointer_t		m_Ptr;
 	unsigned*	m_StrongCount;
 	unsigned*	m_WeakCount;
 
@@ -279,7 +279,7 @@ public:
 		}
 	}
 
-	pointer	lock() {
+	Pointer_t	lock() {
 		if (*m_StrongCount) {
 			return m_Ptr;
 		}

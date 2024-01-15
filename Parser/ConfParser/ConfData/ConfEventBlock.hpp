@@ -8,7 +8,7 @@ namespace   CONF {
 		EventsBlock(const EventsBlock& other);
 		EventsBlock& operator=(const EventsBlock& other);
 
-		bool				context();
+		bool			context();
 		unsigned short	directiveNameChecker(const std::string& name);
 
 		const std::string		argument(const unsigned short& status);

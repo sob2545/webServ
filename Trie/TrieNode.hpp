@@ -5,8 +5,8 @@
 #include "../Utils/SmartPointer.hpp"
 
 struct TrieNode {
-	typedef std::map<char, ft::shared_ptr<TrieNode> >::iterator TrieIterator;
-	typedef std::map<char, ft::shared_ptr<TrieNode> > TrieMap;
+	typedef std::map<char, ft::shared_ptr<TrieNode> >::iterator TrieIterator_t;
+	typedef std::map<char, ft::shared_ptr<TrieNode> > TrieMap_t;
 
 	std::map<char, ft::shared_ptr<TrieNode> > children;
 	bool isEndOfWord;

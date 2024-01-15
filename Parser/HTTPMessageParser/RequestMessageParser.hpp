@@ -15,22 +15,22 @@
 
 #include "../URIParser/URIParser.hpp"
 
-#include "ResponseRecipe.hpp"
+#include "../../MainLoop/Client/ClientData/ResponseRecipe.hpp"
 
 
 namespace HTTP {
 	class RequestMessageParser : public Singleton<RequestMessageParser> {
 	public:
-		typedef std::map<std::string, unsigned char>	MethodMap;
-		typedef std::map<std::string, unsigned short>	HeaderMap;
+		typedef std::map<std::string, unsigned char>	MethodMap_t;
+		typedef std::map<std::string, unsigned short>	HeaderMap_t;
 
 	private:
 		RequestMessageParser(const RequestMessageParser& other);
 		RequestMessageParser& operator=(const RequestMessageParser& other);
 	
 	private:
-		static std::map<std::string, unsigned char>		m_MethodMap;
-		static std::map<std::string, unsigned short>	m_HeaderMap;
+		static MethodMap_t		m_MethodMap;
+		static HeaderMap_t		m_HeaderMap;
 
 		static void		initMethodMap();
 		static void		initHeaderMap();

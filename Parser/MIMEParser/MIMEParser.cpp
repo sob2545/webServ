@@ -48,7 +48,7 @@ bool	isMIMETypeName(const char& c) {
 }
 
 template <typename T>
-void	element(const std::string& fileName, const std::string& typeName, MIME::TypeMap& MIMEType) {
+void	element(const std::string& fileName, const std::string& typeName, MIME::MIMEMap_t& MIMEType) {
 	const std::size_t	fileSize = fileName.size();
 	std::size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
 
@@ -84,7 +84,7 @@ const std::string	MIME::type(const std::string& fileName, std::size_t& Pos) {
 }
 
 template <typename T>
-bool	line(const std::string& fileContent, MIME::TypeMap& MIMEType) {
+bool	line(const std::string& fileContent, MIME::MIMEMap_t& MIMEType) {
 	std::size_t*	Pos = MIME::MIMEFile::getInstance()->Pos();
 
 	if (fileContent[Pos[E_INDEX::FILE]] == E_MIME::SEMICOLON
@@ -104,7 +104,7 @@ bool	line(const std::string& fileContent, MIME::TypeMap& MIMEType) {
 }
 
 template <typename T>
-void	typelist(const std::string& fileContent, MIME::TypeMap& MIMEType) {
+void	typelist(const std::string& fileContent, MIME::MIMEMap_t& MIMEType) {
 	const std::size_t	fileSize = fileContent.size();
 	std::size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
 
@@ -123,7 +123,7 @@ void	typelist(const std::string& fileContent, MIME::TypeMap& MIMEType) {
 }
 
 template <typename T>
-void	typeBlock(const std::string& fileContent, MIME::TypeMap& MIMEType) {
+void	typeBlock(const std::string& fileContent, MIME::MIMEMap_t& MIMEType) {
 	const std::size_t	fileSize = fileContent.size();
 	std::size_t*			Pos = MIME::MIMEFile::getInstance()->Pos(); 
 
@@ -164,7 +164,7 @@ void	title(const std::string& fileContent) {
 }
 
 template <typename T>
-void	MIME::Parser(const std::string& fileName, TypeMap& MIMEType) {
+void	MIME::Parser(const std::string& fileName, MIMEMap_t& MIMEType) {
 	MIME::MIMEFile::InitInstance(fileName);
 	const std::string&	fileContent = MIME::MIMEFile::getInstance()->getFileContent();
 
@@ -172,5 +172,5 @@ void	MIME::Parser(const std::string& fileName, TypeMap& MIMEType) {
 	typeBlock<T>(fileContent, MIMEType);
 }
 
-template void				MIME::Parser<MIMEParserException>(const std::string&, TypeMap&);
+template void				MIME::Parser<MIMEParserException>(const std::string&, MIMEMap_t&);
 template const std::string	MIME::type<ConfParserException>(const std::string& fileName, std::size_t& Pos);

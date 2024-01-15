@@ -7,12 +7,12 @@
 std::map<std::string, unsigned short>	CONF::ServerBlock::m_ServerStatusMap;
 
 CONF::ServerBlock::ServerBlock(
-	const bool&			autoIndex,
-	const unsigned int&	keepAliveTime,
-	const std::string&	root,
-	const std::string&	accessLog,
-	const errorPageMap&	errorPage,
-	const Trie&			index
+	const bool&				autoIndex,
+	const unsigned int&		keepAliveTime,
+	const std::string&		root,
+	const std::string&		accessLog,
+	const ErrorPageMap_t&	errorPage,
+	const Trie&				index
 )
 : AConfParser(),
   m_Autoindex(autoIndex),
@@ -203,7 +203,7 @@ unsigned short	CONF::ServerBlock::directiveNameChecker(const std::string& name) 
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
 	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
-	const statusMap::iterator	it = m_ServerStatusMap.find(name);
+	const StatusMap_t::iterator	it = m_ServerStatusMap.find(name);
 
 	if (it == m_ServerStatusMap.end()) {
 		throw ConfParserException(name, "Server directive name is invalid!");
@@ -303,6 +303,6 @@ const std::set<std::string>&	CONF::ServerBlock::getServerNames() const {
 	return (this->m_Server_name);
 }
 
-const CONF::ServerBlock::locationBlockMap&	CONF::ServerBlock::getLocationMap() const {
+const CONF::ServerBlock::LocationBlockMap_t&	CONF::ServerBlock::getLocationMap() const {
 	return (this->m_LocationBlock);
 }

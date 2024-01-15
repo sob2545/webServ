@@ -21,21 +21,21 @@ namespace   CONF {
 
 	class LocationBlock : public AConfParser {
 	private:
-		typedef	std::vector<std::string>				strVec;
-		typedef std::map<std::string, LocationBlock>	locationMap;
-		typedef std::map<std::string, unsigned short> 	statusMap;
-		typedef std::map<unsigned short, errorPageData> errorPageMap;
+		typedef	std::vector<std::string>				StrVec_t;
+		typedef std::map<std::string, LocationBlock>	LocationMap_t;
+		typedef std::map<std::string, unsigned short> 	StatusMap_t;
+		typedef std::map<unsigned short, errorPageData> ErrorPageMap_t;
 
 		bool							m_Autoindex;
 		unsigned short					m_Status;
 		std::string						m_Root;
-		errorPageMap					m_Error_page;
+		ErrorPageMap_t					m_Error_page;
 		std::string						m_Access_log;
 		Trie							m_Index;
 		std::string						m_LocationName;
 		std::string						m_Cgi;
-		locationMap						m_LocationBlock;
-		static statusMap				m_LocationStatusMap;
+		LocationMap_t					m_LocationBlock;
+		static StatusMap_t				m_LocationStatusMap;
 	
 	private:
 		LocationBlock& operator=(const LocationBlock& other);
@@ -52,7 +52,7 @@ namespace   CONF {
 	public:
 		LocationBlock();
 		LocationBlock(const LocationBlock& other);
-		LocationBlock(const bool& autoIndex, const std::string& root, const std::string& accessLog, const errorPageMap& errorPage, const Trie& index);
+		LocationBlock(const bool& autoIndex, const std::string& root, const std::string& accessLog, const ErrorPageMap_t& errorPage, const Trie& index);
 		virtual ~LocationBlock();
 
 		void	initialize();
@@ -63,9 +63,9 @@ namespace   CONF {
 		const std::string&				getCgi() const;
 		const std::string				getIndex(const std::string& uri) const;
 		const bool&						getAutoindex() const;
-		const errorPageMap&				getError_page() const;
+		const ErrorPageMap_t&			getError_page() const;
 		const std::string&				getAccess_log() const;
-		const locationMap&				getLocationBlock() const;
+		const LocationMap_t&			getLocationBlock() const;
 
 	};
 }

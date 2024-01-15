@@ -10,7 +10,7 @@ CONF::LocationBlock::LocationBlock(
 	const bool&			autoIndex,
 	const std::string&	root,
 	const std::string&	accessLog,
-	const errorPageMap&	errorPage,
+	const ErrorPageMap_t&	errorPage,
 	const Trie&			index
 )
 : AConfParser(),
@@ -155,7 +155,7 @@ unsigned short	CONF::LocationBlock::directiveNameChecker(const std::string& name
 	const std::string&	fileContent = CONF::ConfFile::getInstance()->getFileContent();
 	std::size_t*				Pos = CONF::ConfFile::getInstance()->Pos();
 
-	const statusMap::iterator	it = m_LocationStatusMap.find(name);
+	const StatusMap_t::iterator	it = m_LocationStatusMap.find(name);
 
 	if (it == m_LocationStatusMap.end()) {
 		throw ConfParserException(name, "Server directive name is invalid!");
@@ -221,7 +221,7 @@ void	CONF::LocationBlock::initialize() {
 
 
 const CONF::LocationBlock&	CONF::LocationBlock::operator[](const std::string& locationName) const {
-	const locationMap::const_iterator	it = this->m_LocationBlock.find(locationName);
+	const LocationMap_t::const_iterator	it = this->m_LocationBlock.find(locationName);
 
 	if (it == this->m_LocationBlock.end()) {
 		throw ConfParserException(locationName, "Location block is not found!");
@@ -253,6 +253,6 @@ const std::map<unsigned short, CONF::errorPageData>&	CONF::LocationBlock::getErr
 	return (this->m_Error_page);
 }
 
-const CONF::LocationBlock::locationMap&	CONF::LocationBlock::getLocationBlock() const {
+const CONF::LocationBlock::LocationMap_t&	CONF::LocationBlock::getLocationBlock() const {
 	return (this->m_LocationBlock);
 }

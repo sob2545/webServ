@@ -23,23 +23,23 @@
 namespace   CONF {
 	class ServerBlock : public AConfParser {
 	private: 
-		typedef std::map<unsigned short, errorPageData> errorPageMap;
-		typedef std::map<std::string, unsigned short> 	statusMap;
-		typedef std::map<std::string, LocationBlock> 	locationBlockMap;
+		typedef std::map<unsigned short, errorPageData> ErrorPageMap_t;
+		typedef std::map<std::string, unsigned short> 	StatusMap_t;
+		typedef std::map<std::string, LocationBlock> 	LocationBlockMap_t;
 
 		bool						m_Autoindex;
 		unsigned short				m_Port;
 		unsigned short				m_Status;
 		unsigned int				m_KeepAliveTime;
 		std::string					m_Root;
-		errorPageMap				m_Error_page;
+		ErrorPageMap_t				m_Error_page;
 		std::string					m_Access_log;
 		std::string					m_IP;
 		Trie						m_Index;
 		std::string					m_LocationName;
 		std::set<std::string>		m_Server_name;
-		locationBlockMap			m_LocationBlock;
-		static statusMap			m_ServerStatusMap;
+		LocationBlockMap_t			m_LocationBlock;
+		static StatusMap_t			m_ServerStatusMap;
 
 	private:
 		ServerBlock& operator=(const ServerBlock& other);
@@ -56,7 +56,7 @@ namespace   CONF {
 	public:
 		ServerBlock();
 		ServerBlock(const ServerBlock& other);
-		ServerBlock(const bool& autoIndex, const unsigned int& keepAliveTime, const std::string& root, const std::string& accessLog, const errorPageMap& errorPage, const Trie& index);
+		ServerBlock(const bool& autoIndex, const unsigned int& keepAliveTime, const std::string& root, const std::string& accessLog, const ErrorPageMap_t& errorPage, const Trie& index);
 		virtual ~ServerBlock();
 
 		void	initialize();
@@ -70,8 +70,8 @@ namespace   CONF {
 		const std::string&				getAccess_log() const;
 		const std::string&				getInclude() const;
 		const std::string				getIndex(const std::string& uri) const;
-		const errorPageMap&				getError_page() const;
+		const ErrorPageMap_t&			getError_page() const;
 		const std::set<std::string>&	getServerNames() const;
-		const locationBlockMap&			getLocationMap() const;
+		const LocationBlockMap_t&		getLocationMap() const;
 	};
 }

@@ -7,7 +7,7 @@
 #include <map>
 
 namespace URIParser {
-	typedef	std::map<std::string, std::vector<std::string> >	QueryMap;
+	typedef	std::map<std::string, std::vector<std::string> >	QueryMap_t;
 
 	template <typename T>
 	bool	hostnameParser(const std::string& inputURI, std::size_t& pos, std::string& argument, unsigned short& port);
@@ -22,6 +22,6 @@ namespace URIParser {
 	void	HTTPMessageParser(const std::string& inputURI, std::size_t& pos, std::string& path, unsigned short& port);
 
 	template <typename T>
-	bool	RequestOriginFormParser(const std::string& inputURI, std::size_t& pos, std::string& path, URIParser::QueryMap& queryVal);
+	bool	RequestOriginFormParser(const std::string& inputURI, std::size_t& pos, std::string& path, URIParser::QueryMap_t& queryVal);
 }
 

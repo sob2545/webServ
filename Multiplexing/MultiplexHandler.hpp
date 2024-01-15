@@ -13,17 +13,17 @@
 class MultiplexHandler : public Singleton<MultiplexHandler>, FileDescriptor {
 public:
 	// 실제 클라이언트가 순회하면서 확인할 event 리스트 (이름 변경 필요)
-	typedef std::vector<SocketEvent>		socketEventVector;
+	typedef std::vector<SocketEvent>		SocketEventVector_t;
 
 #if defined (__DARWIN__)
 
-	typedef	std::vector<struct kevent>		eventVector;
-	typedef struct timespec					eventTimer;
+	typedef	std::vector<struct kevent>		EventVector_t;
+	typedef struct timespec					EventTimer_t;
 
 #elif defined (__LINUX__)
 
-	typedef std::vector<struct epoll_event>	eventVector;
-	typedef int								eventTimer;
+	typedef std::vector<struct epoll_event>	EventVector_t;
+	typedef int								EventTimer_t;
 
 #endif
 
@@ -34,7 +34,7 @@ private:
 private:
 #ifdef __DARWIN__
 
-	static eventVector	m_ChangeList;
+	static EventVector_t	m_ChangeList;
 
 #endif
 	const int	m_MaxEvents;
@@ -50,6 +50,6 @@ public:
 
 	static void					addServerEvent(const int& fd);
 	static void					addClientEvent(const int& fd, const short& status);
-	static socketEventVector	eventHandler(const eventTimer* timeout);
+	static SocketEventVector_t	eventHandler(const EventTimer_t* timeout);
 
 };

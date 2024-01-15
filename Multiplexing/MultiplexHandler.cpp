@@ -2,7 +2,7 @@
 
 #ifdef __DARWIN__
 
-MultiplexHandler::eventVector	MultiplexHandler::m_ChangeList;
+MultiplexHandler::EventVector_t	MultiplexHandler::m_ChangeList;
 
 #endif
 
@@ -36,13 +36,13 @@ MultiplexHandler::~MultiplexHandler()
 void	MultiplexHandler::addServerEvent(const int& fd) {
 #if defined	(__DARWIN__)
 
-	SocketEvent::s_event	newEvent;
+	SocketEvent::Event_t	newEvent;
 	EV_SET(&newEvent, fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 	m_ChangeList.push_back(newEvent);
 
 #elif defined (__LINUX__)
 
-	SocketEvent::s_event	newEvent;
+	SocketEvent::Event_t	newEvent;
 	newEvent.events = EPOLLIN | EPOLLET;
 	newEvent.data.fd = fd;
 
@@ -58,13 +58,13 @@ void	MultiplexHandler::addClientEvent(const int& fd, const short& status) {
 		case (E_EV::E_STATUS::READ): {
 #if defined	(__DARWIN__)
 
-			SocketEvent::s_event	newEvent;
+			SocketEvent::Event_t	newEvent;
 			EV_SET(&newEvent, fd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 			m_ChangeList.push_back(newEvent);
 
 #elif defined (__LINUX__)
 
-			SocketEvent::s_event	newEvent;
+			SocketEvent::Event_t	newEvent;
 			newEvent.events = EPOLLIN | EPOLLET | EPOLLONESHOT;
 			newEvent.data.fd = fd;
 
@@ -77,13 +77,13 @@ void	MultiplexHandler::addClientEvent(const int& fd, const short& status) {
 		case (E_EV::E_STATUS::WRITE): {
 #if defined	(__DARWIN__)
 
-			SocketEvent::s_event	newEvent;
+			SocketEvent::Event_t	newEvent;
 			EV_SET(&newEvent, fd, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 			m_ChangeList.push_back(newEvent);
 
 #elif defined (__LINUX__)
 
-			SocketEvent::s_event	newEvent;
+			SocketEvent::Event_t	newEvent;
 			newEvent.events = EPOLLOUT | EPOLLET | EPOLLONESHOT;
 			newEvent.data.fd = fd;
 
@@ -97,10 +97,10 @@ void	MultiplexHandler::addClientEvent(const int& fd, const short& status) {
 }
 
 
-MultiplexHandler::socketEventVector		MultiplexHandler::eventHandler(const MultiplexHandler::eventTimer* timeout) {
-	socketEventVector	res;
+MultiplexHandler::SocketEventVector_t		MultiplexHandler::eventHandler(const MultiplexHandler::EventTimer_t* timeout) {
+	SocketEventVector_t	res;
 	int					eventCount(0);
-	SocketEvent::s_event		newEvents[1024];
+	SocketEvent::Event_t		newEvents[1024];
 #if defined	(__DARWIN__)
 
 	eventCount = kevent(MultiplexHandler::instance().getFd(), &m_ChangeList[0], m_ChangeList.size(), &newEvents[0], MultiplexHandler::instance().getMaxEvent(), timeout);

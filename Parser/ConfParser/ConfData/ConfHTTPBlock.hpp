@@ -27,13 +27,13 @@
 namespace   CONF {
 	class HTTPBlock : public AConfParser {
 	public:
-		typedef std::pair<std::string, unsigned short>				serverKey;
-		typedef std::vector<CONF::ServerBlock>						serverVector;
+		typedef std::pair<std::string, unsigned short>				ServerKey_t;
+		typedef std::vector<CONF::ServerBlock>						ServerVector_t;
 
 	private:
-		typedef std::map<std::string, unsigned short>				statusMap;
-		typedef std::map<std::string, std::vector<std::string> >	TypeMap;
-		typedef std::map<unsigned short, errorPageData>				errorPageMap;
+		typedef std::map<std::string, unsigned short>				StatusMap_t;
+		typedef std::map<std::string, std::vector<std::string> >	MIMEMap_t;
+		typedef std::map<unsigned short, errorPageData>				ErrorPageMap_t;
 
 		bool									m_Autoindex;
 		unsigned short							m_Status;
@@ -43,10 +43,10 @@ namespace   CONF {
 		std::string								m_Access_log;
 		std::string								m_Include;
 		Trie									m_Index;
-		errorPageMap							m_Error_page;
-		TypeMap									m_Mime_types;
-		serverVector							m_ServerBlock;
-		static statusMap						m_HTTPStatusMap;
+		ErrorPageMap_t							m_Error_page;
+		MIMEMap_t								m_Mime_types;
+		ServerVector_t							m_ServerBlock;
+		static StatusMap_t						m_HTTPStatusMap;
 
 	private:
 		HTTPBlock(const HTTPBlock& other);
@@ -63,20 +63,20 @@ namespace   CONF {
 	
 	public:
 		HTTPBlock();
-		const CONF::ServerBlock&	operator[](const serverKey& key) const;
+		const CONF::ServerBlock&	operator[](const ServerKey_t& key) const;
 		virtual ~HTTPBlock();
 
-		void					initialize();
+		void						initialize();
 
-		const bool&				getAutoindex() const;
-		const unsigned int&		getKeepAliveTime() const;
-		const std::string&		getDefault_type() const;
-		const std::string&		getRoot() const;
-		const std::string&		getAccess_log() const;
-		const std::string&		getInclude() const;
-		const std::string		getIndex(const std::string& uri) const;
-		const errorPageMap&		getError_page() const;
-		const TypeMap&			getMime_types() const;
-		const serverVector&		getServerVector() const;
+		const bool&					getAutoindex() const;
+		const unsigned int&			getKeepAliveTime() const;
+		const std::string&			getDefault_type() const;
+		const std::string&			getRoot() const;
+		const std::string&			getAccess_log() const;
+		const std::string&			getInclude() const;
+		const std::string			getIndex(const std::string& uri) const;
+		const ErrorPageMap_t&		getError_page() const;
+		const MIMEMap_t&			getMime_types() const;
+		const ServerVector_t&		getServerVector() const;
 	};
 }

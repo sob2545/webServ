@@ -23,7 +23,7 @@ namespace	E_CONF {
 namespace CONF {
 	class AConfParser {
 	protected:
-		typedef std::map<unsigned short, errorPageData>	errorPageMap;
+		typedef std::map<unsigned short, errorPageData>	ErrorPageMap_t;
 
 		static std::stack<unsigned char>	m_BlockStack;
 
@@ -35,7 +35,7 @@ namespace CONF {
 
 		void		fileName(std::string& argument);
 		void		errorPageArgumentParser(std::string& argument);
-		void		errorPageChecker(const std::vector<std::string>& args, errorPageMap& errorMap);
+		void		errorPageChecker(const std::vector<std::string>& args, ErrorPageMap_t& errorMap);
 		void		argumentParser(std::string& argument);
 
 		void		handleHtabSpace(const char& c);

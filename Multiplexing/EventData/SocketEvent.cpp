@@ -8,7 +8,7 @@ SocketEvent::SocketEvent()
 	std::memset(&m_Event, 0, sizeof(m_Event));
 }
 
-SocketEvent::SocketEvent(const s_event& other) {
+SocketEvent::SocketEvent(const Event_t& other) {
 #if defined	(__DARWIN__)
 
 	this->m_Event.ident = other.ident;
@@ -45,7 +45,7 @@ const SocketEvent&	SocketEvent::operator=(const SocketEvent& other) {
 }
 
 // uintptr_t ident, int16_t filter, uint16_t flags, uint32_t fflags, int64_t data, void *udata
-const SocketEvent&	SocketEvent::operator=(const s_event& other) {
+const SocketEvent&	SocketEvent::operator=(const Event_t& other) {
 #if defined	(__DARWIN__)
 
 	this->m_Event.ident = other.ident;
