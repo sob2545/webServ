@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../../Utils/SmartPointer.hpp"
+#include "../../../Utils/SmartPointer.hpp"
 #include <string>
+#include <vector>
 #include <map>
 
 namespace E_HTTP {
@@ -72,30 +73,30 @@ namespace HTTP {
 */
 
 	struct	RequestData {
-		typedef std::map<std::string, std::vector<std::string> > QueryMap;
+		typedef std::map<std::string, std::vector<std::string> > QueryMap_t;
 
 		unsigned short	m_Port;
 
 		std::string		m_URI;
 		std::string		m_Path;
-		QueryMap		m_Query;
+		QueryMap_t		m_Query;
 	};
 
 	struct	ResponseRecipe {
-		typedef	std::map<std::string, std::string> CookieMap;
+		typedef	std::map<std::string, std::string> CookieMap_t;
 
 		unsigned char					m_Method;
 		unsigned char					m_Status;
 		unsigned char					m_Version;
 
 		// bool			m_Form; // is it URI or Path : origin-form vs absolute-form / authoirty-form
+
 		std::string						m_RequestTarget;
 
-		std::vector<unsigned char>		m_BodyMessage();
+		std::vector<unsigned char>		m_BodyMessage;
 		std::map<unsigned short, void*>	m_HeaderMap;
-		CookieMap						m_Cookie;
+		CookieMap_t						m_Cookie;
 		RequestData						m_RequestData;
 
-		~ResponseRecipe();
 	};
 }
