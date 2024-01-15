@@ -2,13 +2,14 @@
 
 #include "../Parser/ConfParser/ConfData/ConfBlock.hpp"
 #include "../Multiplexing/MultiplexHandler.hpp"
+#include "WorkerProcess/WorkerProcess.hpp"
 #include <sys/_types/_pid_t.h>
 
-typedef std::vector<CONF::ServerBlock> confServerBlockVector;
+typedef std::vector<CONF::ServerBlock> confServerBlockVector_t;
 
-MasterProcess::mainServerVector	MasterProcess::m_Servers;
+MasterProcess::MainServerVector_t	MasterProcess::m_Servers;
 
-MasterProcess::TypeMap	MasterProcess::m_MIMETypes;
+MasterProcess::MIMEMap_t	MasterProcess::m_MIMETypes;
 
 // TODO: delete
 #include <iostream>
@@ -36,12 +37,28 @@ ft::shared_ptr<Server>	MasterProcess::findExistServer(const std::string& IP, con
 	return (ft::shared_ptr<Server>());
 }
 
-void	MasterProcess::workerProcessRun() {
-	while (1) {
-		const std::vector<SocketEvent>	eventList = MultiplexHandler::eventHandler(NULL);
-		for (int eventNum(0); eventNum < eventList.size(); ++eventNum) {
-			const SocketEvent* const	curEvent = &eventList[eventNum];
+bool	MasterProcess::isServerSocket(const int& fd) {
+	for (MainServerVector_t::const_iterator it = m_Servers.begin(); it != m_Servers.end(); ++it) {
+		if (it->get()->getServerFd() == fd) {
 			
+		}
+	}
+}
+
+
+
+void	MasterProcess::runWorkerProcess() {
+	while (1) {
+		const std::vector<SocketEvent> eventList = MultiplexHandler::eventHandler(NULL);
+		for (std::size_t eventNumber; eventNumber < eventList.size(); ++eventNumber) {
+			const SocketEvent&	currEvent = eventList[eventNumber];
+
+			if (currEvent.isReadEvent()) {
+
+
+			} else if (currEvent.isWriteEvent()) {
+
+			}
 		}
 	}
 }
@@ -66,7 +83,7 @@ void	MasterProcess::start() {
 
 #endif
 
-	const confServerBlockVector&	mainServerBlocks = CONF::ConfBlock::getInstance()->getMainBlock().getHTTPBlock().getServerVector();
+	const confServerBlockVector_t&	mainServerBlocks = CONF::ConfBlock::getInstance()->getMainBlock().getHTTPBlock().getServerVector();
 	unsigned short		curPort = 0;
 
 	for (std::size_t i(0); i < mainServerBlocks.size(); ++i) {
@@ -102,12 +119,12 @@ void	MasterProcess::start() {
 				MultiplexHandler::instance();
 
 				/* add Server event */
-				for (mainServerVector::const_iterator it = MasterProcess::m_Servers.begin(); it != MasterProcess::m_Servers.end(); ++it) {
+				for (MainServerVector_t::const_iterator it = MasterProcess::m_Servers.begin(); it != MasterProcess::m_Servers.end(); ++it) {
 					MultiplexHandler::addServerEvent(it->get()->getServerFd());
 				}
 
 				/* main server loop */
-				workerProcessRun();
+				runWorkerProcess();
 
 #ifdef __RELEASE__
 
@@ -118,6 +135,6 @@ void	MasterProcess::start() {
 #endif
 }
 
-const MasterProcess::TypeMap&	MasterProcess::getMIMETypes() {
+const MasterProcess::MIMEMap_t&	MasterProcess::getMIMETypes() {
 	return m_MIMETypes;
 }

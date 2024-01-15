@@ -5,10 +5,10 @@
 
 class Server {
 public:
-	typedef std::vector<CONF::ServerBlock> ConfServerVector;
+	typedef std::vector<CONF::ServerBlock> ConfServerVector_t;
 private:
 	ServerSocket		m_Socket;
-	ConfServerVector	m_ServerBlock;
+	ConfServerVector_t	m_ServerBlock;
 
 	Server(const Server& other);
 	Server& operator=(const Server& other);
