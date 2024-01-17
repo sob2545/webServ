@@ -16,6 +16,8 @@
 #include <semaphore.h>
 #include <pthread.h>
 #include <vector>
+#include <set>
+#include "../../Utils/Color.hpp"
 
 #define FORK_NUM 4
 
@@ -33,7 +35,7 @@ int	main() {
 		exit(EXIT_FAILURE);
 	}
 
-	std::vector<int>	clientList;
+	std::set<int>	clientList;
 
 	int	fd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -57,9 +59,9 @@ int	main() {
 	addr2.sin_addr.s_addr = htonl(0);
 	addr2.sin_port = htons(8081);
 
-	int	reuse = 1, reuse2 = 1;
-	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT | SO_NOSIGPIPE, &reuse, sizeof(reuse));
-	setsockopt(fd2, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT | SO_NOSIGPIPE, &reuse2, sizeof(reuse2));
+	// int	reuse = 1, reuse2 = 1;
+	// setsockopt(fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT | SO_NOSIGPIPE, &reuse, sizeof(reuse));
+	// setsockopt(fd2, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT | SO_NOSIGPIPE, &reuse2, sizeof(reuse2));
 
 	if (bind(fd, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr)) < 0) {
 		std::cerr << "bind fail" << std::endl;
@@ -101,8 +103,8 @@ int	main() {
 			}
 			std::vector<struct kevent>	changes(2);
 
-			EV_SET(&changes[0], fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-			EV_SET(&changes[1], fd2, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+			EV_SET(&changes[0], fd, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, NULL);
+			EV_SET(&changes[1], fd2, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, NULL);
 
 
 			while (1) {
@@ -131,6 +133,11 @@ int	main() {
 						// std::cout << "B Accept Error Number: " << errno << std::endl;
 						
 							if (sem_trywait(sem) == 0) {
+								if (clientList.size() > 2) {
+									printf("%d max client reached", (int)clientList.size());
+									sem_post(sem);
+									continue;
+								}
 								clientFd = accept(fd, (struct sockaddr*)&clientAddr, &clientLen);
 								if (clientFd < 0) {
 									printf("accept fail server1: %d %d\n", getpid(), errno);
@@ -138,6 +145,7 @@ int	main() {
 									continue ;
 								}
 								// printf("accept: client[%d] %d\n", eventFd, getpid());
+								clientList.insert(clientFd);
 								usleep(1000);
 								sem_post(sem);
 							} else {
@@ -162,6 +170,11 @@ int	main() {
 							// std::cout << "B Accept Error Number: " << errno << std::endl;
 							
 							if (sem_trywait(sem2) == 0) {
+								if (clientList.size() > 512) {
+									printf("%d max client reached", (int)clientList.size());
+									sem_post(sem2);
+									continue;
+								}
 								clientFd = accept(fd2, (struct sockaddr*)&clientAddr, &clientLen);
 								if (clientFd < 0) {
 									printf("accept fail server2: %d %d\n", getpid(), errno);
@@ -169,6 +182,7 @@ int	main() {
 									continue ;
 								}
 								// printf("accept: client[%d] %d\n", eventFd, getpid());
+								clientList.insert(clientFd);
 								usleep(1000);
 								sem_post(sem2);
 							} else {
@@ -192,11 +206,19 @@ int	main() {
 							// const int	len = recv(eventFd, &data, sizeof(data), 0);
 							const int	len = read(eventFd, &data, sizeof(data));
 							// std::cout << "After Error Number: " << errno << std::endl;
+							std::string	tmp(data);
+							std::cout << BOLDRED << tmp << std::endl;
 
+							printf("%d, %d client in\n", (int)getpid(), eventFd);
+							printf("%d client list size\n", (int)clientList.size());
 
 							if (len == 0) {
 								// send(eventFd, "", 0, 0);
 								std::cout << eventFd << ": Client Close\n";
+								clientList.erase(eventFd);
+								struct kevent	delEvent;
+								EV_SET(&delEvent, fd, EVFILT_READ, EV_CLEAR, 0, 0, NULL);
+								changes.push_back(delEvent);
 								close(eventFd);
 							} else {
 								// std::cout << "[" << getpid() << "]process [" << newEvents[i].ident << "] data is: " << data << std::endl;
@@ -228,7 +250,8 @@ int	main() {
 						// const std::string str = "HTTP/1.1 302 Found\r\nLocation: https://example.com/new-location\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
 							int res = send(newEvents[i].ident, body.c_str(), strlen(body.c_str()), 0);
 							if (res <= 0) {
-								std::cerr << "SEND ERROR\n";
+								std::cerr << newEvents[i].ident << " SEND ERROR\n";
+								clientList.erase(newEvents[i].ident);
 								close (newEvents[i].ident);
 								continue ;
 							}
@@ -236,10 +259,11 @@ int	main() {
 						// std::string*	writeData = static_cast<std::string*>(newEvents[i].udata);
 						// write(newEvents[i].ident, writeData->c_str(), writeData->size());
 						// ::delete writeData;
-						// struct kevent	newEvent;
-						// EV_SET(&newEvent, newEvents[i].ident, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-						// changes.push_back(newEvent);
-						close(newEvents[i].ident);
+						struct kevent	newEvent;
+						EV_SET(&newEvent, newEvents[i].ident, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+						changes.push_back(newEvent);
+						// clientList.erase(newEvents[i].ident);
+						// close(newEvents[i].ident);
 					}
 				}
 			}
