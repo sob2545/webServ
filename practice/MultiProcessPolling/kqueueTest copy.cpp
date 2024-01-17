@@ -17,13 +17,19 @@
 #include <pthread.h>
 #include <vector>
 
-#define FORK_NUM 10
+#define FORK_NUM 4
 
 int	main() {
 	sem_unlink("/testSem");
 	sem_t*	sem = sem_open("/testSem", O_CREAT, 0644, 1);
 	if (sem == SEM_FAILED) {
 		std::cerr << "sem failed\n";
+		exit(EXIT_FAILURE);
+	}
+	sem_unlink("/testSem2");
+	sem_t*	sem2 = sem_open("/testSem2", O_CREAT, 0644, 1);
+	if (sem2 == SEM_FAILED) {
+		std::cerr << "sem2 failed\n";
 		exit(EXIT_FAILURE);
 	}
 
@@ -51,15 +57,16 @@ int	main() {
 	addr2.sin_addr.s_addr = htonl(0);
 	addr2.sin_port = htons(8081);
 
-	int	reuse = 1;
-	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR | SO_NOSIGPIPE, &reuse, sizeof(reuse));
+	int	reuse = 1, reuse2 = 1;
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT | SO_NOSIGPIPE, &reuse, sizeof(reuse));
+	setsockopt(fd2, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT | SO_NOSIGPIPE, &reuse2, sizeof(reuse2));
 
 	if (bind(fd, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr)) < 0) {
 		std::cerr << "bind fail" << std::endl;
 		return (0);
 	}
 
-	if (listen(fd, 10) < 0) {
+	if (listen(fd, 128) < 0) {
 		std::cerr << "listen fail" << std::endl;
 		return (0);
 	}
@@ -69,7 +76,7 @@ int	main() {
 		return (0);
 	}
 
-	if (listen(fd2, 10) < 0) {
+	if (listen(fd2, 128) < 0) {
 		std::cerr << "listen fail" << std::endl;
 		return (0);
 	}
@@ -114,75 +121,71 @@ int	main() {
 
 				for (int i(0); i < nev; ++i) {
 					const int	eventFd = newEvents[i].ident;
-						
-					// } else if (eventFd == fd2) {
-					// 	struct sockaddr_in	clientAddr;
-					// 	socklen_t	clientLen = sizeof(clientAddr);
-					// 	int	clientFd;
-
-					// 	if (sem_trywait(sem) == 0) {
-					// 		// std::cout << errno << std::endl;
-					// 		clientFd = accept(fd2, (struct sockaddr*)&clientAddr, &clientLen);
-					// 		if (clientFd == -1) {
-					// 			std::cerr << "\033[1m\033[31m" << "Accept is -1\n" << "\033[0m";
-					// 		}
-					// 		printf("accept: client[%d] %d\n", clientFd, getpid());
-					// 		clientList.push_back(clientFd);
-					// 		sem_post(sem);
-					// 	} else {
-					// 		if (errno == EAGAIN) {
-					// 			continue ;
-					// 		}
-					// 	}
-
-					// 	if (clientFd < 0) {
-					// 		printf("accept fail: %d\n", getpid());
-					// 		continue ;
-					// 	}
-
-					// 	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
-					// 		std::cerr << "nonblock set fail\n";
-					// 	}
-
-					// 	struct kevent newEvent;
-					// 	EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-					// 	changes.push_back(newEvent);
-					// }
-
 					if (newEvents[i].filter == EVFILT_READ) {
 
 						if (eventFd == fd) {
 							struct sockaddr_in	clientAddr;
-						socklen_t	clientLen = sizeof(clientAddr);
-						int	clientFd;
+							socklen_t	clientLen = sizeof(clientAddr);
+							int	clientFd;
 
 						// std::cout << "B Accept Error Number: " << errno << std::endl;
 						
-						if (sem_trywait(sem) == 0) {
-							clientFd = accept(fd, (struct sockaddr*)&clientAddr, &clientLen);
-							if (clientFd < 0) {
-								printf("accept fail: %d %d\n", getpid(), errno);
-								continue ;
+							if (sem_trywait(sem) == 0) {
+								clientFd = accept(fd, (struct sockaddr*)&clientAddr, &clientLen);
+								if (clientFd < 0) {
+									printf("accept fail server1: %d %d\n", getpid(), errno);
+									sem_post(sem);
+									continue ;
+								}
+								// printf("accept: client[%d] %d\n", eventFd, getpid());
+								usleep(1000);
+								sem_post(sem);
+							} else {
+								if (errno == EAGAIN) {
+									continue ;
+								}
 							}
-							// printf("accept: client[%d] %d\n", eventFd, getpid());
-							usleep(100);
-							sem_post(sem);
+							// std::cout << "A Accept Error Number: " << errno << std::endl;
+
+							if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
+								printf("nonblock set fail 1 %d\n", clientFd);
+							}
+
+							struct kevent newEvent;
+							EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+							changes.push_back(newEvent);
+						} else if (eventFd == fd2) {
+							struct sockaddr_in	clientAddr;
+							socklen_t	clientLen = sizeof(clientAddr);
+							int	clientFd;
+
+							// std::cout << "B Accept Error Number: " << errno << std::endl;
+							
+							if (sem_trywait(sem2) == 0) {
+								clientFd = accept(fd2, (struct sockaddr*)&clientAddr, &clientLen);
+								if (clientFd < 0) {
+									printf("accept fail server2: %d %d\n", getpid(), errno);
+									sem_post(sem2);
+									continue ;
+								}
+								// printf("accept: client[%d] %d\n", eventFd, getpid());
+								usleep(1000);
+								sem_post(sem2);
+							} else {
+								if (errno == EAGAIN) {
+									continue ;
+								}
+							}
+							// std::cout << "A Accept Error Number: " << errno << std::endl;
+
+							if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
+								printf("nonblock set fail 2 %d\n", clientFd);
+							}
+
+							struct kevent newEvent;
+							EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+							changes.push_back(newEvent);
 						} else {
-							if (errno == EAGAIN) {
-								continue ;
-							}
-						}
-						// std::cout << "A Accept Error Number: " << errno << std::endl;
-
-						if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
-							std::cerr << "nonblock set fail\n";
-						}
-
-						struct kevent newEvent;
-						EV_SET(&newEvent, clientFd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-						changes.push_back(newEvent);
-						}
-						else {
 							char	data[4096];
 							bzero(&data, sizeof(data));
 							// std::cout << "Before Error Number: " << errno << std::endl;
@@ -225,7 +228,7 @@ int	main() {
 						// const std::string str = "HTTP/1.1 302 Found\r\nLocation: https://example.com/new-location\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
 							int res = send(newEvents[i].ident, body.c_str(), strlen(body.c_str()), 0);
 							if (res <= 0) {
-								std::cerr << "\033[1m\033[31" << "SEND ERROR\n";
+								std::cerr << "SEND ERROR\n";
 								close (newEvents[i].ident);
 								continue ;
 							}
@@ -249,4 +252,6 @@ for (int i = 0; i < FORK_NUM; i++) {
 }
 	sem_close(sem);
 	sem_unlink("/testSem");
+	sem_close(sem2);
+	sem_unlink("/testSem2");
 }
