@@ -17,9 +17,10 @@
 #include <pthread.h>
 #include <vector>
 
-
+#define FORK_NUM 10
 
 int	main() {
+	sem_unlink("/testSem");
 	sem_t*	sem = sem_open("/testSem", O_CREAT, 0644, 1);
 	if (sem == SEM_FAILED) {
 		std::cerr << "sem failed\n";
@@ -50,9 +51,8 @@ int	main() {
 	addr2.sin_addr.s_addr = htonl(0);
 	addr2.sin_port = htons(8081);
 
-	// int	reuse = 1;
-	// setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
-	// setsockopt(fd2, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &reuse, sizeof(reuse));
+	int	reuse = 1;
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR | SO_NOSIGPIPE, &reuse, sizeof(reuse));
 
 	if (bind(fd, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr)) < 0) {
 		std::cerr << "bind fail" << std::endl;
@@ -76,7 +76,7 @@ int	main() {
 
 
 #ifdef FORK
-	for (int k(0); k < 4; ++k) {
+	for (int k(0); k < FORK_NUM; ++k) {
 		pid_t	childFd = fork();
 
 		if (childFd > 0) {
@@ -114,20 +114,6 @@ int	main() {
 
 				for (int i(0); i < nev; ++i) {
 					const int	eventFd = newEvents[i].ident;
-					// if (eventFd == fd) {
-						
-					// 	continue;
-					// 	/*
-					// 	if (sem_trywait(sem) == 0) {
-					// 		printf("accept: client[%d] %d\n", clientFd, getpid());
-					// 		clientList.push_back(clientFd);
-					// 		sem_post(sem);
-					// 	} else {
-					// 		if (errno == EAGAIN) {
-					// 			continue ;
-					// 		}
-					// 	}
-					// 	*/
 						
 					// } else if (eventFd == fd2) {
 					// 	struct sockaddr_in	clientAddr;
@@ -170,13 +156,23 @@ int	main() {
 						socklen_t	clientLen = sizeof(clientAddr);
 						int	clientFd;
 
-						std::cout << "B Accept Error Number: " << errno << std::endl;
-						clientFd = accept(fd, (struct sockaddr*)&clientAddr, &clientLen);
-						if (clientFd < 0) {
-							printf("accept fail: %d\n", getpid());
-							continue ;
+						// std::cout << "B Accept Error Number: " << errno << std::endl;
+						
+						if (sem_trywait(sem) == 0) {
+							clientFd = accept(fd, (struct sockaddr*)&clientAddr, &clientLen);
+							if (clientFd < 0) {
+								printf("accept fail: %d %d\n", getpid(), errno);
+								continue ;
+							}
+							// printf("accept: client[%d] %d\n", eventFd, getpid());
+							usleep(100);
+							sem_post(sem);
+						} else {
+							if (errno == EAGAIN) {
+								continue ;
+							}
 						}
-						std::cout << "A Accept Error Number: " << errno << std::endl;
+						// std::cout << "A Accept Error Number: " << errno << std::endl;
 
 						if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0) {
 							std::cerr << "nonblock set fail\n";
@@ -189,10 +185,10 @@ int	main() {
 						else {
 							char	data[4096];
 							bzero(&data, sizeof(data));
-							std::cout << "Before Error Number: " << errno << std::endl;
+							// std::cout << "Before Error Number: " << errno << std::endl;
 							// const int	len = recv(eventFd, &data, sizeof(data), 0);
 							const int	len = read(eventFd, &data, sizeof(data));
-							std::cout << "After Error Number: " << errno << std::endl;
+							// std::cout << "After Error Number: " << errno << std::endl;
 
 
 							if (len == 0) {
@@ -237,10 +233,10 @@ int	main() {
 						// std::string*	writeData = static_cast<std::string*>(newEvents[i].udata);
 						// write(newEvents[i].ident, writeData->c_str(), writeData->size());
 						// ::delete writeData;
-						struct kevent	newEvent;
-						EV_SET(&newEvent, newEvents[i].ident, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-						changes.push_back(newEvent);
-						// close(newEvents[i].ident);
+						// struct kevent	newEvent;
+						// EV_SET(&newEvent, newEvents[i].ident, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+						// changes.push_back(newEvent);
+						close(newEvents[i].ident);
 					}
 				}
 			}
@@ -248,10 +244,9 @@ int	main() {
 		}
 	}
 #endif
+for (int i = 0; i < FORK_NUM; i++) {
 	wait(NULL);
-	wait(NULL);
-	wait(NULL);
-	wait(NULL);
+}
 	sem_close(sem);
 	sem_unlink("/testSem");
 }
