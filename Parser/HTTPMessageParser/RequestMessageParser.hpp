@@ -60,6 +60,7 @@ namespace HTTP {
 
 		// HTTP Body Parser
 		static void					messageBody(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
+		static void					handleChunekdMsg(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
 
 	public:
 		RequestMessageParser();

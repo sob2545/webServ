@@ -17,30 +17,30 @@ HTTP::RequestMessageParser::RequestMessageParser() {
 HTTP::RequestMessageParser::~RequestMessageParser() {}
 
 void	HTTP::RequestMessageParser::initMethodMap() {
-	m_MethodMap["GET"] = E_HTTP::E_METHOD::GET;
-	m_MethodMap["POST"] = E_HTTP::E_METHOD::POST;
-	m_MethodMap["DELETE"] = E_HTTP::E_METHOD::DELETE;
-	m_MethodMap["PUT"] = E_HTTP::E_METHOD::PUT;
-	m_MethodMap["PATCH"] = E_HTTP::E_METHOD::PATCH;
-	m_MethodMap["OPTIONS"] = E_HTTP::E_METHOD::OPTIONS;
+	m_MethodMap["GET"] = E_HTTP::GET;
+	m_MethodMap["POST"] = E_HTTP::POST;
+	m_MethodMap["DELETE"] = E_HTTP::DELETE;
+	m_MethodMap["PUT"] = E_HTTP::PUT;
+	m_MethodMap["PATCH"] = E_HTTP::PATCH;
+	m_MethodMap["OPTIONS"] = E_HTTP::OPTIONS;
 }
 
 void	HTTP::RequestMessageParser::initHeaderMap() {
-	m_HeaderMap["Connection"] = E_HTTP::E_HEADER::CONNECTION;
-	m_HeaderMap["Date"] = E_HTTP::E_HEADER::DATE;
-	m_HeaderMap["Transfer-Encoding"] = E_HTTP::E_HEADER::TRANSFER_ENCODING;
-	m_HeaderMap["Host"] = E_HTTP::E_HEADER::HOST;
-	m_HeaderMap["Content-Lengths"] = E_HTTP::E_HEADER::CONTENT_LENGTHS;
-	m_HeaderMap["Content-Type"] = E_HTTP::E_HEADER::CONTENT_TYPE;
-	m_HeaderMap["Cookie"] = E_HTTP::E_HEADER::COOKIE;
+	m_HeaderMap["Connection"] = E_HTTP::CONNECTION;
+	m_HeaderMap["Date"] = E_HTTP::DATE;
+	m_HeaderMap["Transfer-Encoding"] = E_HTTP::TRANSFER_ENCODING;
+	m_HeaderMap["Host"] = E_HTTP::HOST;
+	m_HeaderMap["Content-Lengths"] = E_HTTP::CONTENT_LENGTHS;
+	m_HeaderMap["Content-Type"] = E_HTTP::CONTENT_TYPE;
+	m_HeaderMap["Cookie"] = E_HTTP::COOKIE;
 }
 
 bool	HTTP::RequestMessageParser::isDuplicatable(const unsigned short& status) {
 	switch (status) {
-		case (E_HTTP::E_HEADER::CONNECTION):
-		case (E_HTTP::E_HEADER::DATE):
-		case (E_HTTP::E_HEADER::TRANSFER_ENCODING):
-		case (E_HTTP::E_HEADER::COOKIE):
+		case (E_HTTP::CONNECTION):
+		case (E_HTTP::DATE):
+		case (E_HTTP::TRANSFER_ENCODING):
+		case (E_HTTP::COOKIE):
 			return true;
 	}
 	return false;
@@ -70,7 +70,7 @@ bool	HTTP::RequestMessageParser::argumentChecker(HTTP::ResponseRecipe& recipe, c
 	(args.empty()) ? throw BadRequestException() : 0;
 
 	switch (status) {
-		case (E_HTTP::E_HEADER::CONNECTION): {
+		case (E_HTTP::CONNECTION): {
 			for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it) {
 				std::map<unsigned short, void*>::iterator connectionStatus = recipe.m_HeaderMap.find((status));
 
@@ -92,37 +92,37 @@ bool	HTTP::RequestMessageParser::argumentChecker(HTTP::ResponseRecipe& recipe, c
 				}
 			}
 		}
-		case (E_HTTP::E_HEADER::DATE): {
+		case (E_HTTP::DATE): {
 			// DateParser();
 		}
-		case (E_HTTP::E_HEADER::TRANSFER_ENCODING): {
+		case (E_HTTP::TRANSFER_ENCODING): {
 			for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it) {
 				std::map<unsigned short, void*>::iterator encodingStatus = recipe.m_HeaderMap.find((status));
 
 				if (encodingStatus != recipe.m_HeaderMap.end()) {
-					(!encodingStatus->second) ? (*reinterpret_cast<bool*>(encodingStatus->second) = true) : 0;
+					(!encodingStatus->second) ? (*reinterpret_cast<bool*>(encodingStatus->second) = ((*it == "chunekd") ? true : false)) : 0;
 				} else {
 					recipe.m_HeaderMap.insert(std::make_pair(status, (static_cast<void*>(::new bool((*it == "chunked") ? true : false)))));
 				}
 			}
 		}
-		case (E_HTTP::E_HEADER::HOST): {
+		case (E_HTTP::HOST): {
 			// argument길이가 최대 몇 자 넘어가면 exception
 			recipe.m_HeaderMap.insert(std::make_pair(status, static_cast<void*>(::new std::string(args[0]))));
 		}
-		case (E_HTTP::E_HEADER::CONTENT_LENGTHS): {
+		case (E_HTTP::CONTENT_LENGTHS): {
 			(args.size() != 1) ? throw BadRequestException() : 0;
 			char*	endptr;
 			const long		length = strtol(args[0].c_str(), &endptr, 10);
 			(length <= 0) ? throw BadRequestException() : 0;
 			recipe.m_HeaderMap.insert(std::make_pair(status, static_cast<void*>(::new int(length))));
 		}
-		case (E_HTTP::E_HEADER::CONTENT_TYPE): {
+		case (E_HTTP::CONTENT_TYPE): {
 			(args.size() != 1) ? throw BadRequestException() : 0;
 			MasterProcess::getMIMETypes().find(args[0]) != MasterProcess::getMIMETypes().end() ?
 				recipe.m_HeaderMap.insert(std::make_pair(status, static_cast<void*>(::new std::string(args[0])))) : throw BadRequestException();
 		}
-		case (E_HTTP::E_HEADER::COOKIE): {
+		case (E_HTTP::COOKIE): {
 			if (recipe.m_HeaderMap.find(status) == recipe.m_HeaderMap.end()) {
 				recipe.m_HeaderMap.insert(std::make_pair(status, static_cast<void*>(::new std::map<std::string, std::string>)));
 			}
@@ -147,9 +147,9 @@ bool	HTTP::RequestMessageParser::argumentChecker(HTTP::ResponseRecipe& recipe, c
 const std::string	HTTP::RequestMessageParser::fieldContent(const std::string& message, std::size_t& pos, const unsigned short& status) {
 	const std::size_t&	msgSize(message.size());
 	std::string		arg;
-	const char		delimiter = (status & E_HTTP::E_HEADER::TRANSFER_ENCODING || status & E_HTTP::E_HEADER::CONNECTION) ?
-								E_HTTP::E_DELIMETER::COMMA : ((status & E_HTTP::E_HEADER::COOKIE) ?
-																E_HTTP::E_DELIMETER::SEMICOLON : E_HTTP::E_DELIMETER::DEFAULT);
+	const char		delimiter = (status & E_HTTP::TRANSFER_ENCODING || status & E_HTTP::CONNECTION) ?
+								E_HTTP::COMMA : ((status & E_HTTP::COOKIE) ?
+																E_HTTP::SEMICOLON : E_HTTP::DEFAULT);
 
 	while (pos < msgSize && ABNF::isWSP(message, pos)) {
 		pos++;
@@ -166,7 +166,7 @@ const std::string	HTTP::RequestMessageParser::fieldContent(const std::string& me
 }
 
 void	HTTP::RequestMessageParser::fieldValue(const std::string& message, std::size_t& pos, std::vector<std::string>& args, const unsigned short& status) {
-	if (status & E_HTTP::E_HEADER::HOST) {
+	if (status & E_HTTP::HOST) {
 		std::string		arg;
 		unsigned short	port;
 		try {
@@ -288,6 +288,38 @@ void	HTTP::RequestMessageParser::requestLine(HTTP::ResponseRecipe& recipe, const
 	HTTPVersion(recipe, message, pos);
 }
 
+/*
+ *		Chunekd Parser
+*/
+void	HTTP::RequestMessageParser::handleChunekdMsg(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos) {
+	const std::size_t&	messageSize(message.size());
+	std::string			chunekdSize;
+
+	/*
+	 *	chunk-size를 contentLength로 갱신하여 저장할 필요가 있음
+	 *	안 그러면 chunk-size보다 데이터가 작은 경우 다시 읽는 작업을 할 수 없음
+	 *	추가로 Parser에 들어왔을 때 이미 chunked인 경우 위에 Header를 읽을 필요가 없기 때문에 status로 빠른 처리 필요
+	*/
+	while (pos < messageSize && std::isxdigit(static_cast<int>(message[pos]))) {
+		chunekdSize += message[pos];
+		pos++;
+	}
+	char*			endptr;
+	const long		chunekdLength = strtol(chunekdSize.c_str(), &endptr, 16);
+
+	chunekdLength < 0 ? throw BadRequestException() : 0;
+	while (pos < messageSize && ABNF::isC_nl(message, pos)) {
+		(ABNF::isWSP(message, pos) || ABNF::isTCHAR(message, pos)) ? pos++ : throw BadRequestException();
+	}
+	if (chunekdLength == 0) {
+		// chunked가 끝났다는 의미
+		return ;
+	}
+	for (std::size_t i(0); i < chunekdLength && pos < messageSize; ++i) {
+		recipe.m_BodyMessage.push_back(static_cast<unsigned char>(message[pos++]));
+	}
+}
+
 
 /**
  *		Body를 처리하는 함수
@@ -303,9 +335,38 @@ void	HTTP::RequestMessageParser::requestLine(HTTP::ResponseRecipe& recipe, const
  *		이전에 만들어놓은 recipe가 존재하는지 -> 존재하면 body만 파싱 (chunked 또는 content-length가 body보다 큰 경우)
 */
 void	HTTP::RequestMessageParser::messageBody(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos) {
-	const std::map<unsigned short, void*>::const_iterator	it = recipe.m_HeaderMap.find(E_HTTP::E_HEADER::CONTENT_LENGTHS);
+	const std::map<unsigned short, void*>::const_iterator	it = recipe.m_HeaderMap.find(E_HTTP::CONTENT_LENGTHS);
 	if (it == recipe.m_HeaderMap.end()) {
 		return ;
+	}
+
+	const int&		contentLength = *reinterpret_cast<int*>(it->second);
+	if (recipe.m_Status & E_HTTP::TRANSFER_ENCODING) {
+		/*
+		 *	chunk-size보다 데이터가 작은 경우, 추가로 들어온 데이터를 읽어줘야됨
+		 *	문제는 웹 브라우저가 아닌 telnet 등으로 보냈을 때, 마지막에 CRLF가 포함되어 있음
+		 *	chunk-size까지만 읽으면 CRLF가 남아있기 때문에 다음 read에서 오류가 발생 (이 문제에 대해 논의 필요)
+		*/
+		if (contentLength) {
+			for (std::size_t i(0); i < contentLength && pos < message.size(); ++i) {
+				recipe.m_BodyMessage.push_back(static_cast<unsigned char>(message[pos++]));
+			}
+		}
+		handleChunekdMsg(recipe, message, pos);
+	} else {
+		const int&		bodySize = message.size() - pos;
+		for (int i(0); i < contentLength && i < bodySize; ++i) {
+			recipe.m_BodyMessage.push_back(static_cast<unsigned char>(message[pos++]));
+		}
+		/*
+			content-length가 bodySize보다 크면 추가로 데이터가 들어올 때까지 대기
+			그렇지 않으면 클라이언트한테 write 후 새롭게 read
+			따라서 struct에 쓸 준비가 되었는지 아직 읽어야 되는지 상태를 저장해야됨 (isEnd 등)
+		*/
+		if (contentLength > bodySize) {
+			*reinterpret_cast<int*>(it->second) = contentLength - bodySize;
+		}
+
 	}
 }
 
