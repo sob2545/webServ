@@ -55,7 +55,7 @@ namespace HTTP {
  *				Header ENUM
  *	00000000 00000001		Connection
  *	00000000 00000010		Date
- *	00000000 00000100		Transfer-Encoding // GZIP은 무시
+ *	00000000 00000100		Transfer-Encoding // chunked만 처리
  *	00000000 00001000		Host
  *	00000000 00010000		Content-Lengths
  *	00000000 00100000		Content-Type
