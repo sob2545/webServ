@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 
 #include "../FileDescriptor.hpp"
+#include "../../Utils/Semaphore.hpp"
 
 class ClientSocket : public FileDescriptor {
 private:
@@ -10,8 +11,8 @@ private:
 	ClientSocket&	operator=(const ClientSocket& other);
 
 public:
-	ClientSocket(const int& serverFd);
+	ClientSocket();
 	virtual ~ClientSocket();
 
-	const int&	getFd() const;
+	bool		accept(const int& serverFd);
 };
