@@ -1,37 +1,17 @@
 CXX			=	c++
 # CXXFLAGS	=	-Wall -Wextra -Werror -std=c++98
 # CXXFLAGS	=	-std=c++98 -fsanitize=address
-CXXFLAGS	=	-std=c++98
+CXXFLAGS	=	-std=c++98 -D __DARWIN__=1
 RM			=	rm -rf
 
-SRCS		:= Parser/ABNF_utils/ABNFFunctions.cpp \
-				Parser/BNF_utils/BNFFunctions.cpp \
-				Parser/ConfParser/ConfData/ConfBlock.cpp \
-				Parser/URIParser/URIParser.cpp \
-				Parser/PathParser/PathParser.cpp \
-				Parser/URIParser/SchemeChecker/SchemeChecker.cpp \
-				Parser/ConfParser/AConfParser/Exception/ConfParserException.cpp \
-				Parser/ConfParser/AConfParser/AConfParser.cpp \
-				FileDescriptor/FileDescriptor.cpp \
-				FileDescriptor/File/ReadFile.cpp \
-				Parser/ConfParser/ConfFile/ConfFile.cpp \
-				Parser/ConfParser/ConfData/ConfMainBlock.cpp \
-				Parser/ConfParser/ConfData/ConfEventBlock.cpp \
-				Parser/ConfParser/ConfData/ConfHTTPBlock.cpp \
-				Parser/ConfParser/ConfData/ConfServerBlock.cpp \
-				Parser/ConfParser/ConfData/ConfLocationBlock.cpp \
-				Parser/ConfParser/EnvParser/EnvParser.cpp \
-				Parser/ConfParser/EnvParser/Exception/EnvParserException.cpp \
-				Parser/MIMEParser/MIMEParser.cpp \
-				Parser/MIMEParser/Exception/MIMEParserException.cpp \
-				Parser/MIMEParser/MIMEFile/MIMEFile.cpp \
-				Trie/Trie.cpp \
-				Trie/TrieNode.cpp \
-				Server/MasterProcess.cpp \
-				Server/Server/Server.cpp \
-				FileDescriptor/Socket/ServerSocket.cpp \
-				FileDescriptor/Socket/Exception/SocketException.cpp \
-				webServ.cpp
+# SRCS		:= $(wildcard ./FileDescriptor/*/*.cpp \
+# 							./MainLoop/*/*.cpp \
+# 							./Multiplexing/*/*.cpp \
+# 							./Parser/*/*.cpp \
+# 							./Trie/*/*.cpp \
+# 							./Utils/*/*.cpp \
+# 							webServ.cpp)
+SRCS := $(shell find . -name '*.cpp' -not -path './File/*' -not -path './objs/*' -not -path './practice/*' -not -path './TEST/*')
 
 OBJS_DIR	:= objs/
 
@@ -39,6 +19,9 @@ OBJS		:= $(SRCS:%.cpp=$(OBJS_DIR)%.o)
 
 NAME		:= a.out
 
+ifdef DEBUG
+	CXXFLAGS	+=	-D DEBUG=1
+endif
 
 all : $(NAME)
 
@@ -48,6 +31,9 @@ $(NAME) : $(OBJS)
 $(OBJS_DIR)%.o : %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+debug:
+	make DEBUG=1 all
 
 clean:
 	$(RM) $(OBJS_DIR)
