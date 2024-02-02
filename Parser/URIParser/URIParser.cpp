@@ -305,5 +305,5 @@ template bool	URIParser::hostnameParser<ConfParserException>(const std::string&,
 template bool	URIParser::IPv4Parser<ConfParserException>(const std::string&, std::size_t&, std::string&, unsigned short&);
 template bool	URIParser::errorPageParser<ConfParserException>(const std::string&, std::size_t&, std::string&);
 
-template void	URIParser::HTTPMessageParser<HTTPRequestParsingException>(const std::string&, std::size_t&, std::string&, unsigned short&);
-template bool	URIParser::RequestOriginFormParser<HTTPRequestParsingException>(const std::string&, std::size_t&, std::string&, URIParser::QueryMap_t&);
+template void	URIParser::HTTPMessageParser<HTTP::HTTPRequestParsingException>(const std::string&, std::size_t&, std::string&, unsigned short&);
+template bool	URIParser::RequestOriginFormParser<HTTP::HTTPRequestParsingException>(const std::string&, std::size_t&, std::string&, URIParser::QueryMap_t&);
