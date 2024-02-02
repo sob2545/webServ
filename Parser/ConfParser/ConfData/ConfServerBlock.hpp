@@ -37,7 +37,7 @@ namespace   CONF {
 		std::string					m_IP;
 		Trie						m_Index;
 		std::string					m_LocationName;
-		std::set<std::string>		m_Server_name;
+		std::set<std::string>		m_ServerName;
 		LocationBlockMap_t			m_LocationBlock;
 		static StatusMap_t			m_ServerStatusMap;
 

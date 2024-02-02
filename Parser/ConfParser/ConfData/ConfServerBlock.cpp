@@ -38,7 +38,7 @@ CONF::ServerBlock::ServerBlock(const ServerBlock& other)
    m_IP(other.m_IP),
    m_Index(other.m_Index),
    m_LocationName(other.m_LocationName),
-   m_Server_name(other.m_Server_name),
+   m_ServerName(other.m_ServerName),
    m_LocationBlock(other.m_LocationBlock)
 {}
 
@@ -129,9 +129,9 @@ bool	CONF::ServerBlock::argumentChecker(const std::vector<std::string>& args, co
 			return false;
 		}
 		case CONF::E_SERVER_BLOCK_STATUS::SERVER_NAME: {
-			args.empty() ? throw ConfParserException("", "server_name argument is empty!") : 0;
+			args.empty() ? throw ConfParserException("", "ServerName argument is empty!") : 0;
 			for (std::size_t i = 0; i < args.size(); i++) {
-				(args[i].empty()) ? throw ConfParserException(args.at(0), "invalid number of Index arguments!") : this->m_Server_name.insert(args[i]);
+				(args[i].empty()) ? throw ConfParserException(args.at(0), "invalid number of Index arguments!") : this->m_ServerName.insert(args[i]);
 			}
 			return false;
 		}
@@ -300,7 +300,7 @@ const std::map<unsigned short, CONF::errorPageData>&	CONF::ServerBlock::getError
 }
 
 const std::set<std::string>&	CONF::ServerBlock::getServerNames() const {
-	return (this->m_Server_name);
+	return (this->m_ServerName);
 }
 
 const CONF::ServerBlock::LocationBlockMap_t&	CONF::ServerBlock::getLocationMap() const {
