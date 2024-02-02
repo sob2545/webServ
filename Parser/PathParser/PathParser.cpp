@@ -1,6 +1,7 @@
 #include "PathParser.hpp"
 #include "../ABNF_utils/ABNFFunctions.hpp"
 #include "../ConfParser/AConfParser/Exception/ConfParserException.hpp"
+#include "../HTTPMessageParser/HTTPException/HTTPRequestParsingException.hpp"
 #include <string>
 
 // TODO: delete
@@ -184,4 +185,5 @@ bool	PathParser::File_RelativePath(const std::string& inputURI, std::size_t& pos
 }
 
 template bool PathParser::File_AbsolutePath<ConfParserException>(const std::string&, std::size_t&, std::string&);
+template bool PathParser::File_AbsolutePath<HTTP::HTTPRequestParsingException>(const std::string&, std::size_t&, std::string&);
 template bool PathParser::File_RelativePath<ConfParserException>(const std::string&, std::size_t&, std::string&);
