@@ -8,10 +8,10 @@ ReadFile::ReadFile(const std::string& filename) : FileDescriptor(0), m_FileName(
 	this->m_Fd = open(filename.c_str(), O_RDONLY);
 
 	// TODO: Implement throw
-	(m_Fd < 0) ? throw  : 0;
+	(m_Fd < 0) ? throw FileException("file open fail") : 0;
 	struct stat	buf;
 	if (fstat(m_Fd, &buf) < 0) {
-		// TODO: exception class
+		throw FileException("error in file status");
 		close(m_Fd);
 	}
 	m_FileSize = buf.st_size;
@@ -20,7 +20,7 @@ ReadFile::ReadFile(const std::string& filename) : FileDescriptor(0), m_FileName(
 	ft::unique_ptr<char[]>	tmp(::new char[m_FileSize + 1]);
 	const ssize_t readSize = read(m_Fd, &tmp[0], m_FileSize);
 	if (readSize < 0 || m_FileSize != readSize) {
-		// TODO: exception class
+		throw FileException("file read fail");
 		close(m_Fd);
 	}
 	tmp[readSize] = '\0';

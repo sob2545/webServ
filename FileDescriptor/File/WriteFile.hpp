@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../FileDescriptor.hpp"
+#include "./Exception/FileException.hpp"
 #include <string>
 
 class WriteFile : public FileDescriptor {

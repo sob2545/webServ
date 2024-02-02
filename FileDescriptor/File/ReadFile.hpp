@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../FileDescriptor.hpp"
-#include <cstddef>
+#include "./Exception/FileException.hpp"
 #include <string>
 
 class ReadFile : public FileDescriptor {
