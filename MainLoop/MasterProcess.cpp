@@ -2,6 +2,7 @@
 
 #include "../Multiplexing/MultiplexHandler.hpp"
 #include "Client/Client.hpp"
+#include "WorkerEventHandler/Exception/ClientCloseException.hpp"
 #include "WorkerEventHandler/WorkerEventHandler.hpp"
 #include <utility>
 
@@ -29,9 +30,9 @@ MasterProcess::~MasterProcess() {
 	CONF::ConfBlock::getInstance()->destroy();
 }
 
-ft::shared_ptr<Server>	MasterProcess::findExistServer(const std::string& IP, const unsigned short& port) {
+ft::shared_ptr<Server>	MasterProcess::findExistServer(const CONF::ServerBlock& serverBlock) {
 	for (ServerMap_t::const_iterator it = m_Servers.begin(); it != m_Servers.end(); ++it) {
-		if (it->second->findSameConfServerBlock(IP, port)) {
+		if (it->second->findSameConfServerBlock(serverBlock)) {
 			return it->second;
 		}
 	}
@@ -49,6 +50,7 @@ bool	MasterProcess::isServerSocket(const int& fd) {
 
 void	MasterProcess::CheckClientConnection(const int& currFd) {
 	if (m_Clients[currFd]->getCloseStatus()) {
+		std::cout << BOLDRED << "client closed\n" << RESET;
 		close(currFd);
 		m_Clients.erase(currFd);
 	} else {
@@ -69,17 +71,17 @@ void	MasterProcess::runWorkerEventHandler() {
 			const int&			currFd = currEvent.getFd();
 			ft::shared_ptr<Client>&	currClient = m_Clients.find(currFd)->second;
 
-			if (currClient.get()) {
-				std::cout << BOLDMAGENTA << "event fd" << currClient->getFd() << std::endl << RESET;
-			}
 			if (currEvent.isReadEvent()) {
-				std::cout << BOLDYELLOW << "worker read event in\n";
 				if (isServerSocket(currFd)) {
 					ft::shared_ptr<Client>	newClient = WorkerEventHandler::makeClient(currFd);
 					m_Clients.insert(std::make_pair(newClient->getFd(), newClient));
 				} else {
-					std::cout << BOLDCYAN << "Client Socket Read\n" << RESET;
-					WorkerEventHandler::recvFromClient(currClient);
+					try {
+						WorkerEventHandler::recvFromClient(currClient);
+					} catch (ClientCloseException& e) {
+						m_Clients.erase(currClient->getFd());
+						continue ;
+					}
 					WorkerEventHandler::parseRequest(currClient);
 				}
 			} else if (currEvent.isWriteEvent()) {
@@ -115,7 +117,7 @@ void	MasterProcess::start() {
 	unsigned short		curPort = 0;
 
 	for (std::size_t i(0); i < confServerBlockVector.size(); ++i) {
-		const ft::shared_ptr<Server>	tmp = findExistServer(confServerBlockVector[i].getIP(), confServerBlockVector[i].getPort());
+		const ft::shared_ptr<Server>	tmp = findExistServer(confServerBlockVector[i]);
 
 		
 		try {
@@ -162,11 +164,6 @@ void	MasterProcess::start() {
 
 				/* add Server event */
 				for (ServerMap_t::const_iterator it = MasterProcess::m_Servers.begin(); it != MasterProcess::m_Servers.end(); ++it) {
-#ifdef DEBUG
-	std::cout << BOLDGREEN << "Server Set end\n" << RESET;
-	std::cout << it->first << std::endl;
-#endif
-
 					MultiplexHandler::addServerEvent(it->first);
 				}
 				/* main server loop */

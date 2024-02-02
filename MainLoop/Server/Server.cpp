@@ -29,20 +29,22 @@ void	Server::insertServerBlock(const CONF::ServerBlock& serverBlock) {
 }
 
 void	Server::checkDuplicateHost(const std::set<std::string> &serverNames) {
-	for (std::set<std::string>::const_iterator it = serverNames.begin(); it != serverNames.end(); ++it) {
-		for (ConfServerVector_t::const_iterator it2 = m_ServerBlock.begin(); it2 != m_ServerBlock.end(); ++it2) {
-			if (it2->getServerNames().find(*it) != it2->getServerNames().end()) {
-				// TODO: error log 또는 terminal에 출력
-				std::cerr << *it <<  " Error: duplicate host name\n";
+	for (std::set<std::string>::const_iterator confServerNames = serverNames.begin(); confServerNames != serverNames.end(); ++confServerNames) {
+		for (ConfServerVector_t::const_iterator serverBlock = m_ServerBlock.begin(); serverBlock != m_ServerBlock.end(); ++serverBlock) {
+			std::cout << BOLDCYAN << *confServerNames << "conf server name" << RESET << std::endl;
+			const std::set<std::string>::const_iterator		existServerName = serverBlock->getServerNames().find(*confServerNames);
+			if (existServerName != serverBlock->getServerNames().end() || existServerName->size() == confServerNames->size()) {
+				// TODO: implement error log 
+				std::cerr << BOLDRED << *existServerName << " is duplicated " << *confServerNames << RESET << std::endl;
 			}
 		}
 	}
 }
 
-bool	Server::findSameConfServerBlock(const std::string& IP, const unsigned short& port) {
+bool	Server::findSameConfServerBlock(const CONF::ServerBlock& serverBlock) {
 	for (ConfServerVector_t::const_iterator it = m_ServerBlock.begin(); it != m_ServerBlock.end(); ++it) {
-		if (IP == it->getIP() && port == it->getPort()) {
-			checkDuplicateHost(it->getServerNames());
+		if (serverBlock.getIP() == it->getIP() && serverBlock.getPort() == it->getPort()) {
+			checkDuplicateHost(serverBlock.getServerNames());
 			return true;
 		}
 	}

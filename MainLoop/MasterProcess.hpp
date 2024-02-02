@@ -19,7 +19,7 @@ private:
 	MasterProcess& operator=(const MasterProcess& other);
 
 private:
-	static ft::shared_ptr<Server>	findExistServer(const std::string& IP, const unsigned short& port);
+	static ft::shared_ptr<Server>	findExistServer(const CONF::ServerBlock& serverBlock);
 	static void						runWorkerEventHandler();
 	static bool						isServerSocket(const int& fd);
 	static void						CheckClientConnection(const int& currFd);
