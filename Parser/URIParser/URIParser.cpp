@@ -5,7 +5,7 @@
 #include "../ConfParser/AConfParser/Exception/ConfParserException.hpp"
 #include "../HTTPMessageParser/HTTPException/HTTPRequestParsingException.hpp"
 
-
+#include <iostream>
 
 /**
  *			Query setter
@@ -87,6 +87,9 @@ void	toplabel(const std::string& host) {
 template <typename T>
 bool	hostname(const std::string& inputURI, std::size_t& pos, std::string& host) {
 	host += domainlabel<T>(inputURI, pos);
+	if (host == "localhost") {
+		return true;
+	}
 	while (pos < inputURI.size() && inputURI.at(pos) == BNF::E_MARK::PERIOD) {
 		pos++;
 		host += '.';
@@ -181,12 +184,15 @@ bool	splitPort(const std::string& inputURI, std::size_t& pos, unsigned short& po
 	while (pos < inputURI.size()
 			&& !ABNF::isWSP(inputURI, pos)
 			&& !ABNF::isLF(inputURI, pos)
+			&& inputURI[pos] != '\r'
+			&& inputURI[pos] != '\n'
 			&& inputURI[pos] != E_ABNF::SEMICOLON
 			&& inputURI[pos] != '{'
 			&& inputURI[pos] != '}') {
 		portStr += inputURI.at(pos);
 		pos++;
 	}
+	
 	char*		endPos;
 	const long	portNum = strtol(portStr.c_str(), &endPos, 10);
 	(*endPos != '\0' || portStr.size() > 5 || portNum < 0 || portNum > 65535) ? throw T(portStr, "is invalid port") : 0;
