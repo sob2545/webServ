@@ -1,13 +1,14 @@
 #include "MasterProcess.hpp"
 
-#include "../Parser/ConfParser/ConfData/ConfBlock.hpp"
 #include "../Multiplexing/MultiplexHandler.hpp"
-#include "WorkerProcess/WorkerProcess.hpp"
-#include <sys/_types/_pid_t.h>
+#include "Client/Client.hpp"
+#include "WorkerEventHandler/WorkerEventHandler.hpp"
+#include <utility>
 
 typedef std::vector<CONF::ServerBlock> confServerBlockVector_t;
 
-MasterProcess::MainServerVector_t	MasterProcess::m_Servers;
+MasterProcess::ServerMap_t	MasterProcess::m_Servers;
+MasterProcess::ClientMap_t	MasterProcess::m_Clients;
 
 MasterProcess::MIMEMap_t	MasterProcess::m_MIMETypes;
 
@@ -29,42 +30,69 @@ MasterProcess::~MasterProcess() {
 }
 
 ft::shared_ptr<Server>	MasterProcess::findExistServer(const std::string& IP, const unsigned short& port) {
-	for (std::size_t i(0); i < m_Servers.size(); ++i) {
-		if (m_Servers[i]->findSameConfServerBlock(IP, port)) {
-			return m_Servers[i];
+	for (ServerMap_t::const_iterator it = m_Servers.begin(); it != m_Servers.end(); ++it) {
+		if (it->second->findSameConfServerBlock(IP, port)) {
+			return it->second;
 		}
 	}
 	return (ft::shared_ptr<Server>());
 }
 
 bool	MasterProcess::isServerSocket(const int& fd) {
-	for (MainServerVector_t::const_iterator it = m_Servers.begin(); it != m_Servers.end(); ++it) {
-		if (it->get()->getServerFd() == fd) {
-			
+	for (ServerMap_t::const_iterator it = m_Servers.begin(); it != m_Servers.end(); ++it) {
+		if (it->first == fd) {
+			return (true);
 		}
+	}
+	return (false);
+}
+
+void	MasterProcess::CheckClientConnection(const int& currFd) {
+	if (m_Clients[currFd]->getCloseStatus()) {
+		close(currFd);
+		m_Clients.erase(currFd);
+	} else {
+		MultiplexHandler::addClientEvent(currFd, E_EV::READ);
 	}
 }
 
 
+void	MasterProcess::runWorkerEventHandler() {
+#ifdef DEBUG
+#endif
 
-void	MasterProcess::runWorkerProcess() {
 	while (1) {
 		const std::vector<SocketEvent> eventList = MultiplexHandler::eventHandler(NULL);
-		for (std::size_t eventNumber; eventNumber < eventList.size(); ++eventNumber) {
+
+		for (std::size_t eventNumber(0); eventNumber < eventList.size(); ++eventNumber) {
 			const SocketEvent&	currEvent = eventList[eventNumber];
+			const int&			currFd = currEvent.getFd();
+			ft::shared_ptr<Client>&	currClient = m_Clients.find(currFd)->second;
 
+			if (currClient.get()) {
+				std::cout << BOLDMAGENTA << "event fd" << currClient->getFd() << std::endl << RESET;
+			}
 			if (currEvent.isReadEvent()) {
-
-
+				std::cout << BOLDYELLOW << "worker read event in\n";
+				if (isServerSocket(currFd)) {
+					ft::shared_ptr<Client>	newClient = WorkerEventHandler::makeClient(currFd);
+					m_Clients.insert(std::make_pair(newClient->getFd(), newClient));
+				} else {
+					std::cout << BOLDCYAN << "Client Socket Read\n" << RESET;
+					WorkerEventHandler::recvFromClient(currClient);
+					WorkerEventHandler::parseRequest(currClient);
+				}
 			} else if (currEvent.isWriteEvent()) {
-
+				WorkerEventHandler::makeResponse(currClient);
+				WorkerEventHandler::sendToClient(currClient);
+				CheckClientConnection(currClient->getFd());
 			}
 		}
 	}
 }
 
 void	MasterProcess::start() {
-	CONF::ConfBlock::getInstance()->print();
+	// CONF::ConfBlock::getInstance()->print();
 
 	/*
 	 *	Daemon mode
@@ -72,8 +100,8 @@ void	MasterProcess::start() {
 #ifdef __RELEASE__
 
 	if (CONF::ConfBlock::getMainBlock::isDaemonOn()) {
-		pid_t	curPid = fork();
-		switch (curPid) {
+		pid_t	currPid = fork();
+		switch (currPid) {
 			case (0) : {
 				std::cout << BOLDGREEN << "webServ running in background mode" << RESET << std::endl;
 				exit(0);
@@ -83,14 +111,20 @@ void	MasterProcess::start() {
 
 #endif
 
-	const confServerBlockVector_t&	mainServerBlocks = CONF::ConfBlock::getInstance()->getMainBlock().getHTTPBlock().getServerVector();
+	const confServerBlockVector_t&	confServerBlockVector = CONF::ConfBlock::getInstance()->getMainBlock().getHTTPBlock().getServerVector();
 	unsigned short		curPort = 0;
 
-	for (std::size_t i(0); i < mainServerBlocks.size(); ++i) {
-		const ft::shared_ptr<Server>	tmp = findExistServer(mainServerBlocks[i].getIP(), mainServerBlocks[i].getPort());
+	for (std::size_t i(0); i < confServerBlockVector.size(); ++i) {
+		const ft::shared_ptr<Server>	tmp = findExistServer(confServerBlockVector[i].getIP(), confServerBlockVector[i].getPort());
 
+		
 		try {
-			(tmp.get()) ? tmp->insertServerBlock(mainServerBlocks[i]) : MasterProcess::m_Servers.push_back(ft::shared_ptr<Server>(::new Server(mainServerBlocks[i])));
+			if (tmp.get()) {
+				m_Servers.find(tmp->getServerFd())->second->insertServerBlock(confServerBlockVector[i]);
+			} else {
+				ft::shared_ptr<Server>	newServer(::new Server(confServerBlockVector[i]));
+				m_Servers.insert(std::make_pair(newServer->getServerFd(), newServer));
+			}
 		} catch (SOCK::SocketException& e) {
 			// TODO: error log 또는 terminal에 출력
 			std::cerr << e.getMessage() << std::endl;
@@ -104,7 +138,15 @@ void	MasterProcess::start() {
 		throw (std::runtime_error("Error: no server block"));
 	}
 
+	
 #ifdef __RELEASE__
+	int	semCount(0);
+
+	ft::Semaphore::instance();
+	for (ServerMap_t::const_iterator serverIt = m_Servers.begin(); serverIt != m_Servers.end(); ++serverIt, ++semCount) {
+		ft::Semaphore::setSemaphores(semCount, serverIt->first);
+	}
+
 
 	const int&	workerProcessNumber = CONF::ConfBlock::getInstance()->getMainBlock().getWorkerProcess();
 	for (int worker(0); worker < workerProcessNumber; ++worker) {
@@ -119,12 +161,16 @@ void	MasterProcess::start() {
 				MultiplexHandler::instance();
 
 				/* add Server event */
-				for (MainServerVector_t::const_iterator it = MasterProcess::m_Servers.begin(); it != MasterProcess::m_Servers.end(); ++it) {
-					MultiplexHandler::addServerEvent(it->get()->getServerFd());
-				}
+				for (ServerMap_t::const_iterator it = MasterProcess::m_Servers.begin(); it != MasterProcess::m_Servers.end(); ++it) {
+#ifdef DEBUG
+	std::cout << BOLDGREEN << "Server Set end\n" << RESET;
+	std::cout << it->first << std::endl;
+#endif
 
+					MultiplexHandler::addServerEvent(it->first);
+				}
 				/* main server loop */
-				runWorkerProcess();
+				runWorkerEventHandler();
 
 #ifdef __RELEASE__
 
