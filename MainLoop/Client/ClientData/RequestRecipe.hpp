@@ -32,11 +32,11 @@ namespace E_HTTP {
 	};
 
 	enum	E_STATUS {
-		BLANK				= 0b1,
-		READ_HEADER			= 0b10,
-		READ_BODY			= 0b100,
-		WRITE_SUCCESS 		= 0b1000,
-		WRITE_FAIL	 		= 0b10000,
+		BLANK				= 0,
+		READ_HEADER			= 0b1,
+		READ_BODY			= 0b10,
+		WRITE_SUCCESS 		= 0b100,
+		WRITE_FAIL	 		= 0b1000,
 	};
 }
 
@@ -94,7 +94,7 @@ namespace HTTP {
 		typedef	std::map<std::string, std::string> CookieMap_t;
 
 		unsigned char					m_Method;
-		unsigned char					m_HTTPStatus;
+		unsigned short					m_HTTPStatus;
 		unsigned char					m_RecipeStatus;
 		unsigned char					m_Version;
 
