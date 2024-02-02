@@ -1,4 +1,0 @@
-http://www.example.com/path/test
-http:///test
-http://www.test//test?key1=value1&key1=value2&key2=value1
-http://www.test/test/#fdsafasdfasfs
