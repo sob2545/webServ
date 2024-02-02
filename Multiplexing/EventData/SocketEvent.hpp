@@ -15,8 +15,8 @@
 
 namespace E_EV {
 	enum E_STATUS : short {
-		READ,
-		WRITE,
+		READ = 0b1,
+		WRITE = 0b10,
 	};
 }
 
