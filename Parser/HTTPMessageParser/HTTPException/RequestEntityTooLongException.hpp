@@ -6,6 +6,7 @@
 namespace HTTP {
 	class	RequestEntityTooLongException : std::exception {
 	private:
+		std::string		m_Message;
 
 	public:
 		RequestEntityTooLongException();
@@ -13,6 +14,7 @@ namespace HTTP {
 		RequestEntityTooLongException& operator=(const RequestEntityTooLongException& other);
 		virtual ~RequestEntityTooLongException() throw();
 
-		virtual const char*	what() const throw();
+		virtual const char* what() const throw();
+		const std::string& getMessage() const;
 	};
 }

@@ -6,6 +6,7 @@
 namespace HTTP {
 	class	NotImplementedException : std::exception {
 	private:
+		std::string		m_Message;
 
 	public:
 		NotImplementedException();
@@ -13,6 +14,7 @@ namespace HTTP {
 		NotImplementedException& operator=(const NotImplementedException& other);
 		virtual ~NotImplementedException() throw();
 
-		virtual const char*	what() const throw();
+		virtual const char* what() const throw();
+		const std::string& getMessage() const;
 	};
 }

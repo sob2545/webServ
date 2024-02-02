@@ -2,27 +2,26 @@
 #include <sstream>
 #include <string>
 
-HTTPRequestParsingException::HTTPRequestParsingException() {}
-
-HTTPRequestParsingException::HTTPRequestParsingException(const std::string& error, const std::string& message) {
-	this->m_Message = error + message;
+HTTP::HTTPRequestParsingException::HTTPRequestParsingException(const std::string& error, const std::string& message) {
+	std::stringstream	res;
+	res << BOLDRED << "Error: " << BOLDWHITE "ConfParserException: ConfFile::getInstance() is NULL" << RESET;
+	m_Message = res.str();
 }
 
-HTTPRequestParsingException::HTTPRequestParsingException(const HTTPRequestParsingException& other) {
+HTTP::HTTPRequestParsingException::HTTPRequestParsingException(const HTTPRequestParsingException& other) {
 	*this = other;
 }
 
-HTTPRequestParsingException& HTTPRequestParsingException::operator=(const HTTPRequestParsingException& other) {
-	m_Message = other.m_Message;
+HTTP::HTTPRequestParsingException& HTTP::HTTPRequestParsingException::operator=(const HTTPRequestParsingException& other) {
 	return *this;
 }
 
-HTTPRequestParsingException::~HTTPRequestParsingException() throw() {}
+HTTP::HTTPRequestParsingException::~HTTPRequestParsingException() throw() {}
 
-const char* HTTPRequestParsingException::what() const throw() {
+const char* HTTP::HTTPRequestParsingException::what() const throw() {
 	return m_Message.c_str();
 }
 
-const std::string& HTTPRequestParsingException::getMessage() const {
+const std::string& HTTP::HTTPRequestParsingException::getMessage() const {
 	return m_Message;
 }

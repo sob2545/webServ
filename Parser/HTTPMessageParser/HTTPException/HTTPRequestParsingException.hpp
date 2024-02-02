@@ -4,10 +4,11 @@
 #include <string>
 #include "../../../Utils/Color.hpp"
 
-class HTTPRequestParsingException : public std::exception {
+namespace HTTP {
+	class HTTPRequestParsingException : public std::exception {
 private:
-	std::string		m_Message;
 	HTTPRequestParsingException();
+	std::string		m_Message;
 
 public:
 	HTTPRequestParsingException(const HTTPRequestParsingException& other);
@@ -16,4 +17,5 @@ public:
 	virtual ~HTTPRequestParsingException() throw();
 	virtual const char* what() const throw();
 	const std::string& getMessage() const;
-};
+	};
+}

@@ -6,6 +6,7 @@
 namespace HTTP {
 	class	MethodNotFoundException : std::exception {
 	private:
+		std::string		m_Message;
 
 	public:
 		MethodNotFoundException();
@@ -13,6 +14,7 @@ namespace HTTP {
 		MethodNotFoundException& operator=(const MethodNotFoundException& other);
 		virtual ~MethodNotFoundException() throw();
 
-		virtual const char*	what() const throw();
+		virtual const char* what() const throw();
+		const std::string& getMessage() const;
 	};
 }
