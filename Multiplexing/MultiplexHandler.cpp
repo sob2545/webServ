@@ -61,11 +61,6 @@ void	MultiplexHandler::addServerEvent(const int& fd) {
 }
 
 void	MultiplexHandler::addClientEvent(const int& fd, const short& status) {
-#ifdef DEBUG	
-	std::cout << fd << "client event setter: " << status << std::endl;
-#endif
-
-
 	switch (status) {
 		case (E_EV::READ): {
 #if defined	(__DARWIN__)
@@ -125,10 +120,6 @@ MultiplexHandler::SocketEventVector_t		MultiplexHandler::eventHandler(const Mult
 
 	eventCount = epoll_wait(MultiplexHandler::instance().getFd(), newEvent, MultiplexHandler::instance().getMaxEvent(), *timeout);
 
-#endif
-
-#ifdef DEBUG
-	std::cout << BOLDRED << "kevent number: " << eventCount << std::endl << RESET;
 #endif
 
 	if (eventCount < 0) {
