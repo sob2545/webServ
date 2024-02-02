@@ -1,8 +1,9 @@
 #include "RequestMessageParser.hpp"
 #include "HTTPException/BadRequestException.hpp"
 #include "HTTPException/HTTPRequestParsingException.hpp"
-#include "../../MainLoop/Client/ClientData/ResponseRecipe.hpp"
+#include "../../MainLoop/Client/ClientData/RequestRecipe.hpp"
 #include "../../MainLoop/MasterProcess.hpp"
+#include "HTTPException/KeepReadHeaderException.hpp"
 #include <cstddef>
 #include <string>
 
@@ -66,7 +67,7 @@ void	HTTP::RequestMessageParser::token(const std::string& message, std::size_t& 
 	}
 }
 
-bool	HTTP::RequestMessageParser::argumentChecker(HTTP::ResponseRecipe& recipe, const std::vector<std::string>& args, const unsigned short& status) {
+bool	HTTP::RequestMessageParser::argumentChecker(HTTP::RequestRecipe& recipe, const std::vector<std::string>& args, const unsigned short& status) {
 	(args.empty()) ? throw BadRequestException() : 0;
 
 	switch (status) {
@@ -154,6 +155,7 @@ const std::string	HTTP::RequestMessageParser::fieldContent(const std::string& me
 	while (pos < msgSize && ABNF::isWSP(message, pos)) {
 		pos++;
 	}
+	pos == msgSize ? throw KeepReadHeaderException() : 0;
 	while (pos < msgSize && std::isprint(static_cast<int>(message[pos]))) {
 		if (message[pos] == delimiter) {
 			pos += 2;
@@ -162,6 +164,7 @@ const std::string	HTTP::RequestMessageParser::fieldContent(const std::string& me
 		arg += std::tolower(static_cast<int>(message[pos]));
 		pos++;
 	}
+	pos == msgSize ? throw KeepReadHeaderException() : 0;
 	return arg;
 }
 
@@ -184,12 +187,14 @@ void	HTTP::RequestMessageParser::fieldValue(const std::string& message, std::siz
 			args.push_back(arg);
 		}
 	}
+	pos == message.size() ? throw KeepReadHeaderException() : 0;
 }
 
 unsigned short	HTTP::RequestMessageParser::fieldName(const std::string& message, std::size_t& pos) {
 	std::string		headerKey;
 
 	token(message, pos, headerKey);
+	pos == message.size() ? throw KeepReadHeaderException() : 0;
 	HTTP::RequestMessageParser::HeaderMap_t::const_iterator	it = m_HeaderMap.find(headerKey);
 	if (it != m_HeaderMap.end()) {
 		return (0);
@@ -197,7 +202,7 @@ unsigned short	HTTP::RequestMessageParser::fieldName(const std::string& message,
 	return it->second;
 }
 
-void	HTTP::RequestMessageParser::fieldLine(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos, bool& checkBit) {
+void	HTTP::RequestMessageParser::fieldLine(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos, bool& checkBit) {
 	const std::size_t	messageSize(message.size());
 	if (ABNF::isCRLF(message, pos)) {
 		return (checkBit) ? static_cast<void>(0) : throw BadRequestException(); 
@@ -205,13 +210,17 @@ void	HTTP::RequestMessageParser::fieldLine(HTTP::ResponseRecipe& recipe, const s
 	checkBit |= true;
 
 	const unsigned short	fieldStatus(fieldName(message, pos));
-	(!isDuplicatable(fieldStatus) && recipe.m_Status & fieldStatus) ? throw BadRequestException() : 0;
+	pos == message.size() ? throw KeepReadHeaderException() : 0;
+	(!isDuplicatable(fieldStatus) && recipe.m_HTTPStatus & fieldStatus) ? throw BadRequestException() : 0;
 	ABNF::compareOneCharacter(message, pos, BNF::E_RESERVED::COLON) ? 0 : throw BadRequestException();
 
 	std::vector<std::string>	args;
 	skipWSP(message, pos);
+	pos == message.size() ? throw KeepReadHeaderException() : 0;
 	fieldValue(message, pos, args, fieldStatus);
+	pos == message.size() ? throw KeepReadHeaderException() : 0;
 	skipWSP(message, pos);
+	pos == message.size() ? throw KeepReadHeaderException() : 0;
 	argumentChecker(recipe, args, fieldStatus);
 }
 
@@ -220,7 +229,7 @@ void	HTTP::RequestMessageParser::fieldLine(HTTP::ResponseRecipe& recipe, const s
 /**
  *		HTTP Parse
 */
-void	HTTP::RequestMessageParser::HTTPVersion(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos) {
+void	HTTP::RequestMessageParser::HTTPVersion(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos) {
 	const std::size_t	messageSize(message.size());
 	std::string			HTTPName;
 
@@ -253,7 +262,7 @@ void	HTTP::RequestMessageParser::HTTPVersion(HTTP::ResponseRecipe& recipe, const
  *		GET / DELETE 이면 request-target을 저장할 필요 없이 바로 꺼내서 주면 됨
  *		POST의 경우 BODY의 내용까지 다 읽고 request-target에 실행해야 하므로 저장해야됨
 */
-void	HTTP::RequestMessageParser::method(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos) {
+void	HTTP::RequestMessageParser::method(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos) {
 	std::string	method;
 
 	token(message, pos, method);
@@ -265,7 +274,7 @@ void	HTTP::RequestMessageParser::method(HTTP::ResponseRecipe& recipe, const std:
 /**
  *		Start Line
 */
-bool	HTTP::RequestMessageParser::OriginForm(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos) {
+bool	HTTP::RequestMessageParser::originForm(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos) {
 	try {
 		URIParser::RequestOriginFormParser<HTTPRequestParsingException>(message, pos, recipe.m_RequestData.m_Path, recipe.m_RequestData.m_Query);
 	} catch (HTTPRequestParsingException& e) {
@@ -276,11 +285,11 @@ bool	HTTP::RequestMessageParser::OriginForm(HTTP::ResponseRecipe& recipe, const 
 	return true;
 }
 
-void	HTTP::RequestMessageParser::requestTarget(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos) {
-	OriginForm(recipe, message, pos);
+void	HTTP::RequestMessageParser::requestTarget(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos) {
+	originForm(recipe, message, pos);
 }
 
-void	HTTP::RequestMessageParser::requestLine(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos) {
+void	HTTP::RequestMessageParser::requestLine(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos) {
 	method(recipe, message, pos);
 	ABNF::compareOneCharacter(message, pos, E_ABNF::SP) ? 0 : throw BadRequestException();
 	requestTarget(recipe, message, pos);
@@ -291,7 +300,9 @@ void	HTTP::RequestMessageParser::requestLine(HTTP::ResponseRecipe& recipe, const
 /*
  *		Chunekd Parser
 */
-void	HTTP::RequestMessageParser::handleChunekdMsg(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos) {
+void	HTTP::RequestMessageParser::handleChunekdMsg(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos) {
+	const std::map<unsigned short, void*>::const_iterator	it = recipe.m_HeaderMap.find(E_HTTP::CONTENT_LENGTHS);
+	int&	contentLength = *reinterpret_cast<int*>(it->second);
 	const std::size_t&	messageSize(message.size());
 	std::string			chunekdSize;
 
@@ -304,6 +315,7 @@ void	HTTP::RequestMessageParser::handleChunekdMsg(HTTP::ResponseRecipe& recipe, 
 		chunekdSize += message[pos];
 		pos++;
 	}
+	chunekdSize.empty() ? throw BadRequestException() : 0;
 	char*			endptr;
 	const long		chunekdLength = strtol(chunekdSize.c_str(), &endptr, 16);
 
@@ -312,12 +324,19 @@ void	HTTP::RequestMessageParser::handleChunekdMsg(HTTP::ResponseRecipe& recipe, 
 		(ABNF::isWSP(message, pos) || ABNF::isTCHAR(message, pos)) ? pos++ : throw BadRequestException();
 	}
 	if (chunekdLength == 0) {
-		// chunked가 끝났다는 의미
+		recipe.m_RecipeStatus = E_HTTP::WRITE_SUCCESS;
 		return ;
 	}
+	const int	bodySize = message.size() - pos;
 	for (std::size_t i(0); i < chunekdLength && pos < messageSize; ++i) {
 		recipe.m_BodyMessage.push_back(static_cast<unsigned char>(message[pos++]));
 	}
+	if (contentLength > bodySize) {
+		*reinterpret_cast<int*>(it->second) = contentLength - bodySize;
+		recipe.m_RecipeStatus = E_HTTP::READ_BODY;
+		return ;
+	}
+	recipe.m_RecipeStatus = E_HTTP::WRITE_SUCCESS;
 }
 
 
@@ -334,22 +353,22 @@ void	HTTP::RequestMessageParser::handleChunekdMsg(HTTP::ResponseRecipe& recipe, 
  *		클라이언트 request -> Parser() 호출
  *		이전에 만들어놓은 recipe가 존재하는지 -> 존재하면 body만 파싱 (chunked 또는 content-length가 body보다 큰 경우)
 */
-void	HTTP::RequestMessageParser::messageBody(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos) {
+void	HTTP::RequestMessageParser::messageBody(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos) {
 	const std::map<unsigned short, void*>::const_iterator	it = recipe.m_HeaderMap.find(E_HTTP::CONTENT_LENGTHS);
 	if (it == recipe.m_HeaderMap.end()) {
+		// TODO: message를 읽어야 되는데 Content-Length가 없으면 Method에 상태에 따라 처리해야 되나?
 		return ;
 	}
 
-	const int&		contentLength = *reinterpret_cast<int*>(it->second);
-	if (recipe.m_Status & E_HTTP::TRANSFER_ENCODING) {
-		/*
-		 *	chunk-size보다 데이터가 작은 경우, 추가로 들어온 데이터를 읽어줘야됨
-		 *	문제는 웹 브라우저가 아닌 telnet 등으로 보냈을 때, 마지막에 CRLF가 포함되어 있음
-		 *	chunk-size까지만 읽으면 CRLF가 남아있기 때문에 다음 read에서 오류가 발생 (이 문제에 대해 논의 필요)
-		*/
+	int&	contentLength = *reinterpret_cast<int*>(it->second);
+	if (recipe.m_HTTPStatus & E_HTTP::TRANSFER_ENCODING) {
 		if (contentLength) {
 			for (std::size_t i(0); i < contentLength && pos < message.size(); ++i) {
 				recipe.m_BodyMessage.push_back(static_cast<unsigned char>(message[pos++]));
+				if (contentLength > message.size()) {
+					contentLength -= message.size();
+					return ;
+				}
 			}
 		}
 		handleChunekdMsg(recipe, message, pos);
@@ -358,48 +377,61 @@ void	HTTP::RequestMessageParser::messageBody(HTTP::ResponseRecipe& recipe, const
 		for (int i(0); i < contentLength && i < bodySize; ++i) {
 			recipe.m_BodyMessage.push_back(static_cast<unsigned char>(message[pos++]));
 		}
-		/*
-			content-length가 bodySize보다 크면 추가로 데이터가 들어올 때까지 대기
-			그렇지 않으면 클라이언트한테 write 후 새롭게 read
-			따라서 struct에 쓸 준비가 되었는지 아직 읽어야 되는지 상태를 저장해야됨 (isEnd 등)
-		*/
 		if (contentLength > bodySize) {
 			*reinterpret_cast<int*>(it->second) = contentLength - bodySize;
+			recipe.m_RecipeStatus = E_HTTP::READ_BODY;
+			return ;
 		}
-
+		recipe.m_RecipeStatus = E_HTTP::WRITE_SUCCESS;
 	}
 }
 
 /**
  *		Main Parser
 */
-HTTP::ResponseRecipe	HTTP::RequestMessageParser::Parser(HTTP::ResponseRecipe& recipe, const std::string &message) {
+const std::string	HTTP::RequestMessageParser::Parser(HTTP::RequestRecipe& recipe, const std::string &message) {
 	std::size_t				pos(0);
 	bool					checkBit(false);
 
 	// 만약 이전에 recipe를 만들었으면 (status로 비교)
 	try {
-		requestLine(recipe, message, pos);
-		while (pos < message.length() && ABNF::isCRLF(message, pos)) {
-			pos += 2;
-			fieldLine(recipe, message, pos, checkBit);
+		if (recipe.m_RecipeStatus & E_HTTP::BLANK) {
+			requestLine(recipe, message, pos);
+			while (pos < message.length() && ABNF::isCRLF(message, pos)) {
+				pos += 2;
+				fieldLine(recipe, message, pos, checkBit);
+			}
+			if (recipe.m_HTTPStatus & E_HTTP::TRANSFER_ENCODING) {
+				const std::map<unsigned short, void*>::const_iterator	it = recipe.m_HeaderMap.find(E_HTTP::CONTENT_LENGTHS);
+				// TODO: it를 못 찾으면 어떻게 해야 되나..?
+				*reinterpret_cast<int*>(it->second) = 0;
+			}
 		}
 		messageBody(recipe, message, pos);
-	} catch (HTTP::BadRequestException) {
-		recipe.m_Status = static_cast<unsigned char>(400);
-	} catch (HTTP::MethodNotFoundException) {
-		recipe.m_Status = static_cast<unsigned char>(405);
-	} catch (HTTP::LengthRequriedException) {
-		recipe.m_Status = static_cast<unsigned char>(411);
-	} catch (HTTP::RequestEntityTooLongException) {
-		recipe.m_Status = static_cast<unsigned char>(413);
-	} catch (HTTP::RequestURITooLongException) {
-		recipe.m_Status = static_cast<unsigned char>(414);
-	} catch (HTTP::NotImplementedException) {
-		recipe.m_Status = static_cast<unsigned char>(501);
-	} catch (HTTP::HTTPVersionNotSupportException) {
-		recipe.m_Status = static_cast<unsigned char>(505);
+		return (message.substr(pos, message.size()));
+	} catch (HTTP::BadRequestException& e) {
+		recipe.m_RecipeStatus = E_HTTP::WRITE_FAIL;
+		recipe.m_HTTPStatus = static_cast<unsigned char>(400);
+	} catch (HTTP::MethodNotFoundException& e) {
+		recipe.m_RecipeStatus = E_HTTP::WRITE_FAIL;
+		recipe.m_HTTPStatus = static_cast<unsigned char>(405);
+	} catch (HTTP::LengthRequriedException& e) {
+		recipe.m_RecipeStatus = E_HTTP::WRITE_FAIL;
+		recipe.m_HTTPStatus = static_cast<unsigned char>(411);
+	} catch (HTTP::RequestEntityTooLongException& e) {
+		recipe.m_RecipeStatus = E_HTTP::WRITE_FAIL;
+		recipe.m_HTTPStatus = static_cast<unsigned char>(413);
+	} catch (HTTP::RequestURITooLongException& e) {
+		recipe.m_RecipeStatus = E_HTTP::WRITE_FAIL;
+		recipe.m_HTTPStatus = static_cast<unsigned char>(414);
+	} catch (HTTP::NotImplementedException& e) {
+		recipe.m_RecipeStatus = E_HTTP::WRITE_FAIL;
+		recipe.m_HTTPStatus = static_cast<unsigned char>(501);
+	} catch (HTTP::HTTPVersionNotSupportException& e) {
+		recipe.m_RecipeStatus = E_HTTP::WRITE_FAIL;
+		recipe.m_HTTPStatus = static_cast<unsigned char>(505);
+	} catch (HTTP::KeepReadHeaderException& e) {
+		recipe.m_RecipeStatus = E_HTTP::READ_HEADER;
 	}
-
-	return (recipe);
+	return ("");
 }

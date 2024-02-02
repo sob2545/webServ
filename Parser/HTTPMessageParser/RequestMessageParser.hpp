@@ -12,10 +12,11 @@
 #include "HTTPException/NotImplementedException.hpp"
 #include "HTTPException/HTTPVersionNotSupportException.hpp"
 #include "HTTPException/HTTPRequestParsingException.hpp"
+#include "HTTPException/KeepReadHeaderException.hpp"
 
 #include "../URIParser/URIParser.hpp"
 
-#include "../../MainLoop/Client/ClientData/ResponseRecipe.hpp"
+#include "../../MainLoop/Client/ClientData/RequestRecipe.hpp"
 
 
 namespace HTTP {
@@ -32,9 +33,9 @@ namespace HTTP {
 		static MethodMap_t		m_MethodMap;
 		static HeaderMap_t		m_HeaderMap;
 
-		static void		initMethodMap();
-		static void		initHeaderMap();
-		static bool		isDuplicatable(const unsigned short& status);
+		static void				initMethodMap();
+		static void				initHeaderMap();
+		static bool				isDuplicatable(const unsigned short& status);
 	
 	private:
 		// HTTP Util Parser
@@ -42,30 +43,30 @@ namespace HTTP {
 		static void					token(const std::string& message, std::size_t& pos, std::string& argument);
 
 		// HTTP Header Parser
-		static bool					argumentChecker(HTTP::ResponseRecipe& recipe, const std::vector<std::string>& args, const unsigned short& status);
+		static bool					argumentChecker(HTTP::RequestRecipe& recipe, const std::vector<std::string>& args, const unsigned short& status);
 		static const std::string	fieldContent(const std::string& message, std::size_t& pos, const unsigned short& status);
 		static unsigned short		fieldName(const std::string& message, std::size_t& pos);
 		static void					fieldValue(const std::string& message, std::size_t& pos, std::vector<std::string>& args, const unsigned short& status);
-		static void					fieldLine(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos, bool& checkBit);
+		static void					fieldLine(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos, bool& checkBit);
 
 		// HTTP Method, Version parsre
-		static void					HTTPVersion(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
-		static void					method(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
+		static void					HTTPVersion(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos);
+		static void					method(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos);
 
 		// HTTP Request Target Parser
 		// add Absolute-form / Authority-form
-		static bool					OriginForm(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
-		static void					requestTarget(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
-		static void					requestLine(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
+		static bool					originForm(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos);
+		static void					requestTarget(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos);
+		static void					requestLine(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos);
 
 		// HTTP Body Parser
-		static void					messageBody(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
-		static void					handleChunekdMsg(HTTP::ResponseRecipe& recipe, const std::string& message, std::size_t& pos);
+		static void					messageBody(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos);
+		static void					handleChunekdMsg(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos);
 
 	public:
 		RequestMessageParser();
 		~RequestMessageParser();
 
-		static HTTP::ResponseRecipe	Parser(HTTP::ResponseRecipe& recipe, const std::string& HTTPMessage);
+		static const std::string	Parser(HTTP::RequestRecipe& recipe, const std::string& HTTPMessage);
 	};
 }
