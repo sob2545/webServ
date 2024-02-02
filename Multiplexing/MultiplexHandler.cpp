@@ -1,4 +1,11 @@
 #include "MultiplexHandler.hpp"
+#include <sys/event.h>
+
+// TODO: delete
+#ifdef DEBUG
+#include <iostream>
+#include "../Utils/Color.hpp"
+#endif
 
 #ifdef __DARWIN__
 
@@ -37,7 +44,7 @@ void	MultiplexHandler::addServerEvent(const int& fd) {
 #if defined	(__DARWIN__)
 
 	SocketEvent::Event_t	newEvent;
-	EV_SET(&newEvent, fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	EV_SET(&newEvent, fd, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, NULL);
 	m_ChangeList.push_back(newEvent);
 
 #elif defined (__LINUX__)
@@ -54,13 +61,19 @@ void	MultiplexHandler::addServerEvent(const int& fd) {
 }
 
 void	MultiplexHandler::addClientEvent(const int& fd, const short& status) {
+#ifdef DEBUG	
+	std::cout << fd << "client event setter: " << status << std::endl;
+#endif
+
+
 	switch (status) {
-		case (E_EV::E_STATUS::READ): {
+		case (E_EV::READ): {
 #if defined	(__DARWIN__)
 
 			SocketEvent::Event_t	newEvent;
-			EV_SET(&newEvent, fd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+			EV_SET(&newEvent, fd, EVFILT_READ, EV_ADD | EV_ONESHOT | EV_CLEAR, 0, 0, NULL);
 			m_ChangeList.push_back(newEvent);
+
 
 #elif defined (__LINUX__)
 
@@ -73,12 +86,13 @@ void	MultiplexHandler::addClientEvent(const int& fd, const short& status) {
 			}
 
 #endif
+			break;
 		}
-		case (E_EV::E_STATUS::WRITE): {
+		case (E_EV::WRITE): {
 #if defined	(__DARWIN__)
 
 			SocketEvent::Event_t	newEvent;
-			EV_SET(&newEvent, fd, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+			EV_SET(&newEvent, fd, EVFILT_WRITE, EV_ADD | EV_ONESHOT | EV_CLEAR, 0, 0, NULL);
 			m_ChangeList.push_back(newEvent);
 
 #elif defined (__LINUX__)
@@ -98,9 +112,10 @@ void	MultiplexHandler::addClientEvent(const int& fd, const short& status) {
 
 
 MultiplexHandler::SocketEventVector_t		MultiplexHandler::eventHandler(const MultiplexHandler::EventTimer_t* timeout) {
-	SocketEventVector_t	res;
-	int					eventCount(0);
-	SocketEvent::Event_t		newEvents[1024];
+	SocketEventVector_t		res;
+	int						eventCount(0);
+	SocketEvent::Event_t	newEvents[1024];
+
 #if defined	(__DARWIN__)
 
 	eventCount = kevent(MultiplexHandler::instance().getFd(), &m_ChangeList[0], m_ChangeList.size(), &newEvents[0], MultiplexHandler::instance().getMaxEvent(), timeout);
@@ -110,6 +125,10 @@ MultiplexHandler::SocketEventVector_t		MultiplexHandler::eventHandler(const Mult
 
 	eventCount = epoll_wait(MultiplexHandler::instance().getFd(), newEvent, MultiplexHandler::instance().getMaxEvent(), *timeout);
 
+#endif
+
+#ifdef DEBUG
+	std::cout << BOLDRED << "kevent number: " << eventCount << std::endl << RESET;
 #endif
 
 	if (eventCount < 0) {
