@@ -26,7 +26,11 @@ CONF::ConfBlock*	CONF::ConfBlock::getInstance() {
 }
 
 CONF::ConfBlock::ConfBlock(const std::string& file, char** env) {
-	CONF::ConfFile::InitInstance(file);
+	try {
+		CONF::ConfFile::InitInstance(file);
+	} catch(FileException& e) {
+		// TODO: implement
+	}
 	ENV::EnvParser<EnvParserException>(this->m_MainBlock.setEnvMap(), env);
 
 	CONF::ConfBlock::m_MainBlock.initialize();
