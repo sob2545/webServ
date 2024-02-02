@@ -47,7 +47,7 @@ namespace HTTP {
 		static const std::string	fieldContent(const std::string& message, std::size_t& pos, const unsigned short& status);
 		static unsigned short		fieldName(const std::string& message, std::size_t& pos);
 		static void					fieldValue(const std::string& message, std::size_t& pos, std::vector<std::string>& args, const unsigned short& status);
-		static void					fieldLine(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos, bool& checkBit);
+		static bool					fieldLine(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos, bool& checkBit);
 
 		// HTTP Method, Version parsre
 		static void					HTTPVersion(HTTP::RequestRecipe& recipe, const std::string& message, std::size_t& pos);
