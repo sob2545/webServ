@@ -2,8 +2,6 @@
 #include <cstring>
 #include <sys/event.h>
 
-#include <iostream>
-
 SocketEvent::SocketEvent()
 : m_Status(0)
 {
@@ -21,11 +19,8 @@ SocketEvent::SocketEvent(const Event_t& other) {
 	// void* 넘겨줄 때 조심해야됨 (shared_ptr 등을 사용해도 소멸자가 호출되지 않음)
 	this->m_Event.udata = other.udata;
 
-	(this->m_Event.filter == EVFILT_READ) ? m_Status |= E_EV::READ : 0;
-	(this->m_Event.filter == EVFILT_WRITE) ? m_Status |= E_EV::WRITE : 0;
-	if (this->m_Event.filter == EVFILT_WRITE) {
-		std::cout << m_Event.ident << " is write event" << std::endl;
-	}
+	(this->m_Event.filter == EVFILT_READ) ? m_Status = E_EV::READ : 0;
+	(this->m_Event.filter == EVFILT_WRITE) ? m_Status = E_EV::WRITE : 0;
 
 #elif defined (__LINUX__)
 
@@ -89,7 +84,6 @@ const short&	SocketEvent::getStatus() const {
 }
 
 bool	SocketEvent::isReadEvent() const {
-	std::cout << m_Status << std::endl;
 	return (this->m_Status & E_EV::READ);
 }
 
