@@ -7,11 +7,11 @@
 std::map<std::string, unsigned short>	CONF::LocationBlock::m_LocationStatusMap;
 
 CONF::LocationBlock::LocationBlock(
-	const bool&			autoIndex,
-	const std::string&	root,
-	const std::string&	accessLog,
+	const bool&				autoIndex,
+	const std::string&		root,
+	const std::string&		accessLog,
 	const ErrorPageMap_t&	errorPage,
-	const Trie&			index
+	const Trie&				index
 )
 : AConfParser(),
   m_Autoindex(autoIndex),
