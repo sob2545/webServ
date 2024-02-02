@@ -25,7 +25,7 @@
 */
 
 template <typename T>
-void	errorCode(const std::string& fileContent) {
+void	checkRestFile(const std::string& fileContent) {
 	const std::size_t	fileSize = fileContent.size();
 	std::size_t*			Pos = MIME::MIMEFile::getInstance()->Pos();
 
@@ -142,7 +142,7 @@ void	typeBlock(const std::string& fileContent, MIME::MIMEMap_t& MIMEType) {
 	}
 	Pos[E_INDEX::FILE]++;
 	Pos[E_INDEX::COLUMN]++;
-	errorCode<T>(fileContent);
+	checkRestFile<T>(fileContent);
 }
 
 template <typename T>
