@@ -120,7 +120,7 @@ void	CONF::AConfParser::errorPageChecker(const std::vector<std::string>& args, E
 	const char&			startSymbol = args[argumentSize - 2][0];
 	CONF::errorPageData	data;
 	if (path[0] == '@') {
-		data.m_Type = E_ERRORPAGE::REPLACE;
+		data.m_Type = E_ERRORPAGE::LOCATION;
 	} else {
 		if (std::isdigit(static_cast<int>(startSymbol))) {
 			data.m_Type = E_ERRORPAGE::DEFAULT;
