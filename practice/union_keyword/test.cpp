@@ -25,7 +25,7 @@ struct AbsoluteFormType {
     ~AbsoluteFormType() {}
 };
 
-struct ResponseRecipe {
+struct RequestRecipe {
     typedef std::map<std::string, std::vector<std::string> > QueryMap_t;
 
     bool isChunk;
@@ -49,13 +49,13 @@ struct ResponseRecipe {
         AbsoluteFormType m_AbsoluteForm;
     };
 
-    ResponseRecipe(const std::string& test) {
+    RequestRecipe(const std::string& test) {
         m_OriginData.m_Path = test;
     }
     // 소멸자
-    ~ResponseRecipe() {}
+    ~RequestRecipe() {}
 };
 
 int main() {
-    ResponseRecipe test("test");
+    RequestRecipe test("test");
 }
