@@ -6,6 +6,7 @@
 namespace HTTP {
 	class	RequestURITooLongException : std::exception {
 	private:
+		std::string		m_Message;
 
 	public:
 		RequestURITooLongException();
@@ -13,6 +14,7 @@ namespace HTTP {
 		RequestURITooLongException& operator=(const RequestURITooLongException& other);
 		virtual ~RequestURITooLongException() throw();
 
-		virtual const char*	what() const throw();
+		virtual const char* what() const throw();
+		const std::string& getMessage() const;
 	};
 }
