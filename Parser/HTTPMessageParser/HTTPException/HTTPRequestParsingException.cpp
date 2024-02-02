@@ -4,7 +4,7 @@
 
 HTTP::HTTPRequestParsingException::HTTPRequestParsingException(const std::string& error, const std::string& message) {
 	std::stringstream	res;
-	res << BOLDRED << "Error: " << BOLDWHITE "ConfParserException: ConfFile::getInstance() is NULL" << RESET;
+	res << BOLDRED << error << " Error: " << BOLDWHITE << message << RESET;
 	m_Message = res.str();
 }
 
