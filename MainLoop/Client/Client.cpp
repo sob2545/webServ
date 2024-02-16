@@ -11,6 +11,10 @@ Client::Client(const int& serverFd)
 #else
 	m_Socket.accept(serverFd);
 #endif
+	this->m_Data.m_Method = 0;
+	this->m_Data.m_RecipeStatus = 0;
+	this->m_Data.m_Version = 0;
+	this->m_Data.m_HTTPStatus = 0;
 }
 
 Client::~Client() {}

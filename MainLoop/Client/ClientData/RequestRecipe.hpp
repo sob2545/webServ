@@ -94,9 +94,9 @@ namespace HTTP {
 		typedef	std::map<std::string, std::string> CookieMap_t;
 
 		unsigned char					m_Method;
-		unsigned short					m_HTTPStatus;
 		unsigned char					m_RecipeStatus;
 		unsigned char					m_Version;
+		unsigned short					m_HTTPStatus;
 
 		// bool			m_Form; // is it URI or Path : origin-form vs absolute-form / authoirty-form
 
