@@ -224,7 +224,17 @@ bool	HTTP::RequestMessageParser::fieldLine(HTTP::RequestRecipe& recipe, const st
 	const unsigned short	fieldStatus(fieldName(message, pos));
 	pos == message.size() ? throw KeepReadHeaderException() : 0;
 	(fieldStatus != 0 && !isDuplicatable(fieldStatus) && recipe.m_HTTPStatus & fieldStatus) ? throw BadRequestException() : 0;
+
+#ifdef DEBUG
+	std::cout << "field status number: " << (int)fieldStatus << std::endl;
+
+#endif
 	recipe.m_HTTPStatus |= fieldStatus;
+
+#ifdef DEBUG
+	std::cout << "after HTTP Status number: " << (int)recipe.m_HTTPStatus << std::endl;
+
+#endif
 	ABNF::compareOneCharacter(message, pos, BNF::E_RESERVED::COLON) ? 0 : throw BadRequestException();
 
 	std::vector<std::string>	args;
@@ -406,6 +416,7 @@ void	HTTP::RequestMessageParser::messageBody(HTTP::RequestRecipe& recipe, const 
 const std::string	HTTP::RequestMessageParser::Parser(HTTP::RequestRecipe& recipe, const std::string &message) {
 	std::size_t				pos(0);
 	bool					checkBit(false);
+	std::cout << "Parser recipe address: " << &recipe << std::endl;
 
 	// 만약 이전에 recipe를 만들었으면 (status로 비교)
 	try {
@@ -425,6 +436,7 @@ const std::string	HTTP::RequestMessageParser::Parser(HTTP::RequestRecipe& recipe
 		}
 		messageBody(recipe, message, pos);
 		const std::string restDat = message.substr(pos, message.size());
+		// std::cout << "final field: " << (int)recipe.m_HTTPStatus << std::endl;
 		return (message.substr(pos, message.size()));
 	} catch (HTTP::BadRequestException& e) {
 		recipe.m_RecipeStatus = E_HTTP::WRITE_FAIL;

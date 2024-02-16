@@ -43,12 +43,15 @@ void	WorkerEventHandler::recvFromClient(ft::shared_ptr<Client>& currClient) {
 }
 
 void	WorkerEventHandler::parseRequest(ft::shared_ptr<Client>& currClient) {
+	// HTTP::RequestRecipe* tmpRecipe = &(currClient->getRequestRecipe());
+	// const std::string&	restData = HTTP::RequestMessageParser::instance().Parser(*tmpRecipe, currClient->getReadBuffer());
+	// std::cout << "recipe address: " << &(currClient->getRequestRecipe()) << std::endl;
 	const std::string&	restData = HTTP::RequestMessageParser::instance().Parser(currClient->getRequestRecipe(), currClient->getReadBuffer());
 	currClient->setReadBuffer(restData);
 
 #ifdef DEBUG
+std::cout << currClient.get()->getFd() << "recpie status: " << (int)currClient->getRequestRecipe().m_HTTPStatus << std::endl; 
 std::cout << BOLDGREEN << "========= request data ===========\n";
-std::cout << "recpie status: " << (int)currClient->getRequestRecipe().m_HTTPStatus << std::endl; 
 switch(currClient->getRequestRecipe().m_Method) {
 	case (E_HTTP::GET) :
 		std::cout << "GET\n";
